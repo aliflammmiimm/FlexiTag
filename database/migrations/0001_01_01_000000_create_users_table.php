@@ -15,12 +15,13 @@ return new class extends Migration
             $table->id();
             $table->string('name', 100);
             $table->string('email', 150)->unique();
+            $table->string('password')->nullable();
+            $table->string('google_id', 100)->nullable()->index();
+            $table->enum('role', ['user', 'staff', 'admin'])->default('user')->index();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->enum('role', ['owner', 'admin'])->default('owner')->index();
+            $table->boolean('is_active')->default(true);
             $table->string('jabatan_admin', 100)->nullable();
             $table->string('no_whatsapp', 25)->nullable();
-            $table->boolean('two_factor_enabled')->default(false);
             $table->rememberToken();
             $table->timestamps();
         });
