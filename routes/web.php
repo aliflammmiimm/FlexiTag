@@ -47,6 +47,19 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
         Route::post('/settings/password', [SettingController::class, 'updatePassword'])->name('settings.password');
 
+        // Sub-modul Pengaturan & Administrasi Lanjutan (FR-ADM-08)
+        Route::post('/settings/users', [SettingController::class, 'storeUser'])->name('settings.users.store');
+        Route::put('/settings/users/{user}', [SettingController::class, 'updateUser'])->name('settings.users.update');
+        Route::post('/settings/users/{user}/toggle-status', [SettingController::class, 'toggleUserStatus'])->name('settings.users.toggleStatus');
+        Route::delete('/settings/users/{user}', [SettingController::class, 'deleteUser'])->name('settings.users.destroy');
+
+        Route::post('/settings/designs', [SettingController::class, 'storeDesign'])->name('settings.designs.store');
+        Route::post('/settings/designs/{design}/toggle-status', [SettingController::class, 'toggleDesignStatus'])->name('settings.designs.toggleStatus');
+        Route::delete('/settings/designs/{design}', [SettingController::class, 'deleteDesign'])->name('settings.designs.destroy');
+
+        Route::post('/settings/financial', [SettingController::class, 'storeFinancial'])->name('settings.financial.store');
+        Route::delete('/settings/financial/{entry}', [SettingController::class, 'deleteFinancial'])->name('settings.financial.destroy');
+
         // Message & Notification Drawer Routes (FR-ADM-09)
         Route::post('/messages/read-all', [MessageController::class, 'markAllAsRead'])->name('messages.readAll');
         Route::post('/messages/{id}/read', [MessageController::class, 'markAsRead'])->name('messages.read');

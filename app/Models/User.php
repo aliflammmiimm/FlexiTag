@@ -49,4 +49,53 @@ class User extends Authenticatable
     {
         return $this->hasMany(Tag::class, 'user_id');
     }
+
+    /**
+     * Role badge metadata.
+     */
+    public function getRoleBadgeAttribute(): array
+    {
+        return match ($this->role) {
+            'admin' => [
+                'label' => 'Super Admin',
+                'bg' => 'bg-[#FCF5E3]',
+                'text' => 'text-[#8C6D23]',
+                'dot' => 'bg-[#E5B32A]',
+            ],
+            'staff' => [
+                'label' => 'Staff Operasional',
+                'bg' => 'bg-[#F7EBEB]',
+                'text' => 'text-maroon',
+                'dot' => 'bg-maroon',
+            ],
+            default => [
+                'label' => 'Pengguna Tag',
+                'bg' => 'bg-[#F6F5F2]',
+                'text' => 'text-[#4A4A4A]',
+                'dot' => 'bg-[#8A8A85]',
+            ],
+        };
+    }
+
+    /**
+     * Active status badge metadata.
+     */
+    public function getStatusBadgeAttribute(): array
+    {
+        if ($this->is_active) {
+            return [
+                'label' => 'Aktif',
+                'bg' => 'bg-[#EAF5EC]',
+                'text' => 'text-[#2E7D32]',
+                'border' => 'border-[#C8E6C9]',
+            ];
+        }
+
+        return [
+            'label' => 'Diblokir',
+            'bg' => 'bg-[#FEE2E2]',
+            'text' => 'text-[#991B1B]',
+            'border' => 'border-[#FECACA]',
+        ];
+    }
 }
