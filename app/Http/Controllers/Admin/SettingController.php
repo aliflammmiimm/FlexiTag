@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -68,6 +69,8 @@ class SettingController extends Controller
             DB::table('settings')->updateOrInsert(['key' => $k], ['value' => $v, 'updated_at' => now()]);
         }
 
+        AuditLog::record('update_system_settings', 'Pengaturan sistem & nomor WhatsApp CS diperbarui oleh admin');
+
         return back()->with('success', 'Semua pengaturan sistem dan kredensial admin berhasil disimpan & diverifikasi.');
     }
 
@@ -91,6 +94,8 @@ class SettingController extends Controller
             $user->update([
                 'password' => Hash::make($request->password),
             ]);
+
+            AuditLog::record('update_admin_password', "Kata sandi administrator [{$user->email}] diperbarui");
         }
 
         return back()->with('success', 'Kata sandi administrator berhasil diperbarui.');

@@ -14,7 +14,7 @@
             </p>
         </div>
 
-        <!-- Filter & Export Toolbar -->
+        <!-- Filter & Export Toolbar (FR-ADM-06) -->
         <div class="flex flex-wrap items-center gap-2.5 shrink-0">
             
             <!-- Date Range Dropdown Button -->
@@ -30,13 +30,7 @@
                         <line x1="8" y1="2" x2="8" y2="6"/>
                         <line x1="3" y1="10" x2="21" y2="10"/>
                     </svg>
-                    <span id="selected-range-label">
-                        @if ($range === '7_days') 7 Hari Terakhir
-                        @elseif ($range === '90_days') 90 Hari Terakhir
-                        @elseif ($range === 'year') Tahun Ini
-                        @else 30 Hari Terakhir
-                        @endif
-                    </span>
+                    <span id="selected-range-label">{{ $rangeLabel }}</span>
                     <svg class="w-3.5 h-3.5 text-[#8A8A85]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
                     </svg>
@@ -47,9 +41,21 @@
                     <a href="{{ route('admin.analytics', ['range' => '7_days']) }}" class="block px-4 py-2 hover:bg-[#F6F5F2] {{ $range === '7_days' ? 'font-bold text-maroon' : 'text-[#4A4A4A]' }}">7 Hari Terakhir</a>
                     <a href="{{ route('admin.analytics', ['range' => '30_days']) }}" class="block px-4 py-2 hover:bg-[#F6F5F2] {{ $range === '30_days' || empty($range) ? 'font-bold text-maroon' : 'text-[#4A4A4A]' }}">30 Hari Terakhir</a>
                     <a href="{{ route('admin.analytics', ['range' => '90_days']) }}" class="block px-4 py-2 hover:bg-[#F6F5F2] {{ $range === '90_days' ? 'font-bold text-maroon' : 'text-[#4A4A4A]' }}">90 Hari Terakhir</a>
-                    <a href="{{ route('admin.analytics', ['range' => 'year']) }}" class="block px-4 py-2 hover:bg-[#F6F5F2] {{ $range === 'year' ? 'font-bold text-maroon' : 'text-[#4A4A4A]' }}">Tahun Ini (2025/2026)</a>
+                    <a href="{{ route('admin.analytics', ['range' => 'year']) }}" class="block px-4 py-2 hover:bg-[#F6F5F2] {{ $range === 'year' ? 'font-bold text-maroon' : 'text-[#4A4A4A]' }}">Tahun Ini</a>
                 </div>
             </div>
+
+            <!-- Download Report Button (FR-ADM-06) -->
+            <a 
+                href="{{ route('admin.analytics.exportCsv', ['range' => $range]) }}"
+                class="bg-white hover:bg-[#F9F7F4] border border-[#ECE8E1] rounded-2xl px-4 py-2.5 text-xs font-semibold text-[#1A1A1A] flex items-center gap-2 shadow-xs transition cursor-pointer"
+                title="Unduh laporan telemetri interaksi NFC dalam format CSV"
+            >
+                <svg class="w-4 h-4 text-maroon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>
+                </svg>
+                <span>Unduh Laporan (CSV)</span>
+            </a>
 
         </div>
     </div>
@@ -169,10 +175,10 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
                 <h3 class="text-base font-bold text-[#1A1A1A]">
-                    Frekuensi Scan NFC Harian (30 Hari Terakhir)
+                    Frekuensi Scan NFC Harian ({{ $rangeLabel }})
                 </h3>
                 <p class="text-xs text-[#737373] mt-0.5 font-normal">
-                    Statistik pemindaian langsung dari smartphone pengguna (Android &amp; iOS)
+                    Statistik pemindaian langsung dari smartphone pengguna (Android &amp; iOS) di Sulawesi Selatan
                 </p>
             </div>
 
@@ -209,51 +215,38 @@
                     </defs>
 
                     <!-- Horizontal Grid Lines and Y-Axis Labels -->
-                    <!-- 200 -->
+                    <!-- Max scale -->
                     <line x1="45" y1="45" x2="650" y2="45" stroke="#F0ECE7" stroke-width="1" />
-                    <text x="30" y="49" fill="#999999" font-size="11" font-weight="500" text-anchor="end">200</text>
+                    <text x="30" y="49" fill="#999999" font-size="11" font-weight="500" text-anchor="end">{{ $chartScale['y200'] }}</text>
 
-                    <!-- 150 -->
+                    <!-- 75% scale -->
                     <line x1="45" y1="85" x2="650" y2="85" stroke="#F0ECE7" stroke-width="1" />
-                    <text x="30" y="89" fill="#999999" font-size="11" font-weight="500" text-anchor="end">150</text>
+                    <text x="30" y="89" fill="#999999" font-size="11" font-weight="500" text-anchor="end">{{ $chartScale['y150'] }}</text>
 
-                    <!-- 100 -->
+                    <!-- 50% scale -->
                     <line x1="45" y1="125" x2="650" y2="125" stroke="#F0ECE7" stroke-width="1" />
-                    <text x="30" y="129" fill="#999999" font-size="11" font-weight="500" text-anchor="end">100</text>
+                    <text x="30" y="129" fill="#999999" font-size="11" font-weight="500" text-anchor="end">{{ $chartScale['y100'] }}</text>
 
-                    <!-- 50 -->
+                    <!-- 25% scale -->
                     <line x1="45" y1="165" x2="650" y2="165" stroke="#F0ECE7" stroke-width="1" />
-                    <text x="30" y="169" fill="#999999" font-size="11" font-weight="500" text-anchor="end">50</text>
+                    <text x="30" y="169" fill="#999999" font-size="11" font-weight="500" text-anchor="end">{{ $chartScale['y50'] }}</text>
 
                     <!-- 0 (Baseline) -->
                     <line x1="45" y1="205" x2="650" y2="205" stroke="#ECE8E1" stroke-width="1.2" />
                     <text x="30" y="209" fill="#999999" font-size="11" font-weight="500" text-anchor="end">0</text>
 
-                    <!-- Vertical Dotted Line for Peak (14 Mei at x=520) -->
-                    <line x1="520" y1="58" x2="520" y2="205" stroke="#D4AF37" stroke-width="1.5" stroke-dasharray="3,3" />
+                    <!-- Vertical Dotted Line for Peak -->
+                    <line x1="{{ $peakPoint['x'] }}" y1="{{ $peakPoint['y'] }}" x2="{{ $peakPoint['x'] }}" y2="205" stroke="#D4AF37" stroke-width="1.5" stroke-dasharray="3,3" />
 
                     <!-- Area Fill Polygon Under Curve -->
                     <path 
-                        d="M 45 195 
-                           C 90 185, 100 178, 140 170 
-                           C 180 160, 200 155, 235 148 
-                           C 275 140, 300 125, 335 112 
-                           C 375 95, 400 80, 435 70 
-                           C 470 60, 495 56, 520 58 
-                           C 555 60, 580 82, 615 72 
-                           L 615 205 L 45 205 Z" 
+                        d="{{ $areaPath }}" 
                         fill="url(#areaGradient)" 
                     />
 
                     <!-- Main Spline Stroke Curve -->
                     <path 
-                        d="M 45 195 
-                           C 90 185, 100 178, 140 170 
-                           C 180 160, 200 155, 235 148 
-                           C 275 140, 300 125, 335 112 
-                           C 375 95, 400 80, 435 70 
-                           C 470 60, 495 56, 520 58 
-                           C 555 60, 580 82, 615 72" 
+                        d="{{ $splinePath }}" 
                         fill="none" 
                         stroke="#540404" 
                         stroke-width="2.8" 
@@ -262,53 +255,42 @@
                     />
 
                     <!-- Data Point Circles -->
-                    <!-- 20 Apr (x=45, y=195) -->
-                    <circle cx="45" cy="195" r="4.5" fill="#FFFFFF" stroke="#540404" stroke-width="2.5" class="hover:r-6 cursor-pointer transition-all" />
+                    @foreach ($trendData as $point)
+                        @if ($point['is_peak'])
+                            <!-- Outer Halo -->
+                            <circle cx="{{ $point['x'] }}" cy="{{ $point['y'] }}" r="9" fill="#D4AF37" fill-opacity="0.3" />
+                            <!-- Gold Peak Node -->
+                            <circle cx="{{ $point['x'] }}" cy="{{ $point['y'] }}" r="5.5" fill="#D4AF37" stroke="#FFFFFF" stroke-width="2.2" class="cursor-pointer" />
+                        @else
+                            <circle cx="{{ $point['x'] }}" cy="{{ $point['y'] }}" r="4.5" fill="#FFFFFF" stroke="#540404" stroke-width="2.5" class="hover:r-6 cursor-pointer transition-all" />
+                        @endif
+                    @endforeach
 
-                    <!-- 25 Apr (x=140, y=170) -->
-                    <circle cx="140" cy="170" r="4.5" fill="#FFFFFF" stroke="#540404" stroke-width="2.5" class="hover:r-6 cursor-pointer transition-all" />
-
-                    <!-- 30 Apr (x=235, y=148) -->
-                    <circle cx="235" cy="148" r="4.5" fill="#FFFFFF" stroke="#540404" stroke-width="2.5" class="hover:r-6 cursor-pointer transition-all" />
-
-                    <!-- 05 Mei (x=335, y=112) -->
-                    <circle cx="335" cy="112" r="4.5" fill="#FFFFFF" stroke="#540404" stroke-width="2.5" class="hover:r-6 cursor-pointer transition-all" />
-
-                    <!-- 10 Mei (x=435, y=70) -->
-                    <circle cx="435" cy="70" r="4.5" fill="#FFFFFF" stroke="#540404" stroke-width="2.5" class="hover:r-6 cursor-pointer transition-all" />
-
-                    <!-- 14 Mei PEAK POINT (x=520, y=58) -->
-                    <!-- Outer Halo -->
-                    <circle cx="520" cy="58" r="9" fill="#D4AF37" fill-opacity="0.3" />
-                    <!-- Gold Peak Node -->
-                    <circle cx="520" cy="58" r="5.5" fill="#D4AF37" stroke="#FFFFFF" stroke-width="2.2" class="cursor-pointer" />
-
-                    <!-- 19 Mei (x=615, y=72) -->
-                    <circle cx="615" cy="72" r="4.5" fill="#FFFFFF" stroke="#540404" stroke-width="2.5" class="hover:r-6 cursor-pointer transition-all" />
-
-                    <!-- FLOATING TOOLTIP BOX (above 14 Mei Peak) -->
-                    <g transform="translate(520, 36)">
+                    <!-- FLOATING TOOLTIP BOX (above Peak) -->
+                    <g transform="translate({{ $peakPoint['x'] }}, {{ max(28, $peakPoint['y'] - 22) }})">
                         <!-- Tooltip Container Box -->
                         <rect x="-48" y="-24" width="96" height="26" rx="6" fill="#380208" filter="url(#glow)" />
                         <!-- Tooltip Pointer Arrow -->
                         <polygon points="-4,2 4,2 0,6" fill="#380208" />
                         <!-- Date text -->
-                        <text x="0" y="-12" fill="#F0C75E" font-size="8.5" font-weight="700" text-anchor="middle" letter-spacing="0.5">14 MEI 2025</text>
+                        <text x="0" y="-12" fill="#F0C75E" font-size="8.5" font-weight="700" text-anchor="middle" letter-spacing="0.5">{{ strtoupper($peakPoint['full_date']) }}</text>
                         <!-- Value text -->
-                        <text x="0" y="-2" fill="#FFFFFF" font-size="9.5" font-weight="800" text-anchor="middle">184 Tap (Peak)</text>
+                        <text x="0" y="-2" fill="#FFFFFF" font-size="9.5" font-weight="800" text-anchor="middle">{{ $peakPoint['peak_label'] }}</text>
                     </g>
 
                     <!-- X-Axis Date Labels -->
-                    <text x="45" y="228" fill="#737373" font-size="11" font-weight="500" text-anchor="middle">20 Apr</text>
-                    <text x="140" y="228" fill="#737373" font-size="11" font-weight="500" text-anchor="middle">25 Apr</text>
-                    <text x="235" y="228" fill="#737373" font-size="11" font-weight="500" text-anchor="middle">30 Apr</text>
-                    <text x="335" y="228" fill="#737373" font-size="11" font-weight="500" text-anchor="middle">05 Mei</text>
-                    <text x="435" y="228" fill="#737373" font-size="11" font-weight="500" text-anchor="middle">10 Mei</text>
-                    
-                    <!-- 14 Mei (Bold Highlighted Red) -->
-                    <text x="520" y="228" fill="#540404" font-size="11.5" font-weight="800" text-anchor="middle">14 Mei</text>
-
-                    <text x="615" y="228" fill="#737373" font-size="11" font-weight="500" text-anchor="middle">19 Mei</text>
+                    @foreach ($trendData as $point)
+                        <text 
+                            x="{{ $point['x'] }}" 
+                            y="228" 
+                            fill="{{ $point['is_peak'] ? '#540404' : '#737373' }}" 
+                            font-size="{{ $point['is_peak'] ? '11.5' : '11' }}" 
+                            font-weight="{{ $point['is_peak'] ? '800' : '500' }}" 
+                            text-anchor="middle"
+                        >
+                            {{ $point['date'] }}
+                        </text>
+                    @endforeach
                 </svg>
             </div>
         </div>
@@ -344,64 +326,25 @@
                             <!-- Background Track Circle -->
                             <circle cx="80" cy="80" r="58" fill="none" stroke="#F6F5F2" stroke-width="20" />
 
-                            <!-- Segment 1: Mode Kampus (45%) -->
-                            <!-- Perimeter = 2 * PI * 58 ≈ 364.42 -->
-                            <!-- 45% = 163.99 -->
-                            <circle 
-                                cx="80" 
-                                cy="80" 
-                                r="58" 
-                                fill="none" 
-                                stroke="#540404" 
-                                stroke-width="20" 
-                                stroke-dasharray="163.99 364.42" 
-                                stroke-dashoffset="0"
-                            />
-
-                            <!-- Segment 2: Mode UMKM & Bisnis (30%) -->
-                            <!-- 30% = 109.33, Offset = -163.99 -->
-                            <circle 
-                                cx="80" 
-                                cy="80" 
-                                r="58" 
-                                fill="none" 
-                                stroke="#D4AF37" 
-                                stroke-width="20" 
-                                stroke-dasharray="109.33 364.42" 
-                                stroke-dashoffset="-163.99"
-                            />
-
-                            <!-- Segment 3: Mode Kerja & Portofolio (15%) -->
-                            <!-- 15% = 54.66, Offset = -(163.99 + 109.33) = -273.32 -->
-                            <circle 
-                                cx="80" 
-                                cy="80" 
-                                r="58" 
-                                fill="none" 
-                                stroke="#1A1A1A" 
-                                stroke-width="20" 
-                                stroke-dasharray="54.66 364.42" 
-                                stroke-dashoffset="-273.32"
-                            />
-
-                            <!-- Segment 4: Mode Barang Hilang (10%) -->
-                            <!-- 10% = 36.44, Offset = -(273.32 + 54.66) = -327.98 -->
-                            <circle 
-                                cx="80" 
-                                cy="80" 
-                                r="58" 
-                                fill="none" 
-                                stroke="#A39E93" 
-                                stroke-width="20" 
-                                stroke-dasharray="36.44 364.42" 
-                                stroke-dashoffset="-327.98"
-                            />
+                            <!-- Dynamic Segments from Mode Distribution -->
+                            @foreach ($modeBreakdown as $mode)
+                                <circle 
+                                    cx="80" 
+                                    cy="80" 
+                                    r="58" 
+                                    fill="none" 
+                                    stroke="{{ $mode['color'] }}" 
+                                    stroke-width="20" 
+                                    stroke-dasharray="{{ $mode['dash_array'] }}" 
+                                    stroke-dashoffset="{{ $mode['dash_offset'] }}"
+                                />
+                            @endforeach
                         </svg>
 
                         <!-- Center Label inside Donut -->
                         <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
                             <span class="text-xl font-extrabold text-[#1A1A1A] leading-tight">
-                                3.420
+                                {{ $metrics['total_tap'] }}
                             </span>
                             <span class="text-[8.5px] uppercase font-bold tracking-wider text-[#8A8A85]">
                                 Total Tap
@@ -436,10 +379,10 @@
             <!-- Card Footer: Kategori Terbanyak -->
             <div class="border-t border-[#F2EEE9] pt-4 mt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs">
                 <span class="text-[#737373]">
-                    Kategori terbanyak: <strong class="text-[#1A1A1A]">Kartu Identitas Mahasiswa UNHAS</strong>
+                    Mode terbanyak: <strong class="text-[#1A1A1A]">{{ $mostActiveMode['name'] }}</strong>
                 </span>
                 <a href="{{ route('admin.tags') }}" class="font-bold text-maroon hover:text-[#5A0000] flex items-center gap-1 transition">
-                    <span>Detail Profil</span>
+                    <span>Detail Profil Tag</span>
                     <span class="text-sm">→</span>
                 </a>
             </div>

@@ -381,15 +381,38 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        // 7. Seed Taps
-        if ($tagId) {
-            DB::table('taps')->insertOrIgnore([
-                'tag_id' => $tagId,
-                'tapped_at' => now()->subHours(2),
-                'source' => 'nfc',
-                'device_type' => 'Android Smartphone',
-                'region' => 'Makassar, Indonesia',
-            ]);
+        // 7. Seed Taps Telemetry (FR-ADM-06)
+        $activeTagIds = DB::table('tags')->where('status', 'aktif')->pluck('id')->toArray();
+        if (empty($activeTagIds) && $tagId) {
+            $activeTagIds = [$tagId];
+        }
+
+        if (! empty($activeTagIds)) {
+            $regionsList = [
+                'Kota Makassar', 'Kota Makassar', 'Kota Makassar',
+                'Kab. Pangkep', 'Kab. Gowa', 'Tana Toraja',
+            ];
+            $devicesList = ['Android Smartphone', 'iOS (iPhone)', 'Android Smartphone'];
+            $sourcesList = ['nfc', 'nfc', 'nfc', 'qr', 'link'];
+
+            $tapRows = [];
+            // Seed taps across the last 30 days
+            for ($day = 30; $day >= 0; $day--) {
+                $tapsToday = ($day === 5) ? 14 : (($day % 3 === 0) ? 8 : 4); // peak on day 5
+                for ($k = 0; $k < $tapsToday; $k++) {
+                    $tapRows[] = [
+                        'tag_id' => $activeTagIds[array_rand($activeTagIds)],
+                        'tapped_at' => now()->subDays($day)->addHours(rand(8, 20))->addMinutes(rand(0, 59)),
+                        'source' => $sourcesList[array_rand($sourcesList)],
+                        'device_type' => $devicesList[array_rand($devicesList)],
+                        'region' => $regionsList[array_rand($regionsList)],
+                    ];
+                }
+            }
+
+            foreach (array_chunk($tapRows, 50) as $chunk) {
+                DB::table('taps')->insert($chunk);
+            }
         }
 
         // 8. Seed Designs (Katalog Ganci)

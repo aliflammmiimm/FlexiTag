@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -58,6 +59,8 @@ class MessageController extends Controller
                 ]);
 
             DB::table('messages')->where('id', $messageId)->update(['read_at' => now()]);
+
+            AuditLog::record('block_tag_abuse', "Tag milik User #{$message->user_id} dinonaktifkan darurat via laporan abuse #{$messageId}");
 
             return back()->with('success', 'Tag terkait pengguna berhasil dinonaktifkan demi keamanan.');
         }
