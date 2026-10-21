@@ -15,11 +15,12 @@ return new class extends Migration
             $table->id();
             $table->string('id_batch', 50)->unique();
             $table->enum('jenis_produk', [
-                'gantungan_akrilik',
-                'gelang_karet',
-                'lanyard_tenun',
-                'stiker_nfc',
-            ]);
+                'ganci_bulat',
+                'ganci_persegi',
+                'ganci_motif_toraja',
+                'ganci_motif_bugis',
+                'ganci_custom',
+            ])->default('ganci_bulat');
             $table->enum('edisi_budaya', [
                 'pateddong',
                 'saqbe',

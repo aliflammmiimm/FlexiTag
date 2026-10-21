@@ -42,7 +42,7 @@ class DatabaseSeeder extends Seeder
         // 2. Sample Tag Batch
         $batchId = DB::table('tag_batches')->insertGetId([
             'id_batch' => '#B-882',
-            'jenis_produk' => 'gantungan_akrilik',
+            'jenis_produk' => 'ganci_persegi',
             'edisi_budaya' => 'pateddong',
             'spesifikasi_ic' => 'NTAG215',
             'jumlah_tag' => 200,
@@ -76,14 +76,14 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        // 4. Sample Orders matching screenshot
+        // 4. Sample Orders matching ganci-only variations
         $sampleOrders = [
             [
                 'id_pesanan' => '#ORD-048',
                 'nama_pembeli' => 'Budi Santoso',
                 'kota_pembeli' => 'Makassar',
                 'no_wa_pembeli' => '081234567801',
-                'jenis_produk_dipesan' => 'gantungan_akrilik',
+                'jenis_produk_dipesan' => 'ganci_persegi',
                 'edisi_budaya' => 'pateddong',
                 'tag_id' => $tagIds[0] ?? null,
                 'total_harga' => 125000,
@@ -97,7 +97,7 @@ class DatabaseSeeder extends Seeder
                 'nama_pembeli' => 'Nurul Aisyah',
                 'kota_pembeli' => 'Gowa',
                 'no_wa_pembeli' => '081234567802',
-                'jenis_produk_dipesan' => 'gelang_karet',
+                'jenis_produk_dipesan' => 'ganci_bulat',
                 'edisi_budaya' => 'saqbe',
                 'tag_id' => null, // Belum aktif
                 'total_harga' => 95000,
@@ -111,7 +111,7 @@ class DatabaseSeeder extends Seeder
                 'nama_pembeli' => 'Rahmat Hidayat',
                 'kota_pembeli' => 'Maros',
                 'no_wa_pembeli' => '081234567803',
-                'jenis_produk_dipesan' => 'stiker_nfc',
+                'jenis_produk_dipesan' => 'ganci_motif_toraja',
                 'edisi_budaya' => 'sulapa_eppa',
                 'tag_id' => $tagIds[1] ?? null,
                 'total_harga' => 150000,
@@ -125,7 +125,7 @@ class DatabaseSeeder extends Seeder
                 'nama_pembeli' => 'Dewi Sartika',
                 'kota_pembeli' => 'Makassar',
                 'no_wa_pembeli' => '081234567804',
-                'jenis_produk_dipesan' => 'gantungan_akrilik',
+                'jenis_produk_dipesan' => 'ganci_bulat',
                 'edisi_budaya' => 'pabarre_allo',
                 'tag_id' => $tagIds[2] ?? null,
                 'total_harga' => 125000,
@@ -139,7 +139,7 @@ class DatabaseSeeder extends Seeder
                 'nama_pembeli' => 'Fajar Pratama',
                 'kota_pembeli' => 'Parepare',
                 'no_wa_pembeli' => '081234567805',
-                'jenis_produk_dipesan' => 'lanyard_tenun',
+                'jenis_produk_dipesan' => 'ganci_custom',
                 'edisi_budaya' => 'saqbe',
                 'tag_id' => null, // Belum aktif
                 'total_harga' => 110000,

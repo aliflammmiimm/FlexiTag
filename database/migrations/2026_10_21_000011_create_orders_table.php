@@ -18,11 +18,12 @@ return new class extends Migration
             $table->string('kota_pembeli', 100);
             $table->string('no_wa_pembeli', 25);
             $table->enum('jenis_produk_dipesan', [
-                'gantungan_akrilik',
-                'gelang_karet',
-                'lanyard_tenun',
-                'stiker_nfc',
-            ]);
+                'ganci_bulat',
+                'ganci_persegi',
+                'ganci_motif_toraja',
+                'ganci_motif_bugis',
+                'ganci_custom',
+            ])->default('ganci_bulat');
             $table->enum('edisi_budaya', [
                 'pateddong',
                 'saqbe',

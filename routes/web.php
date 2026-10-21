@@ -1,12 +1,22 @@
 <?php
 
+use App\Http\Controllers\Admin\AnalyticsController;
 use App\Http\Controllers\Admin\AuthController;
+use App\Http\Controllers\Admin\BatchController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\TagController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('admin.dashboard');
 });
+
+// Alias for standard Laravel auth redirection
+Route::get('/login', function () {
+    return redirect()->route('admin.login');
+})->name('login');
 
 // Admin Authentication & Console Routes
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -20,5 +30,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/generate', [BatchController::class, 'index'])->name('generate');
+        Route::post('/generate', [BatchController::class, 'store'])->name('generate.store');
+        Route::get('/tags', [TagController::class, 'index'])->name('tags');
+        Route::get('/orders', [OrderController::class, 'index'])->name('orders');
+        Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics');
+        Route::get('/settings', [SettingController::class, 'index'])->name('settings');
+        Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
+        Route::post('/settings/password', [SettingController::class, 'updatePassword'])->name('settings.password');
     });
 });
