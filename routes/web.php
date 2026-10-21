@@ -34,9 +34,15 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/generate', [BatchController::class, 'store'])->name('generate.store');
         Route::get('/tags', [TagController::class, 'index'])->name('tags');
         Route::get('/orders', [OrderController::class, 'index'])->name('orders');
+        Route::post('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.status');
         Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics');
         Route::get('/settings', [SettingController::class, 'index'])->name('settings');
         Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
         Route::post('/settings/password', [SettingController::class, 'updatePassword'])->name('settings.password');
+
+        // Message & Notification Drawer Routes (FR-ADM-09)
+        Route::post('/messages/read-all', [MessageController::class, 'markAllAsRead'])->name('messages.readAll');
+        Route::post('/messages/{id}/read', [MessageController::class, 'markAsRead'])->name('messages.read');
+        Route::post('/messages/{id}/deactivate-tag', [MessageController::class, 'deactivateTag'])->name('messages.deactivateTag');
     });
 });

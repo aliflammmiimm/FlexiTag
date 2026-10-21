@@ -213,20 +213,21 @@
                                 type="text" 
                                 name="prefix_kode" 
                                 id="prefix_kode" 
-                                value="FLX-2025-" 
+                                value="FLX-2026-" 
+                                placeholder="FLX-2026-"
                                 required
                                 class="w-full bg-transparent text-xs text-[#1A1A1A] font-bold tracking-wider placeholder-[#9E9E98] focus:outline-none"
                             >
                         </div>
                         
                         <!-- Format hint -->
-                        <div class="flex items-center gap-1.5 text-[11px] text-[#737373] mt-2">
-                            <svg class="w-3.5 h-3.5 text-[#8A8A85] shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <div class="flex items-start gap-1.5 text-[11px] text-[#737373] mt-2">
+                            <svg class="w-3.5 h-3.5 text-[#8A8A85] shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <circle cx="12" cy="12" r="9"/>
                                 <line x1="12" y1="8" x2="12" y2="12"/>
                                 <line x1="12" y1="16" x2="12.01" y2="16"/>
                             </svg>
-                            <span>Format output unik: <strong class="text-[#1A1A1A]">FLX-2025-XXXXX</strong> (Hex-Alpha hash)</span>
+                            <span class="leading-relaxed">Format kode unik belakang (tag_code &amp; activation_code) di-generate secara acak kriptografis (non-sequential) untuk mencegah tebakan URL publik.</span>
                         </div>
                     </div>
 

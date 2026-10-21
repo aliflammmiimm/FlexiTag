@@ -108,17 +108,26 @@ class BatchController extends Controller
         // Generate N tags and prepare CSV data
         $tagsData = [];
         $csvRows = [];
-        $csvRows[] = ['No', 'ID_Batch', 'Tag_Code', 'Kode_Aktivasi', 'Status', 'Jenis_Produk', 'Edisi_Budaya', 'URL_Tap'];
+        $csvRows[] = ['No', 'ID_Batch', 'Tag_Code', 'Kode_Aktivasi_PlainText', 'Status', 'Jenis_Produk', 'Edisi_Budaya', 'URL_Publik_Tag'];
+
+        $existingTagCodes = [];
 
         for ($i = 1; $i <= $count; $i++) {
-            $uniqueHash = strtoupper(Str::random(5));
-            $activationCode = $prefix.$uniqueHash;
-            $tagCode = 'FLX-'.strtoupper(Str::random(6));
+            // a. Cryptographically random alphanumeric tag_code (10 characters: non-sequential)
+            do {
+                $tagCode = 'FLX-'.strtoupper(Str::random(7)); // Total 11 chars (fits VARCHAR 12)
+            } while (isset($existingTagCodes[$tagCode]) || DB::table('tags')->where('tag_code', $tagCode)->exists());
+            $existingTagCodes[$tagCode] = true;
+
+            // b. Plain-text activation code generated once for CSV, stored as SHA-256 hash in DB
+            $plainActivationCode = $prefix.strtoupper(Str::random(8));
+            $hashedActivationCode = hash('sha256', $plainActivationCode);
+
             $tapUrl = url('/u/'.$tagCode);
 
             $tagsData[] = [
                 'tag_code' => $tagCode,
-                'activation_code' => $activationCode,
+                'activation_code' => $hashedActivationCode,
                 'user_id' => null,
                 'status' => 'belum_aktif',
                 'disabled_by' => null,
@@ -129,11 +138,12 @@ class BatchController extends Controller
                 'updated_at' => now(),
             ];
 
+            // Plain-text activation code only present in downloaded CSV
             $csvRows[] = [
                 $i,
                 $batchCode,
                 $tagCode,
-                $activationCode,
+                $plainActivationCode,
                 'belum_aktif',
                 $validated['jenis_produk'],
                 $validated['edisi_budaya'],

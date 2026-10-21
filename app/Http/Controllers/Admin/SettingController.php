@@ -42,7 +42,9 @@ class SettingController extends Controller
             'name' => ['required', 'string', 'max:100'],
             'jabatan_admin' => ['required', 'string', 'max:100'],
             'email' => ['required', 'email', 'max:100'],
-            'no_wa_cs_pusat' => ['required', 'string', 'max:30'],
+            'no_wa_cs_pusat' => ['required', 'string', 'max:30', 'regex:/^(\+628|628)[0-9]{8,13}$/'],
+        ], [
+            'no_wa_cs_pusat.regex' => 'Nomor WhatsApp CS harus diawali kode negara (+628... atau 628...).',
         ]);
 
         /** @var User $user */

@@ -477,16 +477,48 @@ class DatabaseSeeder extends Seeder
             ],
         ]);
 
-        // 12. Seed Messages
+        // 12. Seed Messages (FR-ADM-09: Abuse Reports, Contact Messages, Lost Items)
         DB::table('messages')->insertOrIgnore([
-            'type' => 'lost_item',
-            'user_id' => $user->id,
-            'sender_name' => 'Rahmat Hidayat (Satpam Gedung LK Unhas)',
-            'location' => 'Lobby Gedung LK Fakultas Teknik Gowa',
-            'message' => 'Selamat sore Pak Budi, gantungan kunci FlexiTag Anda tertinggal di atas meja lobi satpam. Silakan diambil saat jam dinas.',
-            'contact' => '085255123456',
-            'read_at' => now()->subMinutes(30),
-            'created_at' => now()->subHours(1),
+            [
+                'type' => 'abuse_report',
+                'user_id' => $user->id,
+                'sender_name' => 'Warga Kampus Peduli',
+                'location' => 'Tamalanrea, Makassar',
+                'message' => 'Laporan indikasi konten profil tag publik memuat tautan mencurigakan pada tautan sosial media.',
+                'contact' => '081299887766',
+                'read_at' => null, // Unread to demonstrate FR-ADM-09 red dot
+                'created_at' => now()->subMinutes(45),
+            ],
+            [
+                'type' => 'contact',
+                'user_id' => null,
+                'sender_name' => 'Fadli Rahman (Ketua Panitia Wisuda)',
+                'location' => 'Makassar',
+                'message' => 'Halo Admin FlexiTag, kami berminat memesan 150 pcs ganci custom akrilik motif Toraja untuk cinderamata wisuda angkatan kami. Apakah ada penawaran khusus organisasi?',
+                'contact' => 'fadli.rahman@gmail.com',
+                'read_at' => null, // Unread
+                'created_at' => now()->subHours(2),
+            ],
+            [
+                'type' => 'contact',
+                'user_id' => null,
+                'sender_name' => 'Ibu Marlina (Owner Sutera Bugis)',
+                'location' => 'Sengkang, Wajo',
+                'message' => 'Selamat siang, saya ingin konsultasi penempelan chip NFC pada kain tenun sutera dan gantungan kunci kemasan oleh-oleh khas.',
+                'contact' => '082187654321',
+                'read_at' => now()->subDay(),
+                'created_at' => now()->subDays(1),
+            ],
+            [
+                'type' => 'lost_item',
+                'user_id' => $user->id,
+                'sender_name' => 'Rahmat Hidayat (Satpam Gedung LK Unhas)',
+                'location' => 'Lobby Gedung LK Fakultas Teknik Gowa',
+                'message' => 'Selamat sore Pak Budi, gantungan kunci FlexiTag Anda tertinggal di atas meja lobi satpam. Silakan diambil saat jam dinas.',
+                'contact' => '085255123456',
+                'read_at' => now()->subMinutes(30),
+                'created_at' => now()->subHours(4),
+            ],
         ]);
 
         // 13. Seed Audit Logs

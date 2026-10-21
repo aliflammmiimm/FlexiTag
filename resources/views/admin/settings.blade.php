@@ -92,7 +92,7 @@
                         name="name" 
                         id="name" 
                         required
-                        value="{{ old('name', $user->name ?? 'Baharuddin') }}"
+                        value="{{ old('name', Auth::user()->name ?? ($user->name ?? '')) }}"
                         class="w-full bg-[#F8F7F4] hover:bg-[#F2F1ED] focus:bg-white text-xs font-bold text-[#1A1A1A] py-3 px-4 rounded-2xl border border-[#ECE8E1] focus:outline-none focus:ring-2 focus:ring-[#8B0000]/10 focus:border-[#8B0000] shadow-xs transition"
                     >
                     <span class="text-[11px] text-[#8A8A85] font-normal block mt-1.5">
@@ -110,11 +110,11 @@
                         name="jabatan_admin" 
                         id="jabatan_admin" 
                         required
-                        value="{{ old('jabatan_admin', $user->jabatan_admin ?? 'Ops Lead Makassar') }}"
+                        value="{{ old('jabatan_admin', Auth::user()->jabatan_admin ?? 'Administrator') }}"
                         class="w-full bg-[#F8F7F4] hover:bg-[#F2F1ED] focus:bg-white text-xs font-bold text-[#1A1A1A] py-3 px-4 rounded-2xl border border-[#ECE8E1] focus:outline-none focus:ring-2 focus:ring-[#8B0000]/10 focus:border-[#8B0000] shadow-xs transition"
                     >
                     <span class="text-[11px] text-[#8A8A85] font-normal block mt-1.5">
-                        Akses penuh tingkat Administrator Konsol.
+                        Akses penuh tingkat Administrator Konsol ({{ ucfirst(Auth::user()->role ?? 'admin') }}).
                     </span>
                 </div>
 
@@ -128,7 +128,7 @@
                         name="email" 
                         id="email" 
                         required
-                        value="{{ old('email', $user->email ?? 'admin@flexitag.id') }}"
+                        value="{{ old('email', Auth::user()->email ?? ($user->email ?? 'admin@flexitag.id')) }}"
                         class="w-full bg-[#F8F7F4] hover:bg-[#F2F1ED] focus:bg-white text-xs font-bold text-[#1A1A1A] py-3 px-4 rounded-2xl border border-[#ECE8E1] focus:outline-none focus:ring-2 focus:ring-[#8B0000]/10 focus:border-[#8B0000] shadow-xs transition"
                     >
                     <span class="text-[11px] text-[#8A8A85] font-normal block mt-1.5">
@@ -146,11 +146,13 @@
                         name="no_wa_cs_pusat" 
                         id="no_wa_cs_pusat" 
                         required
-                        value="{{ old('no_wa_cs_pusat', $settings->no_wa_cs_pusat ?? '+62 812-3456-7890') }}"
+                        placeholder="+6281234567890"
+                        pattern="(\+628|628)[0-9]{8,13}"
+                        value="{{ old('no_wa_cs_pusat', $settings->no_wa_cs_pusat ?? '+6281234567890') }}"
                         class="w-full bg-[#F8F7F4] hover:bg-[#F2F1ED] focus:bg-white text-xs font-bold text-[#1A1A1A] py-3 px-4 rounded-2xl border border-[#ECE8E1] focus:outline-none focus:ring-2 focus:ring-[#8B0000]/10 focus:border-[#8B0000] shadow-xs transition font-mono"
                     >
                     <span class="text-[11px] text-[#8A8A85] font-normal block mt-1.5">
-                        Nomor pusat bantuan dan kontak eskalasi darurat.
+                        Wajib diawali kode negara (+628... atau 628...). Nomor pusat bantuan dan eskalasi.
                     </span>
                 </div>
 
@@ -211,19 +213,19 @@
             <!-- Toggles List -->
             <div class="divide-y divide-[#F2EEE9]">
                 
-                <!-- Toggle 1: Sistem Relay WhatsApp -->
+                <!-- Toggle 1: Sistem Relay Pesan Darurat -->
                 <div class="py-4.5 flex items-center justify-between gap-4">
                     <div class="pr-4">
                         <div class="flex items-center gap-2">
                             <span class="text-xs font-bold text-[#1A1A1A]">
-                                Sistem Relay WhatsApp (Mode Barang Hilang)
+                                Sistem Relay Pesan Darurat (Mode Barang Hilang)
                             </span>
                             <span class="bg-gold-accent text-[#380208] text-[9.5px] font-extrabold uppercase px-2 py-0.5 rounded-full">
                                 AKTIF
                             </span>
                         </div>
                         <p class="text-xs text-[#737373] mt-0.5 leading-relaxed">
-                            Teruskan pesan penemu barang secara otomatis ke WhatsApp pemilik melalui gateway pesan terenkripsi.
+                            Aktifkan penerusan pesan otomatis dari penemu barang langsung ke Email (SMTP) &amp; Kotak Masuk Dashboard pemilik.
                         </p>
                     </div>
 

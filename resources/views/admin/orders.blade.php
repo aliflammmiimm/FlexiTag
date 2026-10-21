@@ -1,92 +1,53 @@
 @extends('layouts.admin')
 
-@section('title', 'Manajemen Pesanan & Tag')
+@section('title', 'Daftar Pesanan & Pelacakan SRS')
 
 @section('content')
-    <!-- Page Title & Search Toolbar -->
-    <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-5 mb-7">
-        <div>
-            <h2 class="text-2xl sm:text-[26px] font-bold text-[#1A1A1A] tracking-tight">
-                Manajemen Pesanan &amp; Tag
-            </h2>
-            <p class="text-xs text-[#737373] mt-1 font-normal max-w-xl leading-relaxed">
-                Kelola distribusi gantungan kunci (ganci) pintar NFC — variasi bentuk bulat, persegi, motif Toraja, motif Bugis, hingga custom request.
-            </p>
-        </div>
+<div class="space-y-7">
 
-        <!-- Filter & Action Toolbar -->
-        <div class="flex flex-wrap items-center gap-2.5 shrink-0">
-            <!-- Search Input Form -->
-            <form action="{{ route('admin.orders') }}" method="GET" class="relative">
-                <input type="hidden" name="status" value="{{ $statusFilter }}">
-                <svg class="w-4 h-4 text-[#8A8A85] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <circle cx="11" cy="11" r="8"/>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    <!-- Flash Message Notification -->
+    @if (session('success'))
+        <div class="p-4 rounded-2xl bg-[#EAF5EC] border border-[#C8E6C9] text-xs text-[#2E7D32] flex items-center justify-between shadow-xs">
+            <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 shrink-0 text-[#2E7D32]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
-                <input 
-                    type="text" 
-                    name="search" 
-                    value="{{ $search }}"
-                    placeholder="Cari ID pesanan atau nama pembeli..." 
-                    class="w-60 sm:w-68 bg-white border border-[#ECE8E1] rounded-2xl pl-10 pr-4 py-2 text-xs text-[#1A1A1A] placeholder-[#9E9E98] focus:outline-none focus:ring-2 focus:ring-[#8B0000]/10 focus:border-[#8B0000] shadow-xs transition"
-                >
-            </form>
-
-            <!-- Status Dropdown Filter -->
-            <div class="relative">
-                <button 
-                    type="button" 
-                    onclick="toggleOrderStatusDropdown()" 
-                    class="bg-white hover:bg-[#F9F7F4] border border-[#ECE8E1] rounded-2xl px-3.5 py-2 text-xs font-semibold text-[#1A1A1A] flex items-center gap-2 shadow-xs transition cursor-pointer"
-                >
-                    <svg class="w-3.5 h-3.5 text-[#8A8A85]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 4.5h18m-14 7.5h10m-7 7.5h4"/>
-                    </svg>
-                    <span>{{ $statusFilter === 'perlu_dikirim' ? 'Status: Pending' : ($statusFilter === 'terkirim' ? 'Status: Terkirim' : 'Semua Status') }}</span>
-                    <svg class="w-3 h-3 text-[#8A8A85]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
-                    </svg>
-                </button>
-                <div id="order-status-dropdown" class="hidden absolute right-0 mt-1.5 w-44 bg-white rounded-2xl shadow-xl border border-[#ECE8E1] py-1.5 z-40 text-xs">
-                    <a href="{{ route('admin.orders', ['status' => 'all', 'search' => $search]) }}" class="block px-4 py-2 hover:bg-[#F6F5F2] {{ $statusFilter === 'all' ? 'font-bold text-maroon' : 'text-[#4A4A4A]' }}">Semua Status</a>
-                    <a href="{{ route('admin.orders', ['status' => 'perlu_dikirim', 'search' => $search]) }}" class="block px-4 py-2 hover:bg-[#F6F5F2] {{ $statusFilter === 'perlu_dikirim' ? 'font-bold text-maroon' : 'text-[#4A4A4A]' }}">Perlu Dikirim (Pending)</a>
-                    <a href="{{ route('admin.orders', ['status' => 'terkirim', 'search' => $search]) }}" class="block px-4 py-2 hover:bg-[#F6F5F2] {{ $statusFilter === 'terkirim' ? 'font-bold text-maroon' : 'text-[#4A4A4A]' }}">Terkirim &amp; Selesai</a>
-                </div>
+                <span class="font-semibold">{{ session('success') }}</span>
             </div>
+            <button type="button" onclick="this.parentElement.remove()" class="text-[#2E7D32] hover:opacity-75 font-bold text-sm">✕</button>
         </div>
-    </div>
+    @endif
 
     <!-- ========================================================= -->
-    <!-- TOP 3 METRIC CARDS                                        -->
+    <!-- TOP STATS ROW (3 SUMMARY CARDS)                           -->
     <!-- ========================================================= -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-7">
-
-        <!-- Card 1: INVENTARIS HARDWARE -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        
+        <!-- Card 1: TOTAL HARDWARE -->
         <div class="bg-white rounded-3xl p-5 sm:p-6 border border-[#ECE8E1] shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex items-center justify-between">
             <div>
                 <span class="text-[10px] font-bold tracking-wider text-[#8A8A85] uppercase block">
-                    Inventaris Hardware
+                    Total Hardware Ganci
                 </span>
                 <div class="flex items-baseline gap-2 mt-2">
                     <h3 class="text-3xl font-extrabold text-[#1A1A1A] tracking-tight">
-                        {{ $metrics['total_hardware'] }}
+                        {{ number_format($metrics['total_hardware'], 0, ',', '.') }}
                     </h3>
-                    <span class="text-xs font-medium text-[#737373]">Total Tag</span>
+                    <span class="text-xs font-medium text-[#737373]">Tercetak/Stok</span>
                 </div>
             </div>
-            <div class="w-11 h-11 rounded-2xl bg-[#F7EBEB] text-[#8B3A3A] flex items-center justify-center shrink-0">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <rect x="4" y="4" width="16" height="16" rx="2"/>
-                    <rect x="9" y="9" width="6" height="6"/>
+            <div class="w-11 h-11 rounded-2xl bg-[#FCF5E3] text-[#B8860B] flex items-center justify-center shrink-0">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9"/>
                 </svg>
             </div>
         </div>
 
-        <!-- Card 2: AKTIVASI PELANGGAN -->
+        <!-- Card 2: TAG AKTIF -->
         <div class="bg-white rounded-3xl p-5 sm:p-6 border border-[#ECE8E1] shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex items-center justify-between">
             <div>
                 <span class="text-[10px] font-bold tracking-wider text-[#8A8A85] uppercase block">
-                    Aktivasi Pelanggan
+                    Tag Teraktivasi Pengguna
                 </span>
                 <div class="flex items-baseline gap-2 mt-2">
                     <h3 class="text-3xl font-extrabold text-[#1A1A1A] tracking-tight">
@@ -112,7 +73,7 @@
                     <h3 class="text-3xl font-extrabold text-[#1A1A1A] tracking-tight">
                         {{ $metrics['perlu_dikirim'] }}
                     </h3>
-                    <span class="text-xs font-medium text-[#737373]">Perlu Dikirim</span>
+                    <span class="text-xs font-medium text-[#737373]">Perlu Diproses/Kirim</span>
                 </div>
             </div>
             <div class="w-11 h-11 rounded-2xl bg-[#FCF5E3] text-[#B8860B] flex items-center justify-center shrink-0">
@@ -133,10 +94,10 @@
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-[#ECE8E1]/80 mb-6">
             <div>
                 <h3 class="text-base font-bold text-[#1A1A1A]">
-                    Daftar Pesanan &amp; Status NFC Tag
+                    Daftar Pesanan &amp; Alur Status Produksi SRS
                 </h3>
                 <p class="text-xs text-[#737373] mt-0.5 font-normal">
-                    Pantau status sinkronisasi chip NTAG215 dan pengiriman merchandise gantungan kunci (ganci).
+                    Manajemen pesanan custom merchandise ganci akrilik/kulit dan sinkronisasi 7 tahapan status pelacakan.
                 </p>
             </div>
 
@@ -149,18 +110,46 @@
                     Semua ({{ $metrics['total_pesanan'] }})
                 </a>
                 <a 
+                    href="{{ route('admin.orders', ['status' => 'pending', 'search' => $search]) }}" 
+                    class="px-4 py-2 rounded-full transition {{ $statusFilter === 'pending' ? 'bg-[#380208] text-white shadow-xs font-bold' : 'text-[#737373] hover:text-[#1A1A1A]' }}"
+                >
+                    Pending Bayar
+                </a>
+                <a 
                     href="{{ route('admin.orders', ['status' => 'perlu_dikirim', 'search' => $search]) }}" 
                     class="px-4 py-2 rounded-full transition {{ $statusFilter === 'perlu_dikirim' ? 'bg-[#380208] text-white shadow-xs font-bold' : 'text-[#737373] hover:text-[#1A1A1A]' }}"
                 >
-                    Perlu Dikirim ({{ $metrics['perlu_dikirim'] }})
+                    Diproses ({{ $metrics['perlu_dikirim'] }})
                 </a>
                 <a 
                     href="{{ route('admin.orders', ['status' => 'terkirim', 'search' => $search]) }}" 
                     class="px-4 py-2 rounded-full transition {{ $statusFilter === 'terkirim' ? 'bg-[#380208] text-white shadow-xs font-bold' : 'text-[#737373] hover:text-[#1A1A1A]' }}"
                 >
-                    Terkirim ({{ $metrics['terkirim'] }})
+                    Siap/Terkirim ({{ $metrics['terkirim'] }})
                 </a>
             </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="mb-5 flex items-center justify-between">
+            <form action="{{ route('admin.orders') }}" method="GET" class="w-full max-w-sm relative">
+                <input type="hidden" name="status" value="{{ $statusFilter }}">
+                <input 
+                    type="text" 
+                    name="search" 
+                    value="{{ $search }}" 
+                    placeholder="Cari No. Pesanan, nama pembeli, varian..." 
+                    class="w-full bg-[#F6F5F2] hover:bg-[#F2F1ED] focus:bg-white text-xs text-[#1A1A1A] py-2.5 pl-9 pr-4 rounded-full border border-[#ECE8E1] focus:outline-none focus:ring-2 focus:ring-[#8B0000]/10 focus:border-[#8B0000] transition"
+                >
+                <svg class="w-4 h-4 text-[#8A8A85] absolute left-3 top-3 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35"/>
+                </svg>
+            </form>
+
+            <span class="text-xs text-[#737373] hidden sm:block">
+                Menampilkan <strong>{{ $orders->count() }}</strong> pesanan
+            </span>
         </div>
 
         <!-- Orders Table -->
@@ -168,80 +157,68 @@
             <table class="w-full text-left text-xs">
                 <thead>
                     <tr class="text-[10px] font-bold uppercase tracking-wider text-[#8A8A85] border-b border-[#ECE8E1]">
-                        <th class="pb-3.5 px-3">ID Pesanan</th>
-                        <th class="pb-3.5 px-3">Nama Pembeli</th>
-                        <th class="pb-3.5 px-3">Jenis Produk (Ganci)</th>
-                        <th class="pb-3.5 px-3">Status Tag</th>
-                        <th class="pb-3.5 px-3">Pengiriman</th>
+                        <th class="pb-3.5 px-3">No. Pesanan</th>
+                        <th class="pb-3.5 px-3">Pelanggan</th>
+                        <th class="pb-3.5 px-3">Spesifikasi Ganci</th>
+                        <th class="pb-3.5 px-3">Jumlah &amp; Total</th>
+                        <th class="pb-3.5 px-3">Status Tahapan (SRS)</th>
                         <th class="pb-3.5 px-3 text-right">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-[#F2EEE9]">
                     @forelse ($orders as $order)
+                        @php
+                            $badge = $order->status_badge;
+                        @endphp
                         <tr class="hover:bg-[#FAF9F6] transition-colors">
                             
                             <!-- 1. ID Pesanan -->
-                            <td class="py-4 px-3 font-bold text-xs text-[#1A1A1A] whitespace-nowrap">
-                                {{ $order['id_pesanan'] }}
+                            <td class="py-4 px-3 font-bold text-xs text-maroon whitespace-nowrap">
+                                {{ $order->order_no }}
                             </td>
 
-                            <!-- 2. Nama Pembeli & Kota -->
+                            <!-- 2. Nama Pembeli & Alamat -->
                             <td class="py-4 px-3 whitespace-nowrap">
-                                <span class="font-bold text-xs text-[#1A1A1A]">{{ $order['nama_pembeli'] }}</span>
-                                <span class="text-[11px] text-[#737373] font-normal ml-1">({{ $order['kota'] }})</span>
+                                <span class="font-bold text-xs text-[#1A1A1A] block">{{ $order->customer_name }}</span>
+                                <span class="text-[11px] text-[#737373] font-normal block">{{ $order->whatsapp }}</span>
                             </td>
 
                             <!-- 3. Jenis Produk (Exclusively Ganci Variants) -->
                             <td class="py-4 px-3">
                                 <div class="font-medium text-xs text-[#1A1A1A] flex items-center gap-2">
-                                    <!-- Key / Ganci Icon -->
                                     <svg class="w-3.5 h-3.5 text-[#8A8A85] shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z"/>
                                     </svg>
-                                    <span>{{ $order['jenis_produk'] }}</span>
+                                    <span class="font-semibold">{{ $order->shape }}</span>
                                 </div>
+                                <span class="text-[11px] text-[#737373] block mt-0.5">{{ $order->color }} • {{ $order->size }}</span>
                             </td>
 
-                            <!-- 4. Status Tag -->
+                            <!-- 4. Qty & Total -->
                             <td class="py-4 px-3 whitespace-nowrap">
-                                @if ($order['status_tag'] === 'aktif')
-                                    <span class="inline-flex items-center gap-1.5 bg-[#EAF5EC] text-[#2E7D32] font-bold text-[11px] px-3 py-1 rounded-full">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-[#2E7D32]"></span>
-                                        Aktif
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center gap-1.5 bg-[#F0ECE7] text-[#736B5E] font-semibold text-[11px] px-3 py-1 rounded-full">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-[#736B5E]"></span>
-                                        Belum Aktif
-                                    </span>
-                                @endif
+                                <span class="font-bold text-xs text-[#1A1A1A] block">Rp {{ number_format($order->total, 0, ',', '.') }}</span>
+                                <span class="text-[11px] text-[#737373] font-normal block">{{ $order->quantity }} pcs ({{ $order->delivery_method === 'ambil' ? 'Ambil di Tempat' : 'Kirim Kurir' }})</span>
                             </td>
 
-                            <!-- 5. Status Pengiriman -->
+                            <!-- 5. Status Tahapan (SRS Compact Badge) -->
                             <td class="py-4 px-3 whitespace-nowrap">
-                                @if ($order['pengiriman'] === 'dikirim')
-                                    <span class="inline-flex items-center gap-1.5 bg-[#E6F3FA] text-[#1E70A0] font-semibold text-[11px] px-3 py-1 rounded-full">
-                                        Dikirim
-                                    </span>
-                                @elseif ($order['pengiriman'] === 'selesai')
-                                    <span class="inline-flex items-center gap-1.5 bg-[#EAF5EC] text-[#2E7D32] font-semibold text-[11px] px-3 py-1 rounded-full">
-                                        Selesai
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center gap-1.5 bg-[#FEF5E7] text-[#A86414] font-semibold text-[11px] px-3 py-1 rounded-full">
-                                        Pending
-                                    </span>
-                                @endif
+                                <span class="inline-flex items-center gap-1.5 {{ $badge['bg_class'] }} font-bold text-[11px] px-3 py-1 rounded-full shadow-2xs">
+                                    <span class="w-1.5 h-1.5 rounded-full {{ $badge['dot_class'] }}"></span>
+                                    {{ $badge['label'] }}
+                                </span>
+                                <span class="block text-[10px] text-[#8A8A85] mt-0.5">
+                                    {{ $order->detail_status_label }}
+                                </span>
                             </td>
 
-                            <!-- 6. Aksi: Detail Button -->
+                            <!-- 6. Aksi: Detail & Update Button -->
                             <td class="py-4 px-3 text-right whitespace-nowrap">
                                 <button 
                                     type="button" 
-                                    onclick="openOrderDetailModal('{{ $order['id_pesanan'] }}', '{{ $order['nama_pembeli'] }}', '{{ $order['kota'] }}', '{{ $order['jenis_produk'] }}', '{{ $order['pengiriman'] }}', '{{ $order['status_tag'] }}')"
+                                    onclick="openOrderDetailModal({{ json_encode($order) }}, {{ json_encode($order->statusLogs) }})"
                                     class="bg-gold-accent hover:bg-[#E5BC50] text-[#1A1A1A] font-bold text-xs px-4 py-1.5 rounded-full shadow-xs transition inline-flex items-center gap-1 cursor-pointer"
                                 >
-                                    <span>Detail</span>
+                                    <span>Kelola Tahap</span>
                                     <span class="text-sm">→</span>
                                 </button>
                             </td>
@@ -249,7 +226,12 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="py-8 text-center text-xs text-[#737373]">
+                            <td colspan="6" class="py-10 text-center text-xs text-[#737373]">
+                                <div class="w-10 h-10 rounded-full bg-[#F6F5F2] flex items-center justify-center mx-auto mb-2 text-[#8A8A85]">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5"/>
+                                    </svg>
+                                </div>
                                 Tidak ada data pesanan ganci yang sesuai dengan filter.
                             </td>
                         </tr>
@@ -258,103 +240,167 @@
             </table>
         </div>
 
-        <!-- Pagination Footer -->
-        <div class="border-t border-[#ECE8E1] pt-5 mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
-            <span class="text-[#737373]">
-                Menampilkan <strong class="text-[#1A1A1A]">1 – {{ count($orders) }}</strong> dari <strong class="text-[#1A1A1A]">48</strong> pesanan
-            </span>
-
-            <div class="flex items-center gap-1.5">
-                <button class="w-7 h-7 rounded-lg text-[#8A8A85] hover:bg-[#F6F5F2] flex items-center justify-center transition">
-                    ‹
-                </button>
-                <button class="w-7 h-7 rounded-lg bg-maroon text-white font-bold flex items-center justify-center shadow-xs">
-                    1
-                </button>
-                <button class="w-7 h-7 rounded-lg text-[#737373] hover:bg-[#F6F5F2] flex items-center justify-center transition">
-                    2
-                </button>
-                <button class="w-7 h-7 rounded-lg text-[#737373] hover:bg-[#F6F5F2] flex items-center justify-center transition">
-                    3
-                </button>
-                <button class="w-7 h-7 rounded-lg text-[#8A8A85] hover:bg-[#F6F5F2] flex items-center justify-center transition">
-                    ›
-                </button>
-            </div>
-        </div>
-
     </div>
 
     <!-- ========================================================= -->
-    <!-- ORDER DETAIL MODAL                                        -->
+    <!-- ORDER DETAIL & STAGE UPDATE MODAL                         -->
     <!-- ========================================================= -->
-    <div id="order-detail-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-        <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-[#ECE8E1] animate-in fade-in zoom-in-95 duration-200">
-            <div class="flex items-center justify-between pb-3 border-b border-[#ECE8E1]">
-                <h3 class="text-base font-bold text-[#1A1A1A]">Detail Pesanan Ganci NFC</h3>
-                <button type="button" onclick="closeOrderDetailModal()" class="text-[#8A8A85] hover:text-[#1A1A1A] p-1 cursor-pointer">✕</button>
+    <div id="order-detail-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/45 backdrop-blur-xs p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-[#ECE8E1] my-8 max-h-[90vh] overflow-y-auto">
+            
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between pb-3.5 border-b border-[#ECE8E1]">
+                <div>
+                    <h3 class="text-base font-bold text-[#1A1A1A]">Kelola Tahapan Pesanan Ganci</h3>
+                    <p class="text-[11px] text-[#737373] mt-0.5">Sistem Pelacakan Publik 7 Tahap (SRS FlexiTag)</p>
+                </div>
+                <button type="button" onclick="closeOrderDetailModal()" class="text-[#8A8A85] hover:text-[#1A1A1A] p-1.5 rounded-full hover:bg-[#F6F5F2] transition cursor-pointer">✕</button>
             </div>
 
-            <div class="mt-4 space-y-3.5 text-xs">
-                <div class="flex justify-between items-center py-1 border-b border-[#F2EEE9]">
-                    <span class="text-[#737373]">Nomor Pesanan:</span>
-                    <strong id="modal-order-id" class="text-maroon font-bold text-sm">#ORD-001</strong>
+            <!-- Order Snapshot -->
+            <div class="mt-4 bg-[#F8F7F4] rounded-2xl p-4 border border-[#ECE8E1] space-y-2 text-xs">
+                <div class="flex justify-between items-center">
+                    <span class="text-[#737373]">No. Pesanan:</span>
+                    <strong id="modal-order-no" class="text-maroon font-bold text-sm">#ORD-0000</strong>
                 </div>
-                <div class="flex justify-between items-center py-1 border-b border-[#F2EEE9]">
-                    <span class="text-[#737373]">Pembeli:</span>
-                    <span id="modal-order-buyer" class="font-bold text-[#1A1A1A]">Nama</span>
+                <div class="flex justify-between items-center">
+                    <span class="text-[#737373]">Pemesan:</span>
+                    <span id="modal-customer-name" class="font-bold text-[#1A1A1A]">-</span>
                 </div>
-                <div class="flex justify-between items-center py-1 border-b border-[#F2EEE9]">
-                    <span class="text-[#737373]">Kota Tujuan:</span>
-                    <span id="modal-order-city" class="text-[#1A1A1A]">Makassar</span>
+                <div class="flex justify-between items-center">
+                    <span class="text-[#737373]">Kontak WA / Email:</span>
+                    <span id="modal-contact" class="text-[#1A1A1A]">-</span>
                 </div>
-                <div class="flex justify-between items-center py-1 border-b border-[#F2EEE9]">
-                    <span class="text-[#737373]">Varian Ganci:</span>
-                    <span id="modal-order-product" class="font-semibold text-right text-[#1A1A1A]">Ganci Akrilik</span>
+                <div class="flex justify-between items-center">
+                    <span class="text-[#737373]">Varian &amp; Qty:</span>
+                    <span id="modal-product" class="font-semibold text-right text-[#1A1A1A]">-</span>
                 </div>
-                <div class="flex justify-between items-center py-1 border-b border-[#F2EEE9]">
-                    <span class="text-[#737373]">Status Pengiriman:</span>
-                    <span id="modal-order-shipping" class="font-semibold uppercase text-[#1E70A0]">Dikirim</span>
+                <div class="flex justify-between items-center">
+                    <span class="text-[#737373]">Metode &amp; Alamat:</span>
+                    <span id="modal-shipping" class="text-right text-[#1A1A1A] max-w-[220px] truncate">-</span>
                 </div>
-                <div class="flex justify-between items-center py-1">
-                    <span class="text-[#737373]">Status Chip NFC:</span>
-                    <span id="modal-order-tag-status" class="font-bold text-[#2E7D32]">Aktif</span>
+                <div class="flex justify-between items-center pt-1 border-t border-[#ECE8E1]">
+                    <span class="text-[#737373]">Total Transaksi:</span>
+                    <strong id="modal-total" class="font-bold text-sm text-[#1A1A1A]">Rp 0</strong>
                 </div>
             </div>
 
-            <div class="mt-6 flex justify-end gap-2.5">
-                <button type="button" onclick="closeOrderDetailModal()" class="bg-[#F6F5F2] hover:bg-[#EAE8E3] text-[#1A1A1A] text-xs font-semibold px-4 py-2 rounded-full transition cursor-pointer">
-                    Tutup
-                </button>
-                <button type="button" onclick="alert('Label resi pengiriman dicetak.'); closeOrderDetailModal();" class="bg-gold-accent hover:bg-[#E5BC50] text-[#1A1A1A] text-xs font-bold px-4 py-2 rounded-full transition cursor-pointer">
-                    Cetak Resi &amp; Label
-                </button>
+            <!-- Form Update Status SRS -->
+            <form id="order-status-update-form" method="POST" action="" class="mt-5 space-y-4">
+                @csrf
+                
+                <div>
+                    <label for="status-select" class="block text-xs font-bold text-[#1A1A1A] mb-1.5">
+                        Pembaruan Status Tahapan Pesanan <span class="text-maroon">*</span>
+                    </label>
+                    <select 
+                        name="status" 
+                        id="status-select" 
+                        required
+                        class="w-full bg-[#F6F5F2] hover:bg-[#F2F1ED] focus:bg-white text-xs font-semibold text-[#1A1A1A] py-3 px-4 rounded-2xl border border-[#ECE8E1] focus:outline-none focus:ring-2 focus:ring-[#8B0000]/10 focus:border-[#8B0000] transition cursor-pointer"
+                    >
+                        @foreach ($availableStatuses as $code => $label)
+                            <option value="{{ $code }}">{{ $label }}</option>
+                        @endforeach
+                    </select>
+                    <span class="text-[10.5px] text-[#8A8A85] block mt-1">
+                        Perubahan akan langsung sinkron dengan halaman publik "Lacak Pesanan" pelanggan.
+                    </span>
+                </div>
+
+                <div>
+                    <label for="status-note" class="block text-xs font-bold text-[#1A1A1A] mb-1.5">
+                        Catatan Admin (Riwayat Perubahan)
+                    </label>
+                    <input 
+                        type="text" 
+                        name="note" 
+                        id="status-note" 
+                        placeholder="Contoh: Pembayaran BCA terverifikasi / chip NFC selesai diprogram"
+                        class="w-full bg-[#F6F5F2] hover:bg-[#F2F1ED] focus:bg-white text-xs text-[#1A1A1A] py-2.5 px-4 rounded-2xl border border-[#ECE8E1] focus:outline-none focus:ring-2 focus:ring-[#8B0000]/10 focus:border-[#8B0000] transition"
+                    >
+                </div>
+
+                <div class="pt-2 flex items-center justify-end gap-2.5 border-t border-[#ECE8E1]">
+                    <button 
+                        type="button" 
+                        onclick="closeOrderDetailModal()" 
+                        class="bg-[#F6F5F2] hover:bg-[#EAE8E3] text-[#1A1A1A] text-xs font-semibold px-4 py-2.5 rounded-full transition cursor-pointer"
+                    >
+                        Batal
+                    </button>
+                    <button 
+                        type="submit" 
+                        class="bg-maroon hover:bg-[#6B0000] text-[#D4AF37] text-xs font-bold px-5 py-2.5 rounded-full shadow-xs transition cursor-pointer inline-flex items-center gap-1.5"
+                    >
+                        <span>Simpan Status</span>
+                        <span>✓</span>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Status Audit Logs History -->
+            <div class="mt-6 pt-4 border-t border-[#ECE8E1]">
+                <h4 class="text-xs font-bold text-[#1A1A1A] mb-3 flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 text-[#8A8A85]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span>Riwayat Audit Tahapan (order_status_logs)</span>
+                </h4>
+                
+                <div id="modal-status-logs" class="space-y-2 text-[11px] max-h-40 overflow-y-auto pr-1">
+                    <!-- Populated via JS -->
+                </div>
             </div>
+
         </div>
     </div>
+
+</div>
 @endsection
 
 @push('scripts')
 <script>
-    function toggleOrderStatusDropdown() {
-        const menu = document.getElementById('order-status-dropdown');
-        menu.classList.toggle('hidden');
-    }
+    function openOrderDetailModal(order, logs) {
+        document.getElementById('modal-order-no').textContent = order.order_no;
+        document.getElementById('modal-customer-name').textContent = order.customer_name;
+        document.getElementById('modal-contact').textContent = (order.whatsapp || '-') + ' • ' + (order.email || '-');
+        document.getElementById('modal-product').textContent = order.shape + ' (' + order.color + ' - ' + order.size + ') x' + order.quantity;
+        document.getElementById('modal-shipping').textContent = (order.delivery_method === 'ambil' ? 'Ambil di Tempat' : 'Kirim: ') + (order.address || '-');
+        document.getElementById('modal-total').textContent = 'Rp ' + Number(order.total).toLocaleString('id-ID');
+        
+        // Form action url
+        const form = document.getElementById('order-status-update-form');
+        form.action = `/admin/orders/${order.id}/status`;
 
-    window.addEventListener('click', function(e) {
-        const dropdown = document.getElementById('order-status-dropdown');
-        if (dropdown && !dropdown.contains(e.target) && !e.target.closest('button[onclick="toggleOrderStatusDropdown()"]')) {
-            dropdown.classList.add('hidden');
+        // Set current status in select dropdown
+        const statusSelect = document.getElementById('status-select');
+        statusSelect.value = order.status;
+
+        // Reset note input
+        document.getElementById('status-note').value = '';
+
+        // Render status logs
+        const logsContainer = document.getElementById('modal-status-logs');
+        logsContainer.innerHTML = '';
+        if (logs && logs.length > 0) {
+            logs.forEach(log => {
+                const dateStr = new Date(log.changed_at).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
+                const item = document.createElement('div');
+                item.className = 'p-2.5 rounded-xl bg-[#F6F5F2] border border-[#ECE8E1] flex flex-col gap-0.5';
+                item.innerHTML = `
+                    <div class="flex justify-between items-center font-bold text-xs text-[#1A1A1A]">
+                        <span>${log.status.toUpperCase()}</span>
+                        <span class="text-[10px] text-[#8A8A85] font-normal">${dateStr}</span>
+                    </div>
+                    <p class="text-[#737373] text-[11px]">${log.note || 'Pembaruan status sistem'}</p>
+                `;
+                logsContainer.appendChild(item);
+            });
+        } else {
+            logsContainer.innerHTML = '<p class="text-xs text-[#8A8A85] italic">Belum ada riwayat perubahan status.</p>';
         }
-    });
 
-    function openOrderDetailModal(id, buyer, city, product, shipping, tagStatus) {
-        document.getElementById('modal-order-id').textContent = id;
-        document.getElementById('modal-order-buyer').textContent = buyer;
-        document.getElementById('modal-order-city').textContent = city;
-        document.getElementById('modal-order-product').textContent = product;
-        document.getElementById('modal-order-shipping').textContent = shipping.toUpperCase();
-        document.getElementById('modal-order-tag-status').textContent = tagStatus === 'aktif' ? 'Aktif (Terhubung)' : 'Belum Diaktivasi';
         document.getElementById('order-detail-modal').classList.remove('hidden');
     }
 

@@ -188,8 +188,8 @@
                     </svg>
                 </div>
                 <div class="truncate">
-                    <p class="text-sm font-bold text-white truncate">{{ Auth::user()->name ?? 'Baharuddin' }}</p>
-                    <p class="text-[11px] text-[#C4B5A5] truncate">{{ Auth::user()->jabatan_admin ?? 'Ops Lead Makassar' }}</p>
+                    <p class="text-sm font-bold text-white truncate">{{ Auth::user()->name ?? 'Administrator' }}</p>
+                    <p class="text-[11px] text-[#C4B5A5] truncate">{{ Auth::user()->jabatan_admin ?? (Auth::user()->role === 'admin' ? 'Administrator' : ucfirst(Auth::user()->role)) }}</p>
                 </div>
             </div>
 
@@ -241,17 +241,26 @@
                     <span>Regional Node: <strong>South Sulawesi (UPG-01)</strong> ⚡</span>
                 </div>
 
-                <!-- Notification Bell -->
-                <button class="relative p-2 rounded-full text-[#4A4A4A] hover:bg-white hover:text-black transition cursor-pointer" title="Notifikasi Sistem">
+                <!-- Notification Bell with Unread Badge (FR-ADM-09) -->
+                <button 
+                    type="button" 
+                    onclick="toggleNotificationDrawer()" 
+                    class="relative p-2 rounded-full text-[#4A4A4A] hover:bg-white hover:text-black transition cursor-pointer" 
+                    title="Pusat Pesan & Laporan (FR-ADM-09)"
+                >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/>
                     </svg>
-                    <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#8B0000] ring-2 ring-white"></span>
+                    @if (($unreadMessagesCount ?? 0) > 0)
+                        <span class="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-[#8B0000] text-[9.5px] font-extrabold text-[#FAF9F6] ring-2 ring-white animate-pulse">
+                            {{ $unreadMessagesCount > 9 ? '9+' : $unreadMessagesCount }}
+                        </span>
+                    @endif
                 </button>
 
                 <!-- Admin Avatar Profile -->
                 <div class="w-9 h-9 rounded-full bg-[#380208] text-white flex items-center justify-center font-bold text-xs ring-2 ring-white shadow-sm">
-                    {{ strtoupper(substr(Auth::user()->name ?? 'B', 0, 1)) }}
+                    {{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}
                 </div>
             </div>
         </header>
@@ -261,6 +270,197 @@
             @yield('content')
         </main>
     </div>
+
+    <!-- ========================================================= -->
+    <!-- SLIDE-OVER DRAWER: PUSAT PESAN & LAPORAN (FR-ADM-09)      -->
+    <!-- ========================================================= -->
+    <div 
+        id="notification-drawer-backdrop" 
+        class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs transition-opacity duration-300 opacity-0 pointer-events-none" 
+        onclick="toggleNotificationDrawer()"
+    ></div>
+
+    <aside 
+        id="notification-drawer" 
+        class="fixed inset-y-0 right-0 z-50 w-full sm:w-[460px] bg-white shadow-2xl border-l border-[#ECE8E1] flex flex-col transform translate-x-full transition-transform duration-300 ease-in-out"
+    >
+        <!-- Drawer Header -->
+        <div class="p-5 border-b border-[#ECE8E1] bg-[#FAF9F6] flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-full bg-[#FCF5E3] text-[#8C6D23] flex items-center justify-center font-bold">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-sm font-bold text-[#1A1A1A]">Pusat Pesan &amp; Laporan</h3>
+                    <p class="text-[10px] text-[#737373]">Notifikasi insiden dan formulir publik (FR-ADM-09)</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-1.5">
+                @if (($unreadMessagesCount ?? 0) > 0)
+                    <form action="{{ route('admin.messages.readAll') }}" method="POST">
+                        @csrf
+                        <button type="submit" class="text-[10px] font-semibold text-[#8B0000] hover:underline px-2.5 py-1 rounded-full bg-[#FFF0F0] border border-[#FFD6D6] cursor-pointer">
+                            Tandai Semua Dibaca
+                        </button>
+                    </form>
+                @endif
+                <button type="button" onclick="toggleNotificationDrawer()" class="p-1.5 rounded-full text-[#8A8A85] hover:text-[#1A1A1A] hover:bg-[#F2EEE9] transition cursor-pointer">
+                    ✕
+                </button>
+            </div>
+        </div>
+
+        <!-- Filter Tabs: 1. Semua, 2. Laporan Abuse, 3. Pesan Kontak -->
+        <div class="p-3 border-b border-[#ECE8E1] bg-white flex gap-1.5 text-xs font-semibold">
+            <button type="button" onclick="filterDrawerTab('all')" id="tab-btn-all" class="drawer-tab-btn flex-1 py-1.5 px-3 rounded-full text-center transition bg-[#380208] text-white">
+                Semua
+            </button>
+            <button type="button" onclick="filterDrawerTab('abuse_report')" id="tab-btn-abuse_report" class="drawer-tab-btn flex-1 py-1.5 px-3 rounded-full text-center transition bg-[#F6F5F2] text-[#737373] hover:text-[#1A1A1A]">
+                Laporan Abuse
+            </button>
+            <button type="button" onclick="filterDrawerTab('contact')" id="tab-btn-contact" class="drawer-tab-btn flex-1 py-1.5 px-3 rounded-full text-center transition bg-[#F6F5F2] text-[#737373] hover:text-[#1A1A1A]">
+                Pesan Kontak
+            </button>
+        </div>
+
+        <!-- Messages List Container -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-3" id="drawer-messages-list">
+            @forelse (($adminNotifications ?? []) as $msg)
+                <div class="drawer-msg-item p-4 rounded-2xl border transition-all {{ is_null($msg->read_at) ? 'bg-[#FCFBF8] border-[#E8DFC9] shadow-xs' : 'bg-white border-[#ECE8E1]' }}" data-type="{{ $msg->type }}">
+                    
+                    <!-- Header card -->
+                    <div class="flex items-center justify-between gap-2 mb-2">
+                        <span class="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider {{ $msg->type === 'abuse_report' ? 'bg-[#FEE2E2] text-[#991B1B] border border-[#FECACA]' : 'bg-[#E0F2FE] text-[#0369A1] border border-[#BAE6FD]' }}">
+                            {{ $msg->type === 'abuse_report' ? '🚨 Laporan Abuse' : '✉️ Pesan Kontak' }}
+                        </span>
+                        <span class="text-[10px] text-[#8A8A85] font-normal">
+                            {{ \Carbon\Carbon::parse($msg->created_at)->diffForHumans() }}
+                        </span>
+                    </div>
+
+                    <!-- Sender Info -->
+                    <p class="text-xs font-bold text-[#1A1A1A] mb-1">
+                        {{ $msg->sender_name ?? 'Pengirim Anonim' }}
+                        @if ($msg->location)
+                            <span class="text-[10px] font-normal text-[#737373]">({{ $msg->location }})</span>
+                        @endif
+                    </p>
+
+                    <!-- Message Body -->
+                    <p class="text-xs text-[#4A4A4A] leading-relaxed mb-3 bg-[#F8F7F4] p-3 rounded-xl border border-[#ECE8E1]/70">
+                        {{ $msg->message }}
+                    </p>
+
+                    @if ($msg->contact)
+                        <div class="text-[11px] text-[#737373] mb-3 flex items-center gap-1.5">
+                            <span class="font-semibold text-[#1A1A1A]">Kontak Balik:</span>
+                            <span class="font-mono text-maroon font-bold">{{ $msg->contact }}</span>
+                        </div>
+                    @endif
+
+                    <!-- Quick Actions -->
+                    <div class="flex items-center justify-between pt-2.5 border-t border-[#F2EEE9] text-xs">
+                        <div class="flex items-center gap-2">
+                            @if ($msg->type === 'abuse_report')
+                                <form action="{{ route('admin.messages.deactivateTag', $msg->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menonaktifkan chip NFC terkait laporan ini demi keamanan?')">
+                                    @csrf
+                                    <button type="submit" class="bg-[#8B0000] hover:bg-[#680000] text-[#D4AF37] font-bold text-[10.5px] px-3 py-1 rounded-full transition cursor-pointer shadow-2xs">
+                                        Nonaktifkan Tag
+                                    </button>
+                                </form>
+                            @endif
+
+                            @if ($msg->contact)
+                                @php
+                                    $isPhone = preg_match('/^[0-9\+\s\-]+$/', $msg->contact);
+                                    $cleanedPhone = preg_replace('/[^0-9]/', '', $msg->contact);
+                                    if (str_starts_with($cleanedPhone, '0')) {
+                                        $cleanedPhone = '62' . substr($cleanedPhone, 1);
+                                    }
+                                @endphp
+                                @if ($isPhone)
+                                    <a href="https://wa.me/{{ $cleanedPhone }}" target="_blank" class="bg-[#25D366] hover:bg-[#1EBE5D] text-white font-bold text-[10.5px] px-3 py-1 rounded-full transition inline-flex items-center gap-1 shadow-2xs">
+                                        Balas WA ↗
+                                    </a>
+                                @elseif (filter_var($msg->contact, FILTER_VALIDATE_EMAIL))
+                                    <a href="mailto:{{ $msg->contact }}" class="bg-[#1E70A0] hover:bg-[#155982] text-white font-bold text-[10.5px] px-3 py-1 rounded-full transition inline-flex items-center gap-1 shadow-2xs">
+                                        Balas Email ↗
+                                    </a>
+                                @endif
+                            @endif
+                        </div>
+
+                        <div>
+                            @if (is_null($msg->read_at))
+                                <form action="{{ route('admin.messages.read', $msg->id) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="text-[10px] text-[#737373] hover:text-[#1A1A1A] font-semibold underline cursor-pointer">
+                                        Tandai Dibaca
+                                    </button>
+                                </form>
+                            @else
+                                <span class="text-[10px] text-[#2E7D32] font-semibold">✓ Telah Dibaca</span>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @empty
+                <div class="py-16 text-center text-xs text-[#8A8A85]">
+                    <div class="w-10 h-10 rounded-full bg-[#FCF5E3] text-[#8C6D23] flex items-center justify-center mx-auto mb-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <p class="font-bold text-[#1A1A1A]">Semua Bersih</p>
+                    <p class="mt-0.5">Tidak ada laporan abuse atau pesan masuk yang tertunda.</p>
+                </div>
+            @endforelse
+        </div>
+    </aside>
+
+    <script>
+        function toggleNotificationDrawer() {
+            const backdrop = document.getElementById('notification-drawer-backdrop');
+            const drawer = document.getElementById('notification-drawer');
+            if (!drawer || !backdrop) return;
+
+            const isClosed = drawer.classList.contains('translate-x-full');
+            if (isClosed) {
+                backdrop.classList.remove('pointer-events-none', 'opacity-0');
+                backdrop.classList.add('opacity-100');
+                drawer.classList.remove('translate-x-full');
+            } else {
+                backdrop.classList.remove('opacity-100');
+                backdrop.classList.add('opacity-0', 'pointer-events-none');
+                drawer.classList.add('translate-x-full');
+            }
+        }
+
+        function filterDrawerTab(type) {
+            const items = document.querySelectorAll('.drawer-msg-item');
+            items.forEach(item => {
+                if (type === 'all' || item.getAttribute('data-type') === type) {
+                    item.classList.remove('hidden');
+                } else {
+                    item.classList.add('hidden');
+                }
+            });
+
+            document.querySelectorAll('.drawer-tab-btn').forEach(btn => {
+                btn.classList.remove('bg-[#380208]', 'text-white');
+                btn.classList.add('bg-[#F6F5F2]', 'text-[#737373]');
+            });
+
+            const activeBtn = document.getElementById('tab-btn-' + type);
+            if (activeBtn) {
+                activeBtn.classList.remove('bg-[#F6F5F2]', 'text-[#737373]');
+                activeBtn.classList.add('bg-[#380208]', 'text-white');
+            }
+        }
+    </script>
 
     @stack('scripts')
 </body>

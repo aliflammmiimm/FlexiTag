@@ -315,7 +315,7 @@
                         <th class="py-3.5 px-5">ID Pesanan</th>
                         <th class="py-3.5 px-5">Nama Pembeli</th>
                         <th class="py-3.5 px-5">Produk</th>
-                        <th class="py-3.5 px-5">Status Pengiriman</th>
+                        <th class="py-3.5 px-5">Status Tahapan SRS</th>
                         <th class="py-3.5 px-5">Status Tag</th>
                         <th class="py-3.5 px-5 text-center">Aksi</th>
                     </tr>
@@ -344,29 +344,22 @@
                                 </div>
                             </td>
 
-                            <!-- Status Pengiriman -->
+                            <!-- Status Tahapan SRS (Mapped Badge) -->
                             <td class="py-4 px-5">
-                                @if ($order['status_pengiriman'] === 'dikirim')
-                                    <span class="inline-flex items-center gap-1.5 bg-[#FDF3D6] text-[#B8860B] font-semibold text-[11px] px-3 py-1 rounded-full">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-[#B8860B]"></span>
-                                        Dikirim
-                                    </span>
-                                @elseif ($order['status_pengiriman'] === 'pending')
-                                    <span class="inline-flex items-center gap-1.5 bg-[#F0ECE7] text-[#736B5E] font-semibold text-[11px] px-3 py-1 rounded-full">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-[#736B5E]"></span>
-                                        Pending
-                                    </span>
-                                @elseif ($order['status_pengiriman'] === 'selesai')
-                                    <span class="inline-flex items-center gap-1.5 bg-[#FBE8E8] text-maroon font-semibold text-[11px] px-3 py-1 rounded-full">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-maroon"></span>
-                                        Selesai
+                                <span class="inline-flex items-center gap-1.5 {{ $order['badge_class'] ?? 'bg-[#F6F5F2] text-[#737373]' }} font-semibold text-[11px] px-3 py-1 rounded-full shadow-2xs">
+                                    <span class="w-1.5 h-1.5 rounded-full {{ $order['badge_dot'] ?? 'bg-current' }}"></span>
+                                    {{ $order['badge_label'] ?? 'Status' }}
+                                </span>
+                                @if (isset($order['detail_status']))
+                                    <span class="block text-[10px] text-[#8A8A85] mt-0.5">
+                                        {{ $order['detail_status'] }}
                                     </span>
                                 @endif
                             </td>
 
                             <!-- Status Tag -->
                             <td class="py-4 px-5">
-                                @if ($order['status_tag'] === 'aktif')
+                                @if (($order['status_tag'] ?? '') === 'aktif')
                                     <span class="inline-flex items-center gap-1 bg-[#EAF5EC] text-[#2E7D32] font-semibold text-[11px] px-3 py-1 rounded-full">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
@@ -383,9 +376,12 @@
 
                             <!-- Aksi -->
                             <td class="py-4 px-5 text-center">
-                                <button class="bg-[#F6F5F2] hover:bg-[#EAE8E3] text-[#1A1A1A] font-semibold text-[11px] px-3.5 py-1 rounded-full border border-[#E5E0D8] transition cursor-pointer">
+                                <a 
+                                    href="{{ route('admin.orders', ['search' => $order['id_pesanan']]) }}" 
+                                    class="bg-[#F6F5F2] hover:bg-[#EAE8E3] text-[#1A1A1A] font-semibold text-[11px] px-3.5 py-1 rounded-full border border-[#E5E0D8] transition inline-block"
+                                >
                                     Detail
-                                </button>
+                                </a>
                             </td>
                         </tr>
                     @endforeach

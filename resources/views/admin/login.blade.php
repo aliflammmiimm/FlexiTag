@@ -254,8 +254,13 @@
                     <span class="text-base font-bold transition-transform group-hover:translate-x-1">→</span>
                 </button>
 
+                <!-- Helper Text Pengelola Internal -->
+                <p class="text-[11px] text-[#8A8A85] text-center mt-2.5 font-normal leading-normal">
+                    Khusus pengelola internal. Gunakan akun yang telah didaftarkan oleh Super Admin.
+                </p>
+
                 <!-- Security Assurance Pill -->
-                <div class="mt-6 bg-[#F6F5F2] rounded-full py-2.5 px-4 flex items-center justify-center gap-2 border border-[#EFECE6]/80">
+                <div class="mt-5 bg-[#F6F5F2] rounded-full py-2.5 px-4 flex items-center justify-center gap-2 border border-[#EFECE6]/80">
                     <svg class="w-3.5 h-3.5 text-[#8A8A85]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/>
                     </svg>
@@ -272,7 +277,7 @@
     <!-- ========================================================= -->
     <footer class="relative z-10 mt-8 text-center px-4">
         <p class="text-xs text-[#8A8A85] font-normal leading-relaxed">
-            &copy; 2025 Toraja NFC Authentication Core. <span class="mx-1">•</span> Artisanal Hardware &amp; Cryptographic Handshake Registry.
+            &copy; 2026 FlexiTag Admin Console • MaccaTech Team. Sistem Terenkripsi 256-bit.
         </p>
     </footer>
 

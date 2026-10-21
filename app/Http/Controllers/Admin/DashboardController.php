@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Order;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
@@ -79,54 +81,41 @@ class DashboardController extends Controller
             ],
         ];
 
-        // 4. Recent 5 Orders (Exclusively Ganci variants)
-        $orders = [
-            [
-                'id_pesanan' => '#ORD-048',
-                'nama_pembeli' => 'Budi Santoso',
-                'kota' => 'Makassar',
-                'produk' => "Ganci Akrilik Persegi – Pa'teddong",
-                'icon_type' => 'key',
-                'status_pengiriman' => 'dikirim',
-                'status_tag' => 'aktif',
-            ],
-            [
-                'id_pesanan' => '#ORD-047',
-                'nama_pembeli' => 'Nurul Aisyah',
-                'kota' => 'Gowa',
-                'produk' => 'Ganci Kulit Bulat – Motif Saqbe',
-                'icon_type' => 'key',
-                'status_pengiriman' => 'pending',
-                'status_tag' => 'belum_aktif',
-            ],
-            [
-                'id_pesanan' => '#ORD-046',
-                'nama_pembeli' => 'Rahmat Hidayat',
-                'kota' => 'Maros',
-                'produk' => 'Ganci Kayu Persegi – Ukir Toraja',
-                'icon_type' => 'key',
-                'status_pengiriman' => 'selesai',
-                'status_tag' => 'aktif',
-            ],
-            [
-                'id_pesanan' => '#ORD-045',
-                'nama_pembeli' => 'Dewi Sartika',
-                'kota' => 'Makassar',
-                'produk' => "Ganci Bulat – Pa'barre Allo",
-                'icon_type' => 'key',
-                'status_pengiriman' => 'dikirim',
-                'status_tag' => 'aktif',
-            ],
-            [
-                'id_pesanan' => '#ORD-044',
-                'nama_pembeli' => 'Fajar Pratama',
-                'kota' => 'Parepare',
-                'produk' => 'Ganci Custom Akrilik – Motif Lagosi',
-                'icon_type' => 'key',
-                'status_pengiriman' => 'pending',
-                'status_tag' => 'belum_aktif',
-            ],
-        ];
+        // 4. Recent 5 Orders (Exclusively Ganci variants with SRS status mapping)
+        $dbOrders = Order::latest()->take(5)->get();
+        if ($dbOrders->isNotEmpty()) {
+            $orders = $dbOrders->map(function ($order) {
+                $badge = $order->status_badge;
+
+                return [
+                    'id_pesanan' => $order->order_no,
+                    'nama_pembeli' => $order->customer_name,
+                    'kota' => $order->address ? Str::limit($order->address, 20) : 'Makassar',
+                    'produk' => $order->shape.' ('.$order->color.')',
+                    'icon_type' => 'key',
+                    'badge_label' => $badge['label'],
+                    'badge_class' => $badge['bg_class'],
+                    'badge_dot' => $badge['dot_class'],
+                    'detail_status' => $order->detail_status_label,
+                    'status_tag' => in_array($order->status, [Order::STATUS_DIRAKIT_DAN_DIUJI, Order::STATUS_SIAP_DIAMBIL_DIKIRIM, Order::STATUS_SELESAI]) ? 'aktif' : 'belum_aktif',
+                ];
+            })->toArray();
+        } else {
+            $orders = [
+                [
+                    'id_pesanan' => '#ORD-0001',
+                    'nama_pembeli' => 'Andi Muhammad Rifki',
+                    'kota' => 'Makassar',
+                    'produk' => 'Ganci Bulat (Hitam Doff)',
+                    'icon_type' => 'key',
+                    'badge_label' => 'Diproses (Cetak/Rakit)',
+                    'badge_class' => 'bg-[#F3E8FF] text-[#6B21A8] border border-[#E9D5FF]',
+                    'badge_dot' => 'bg-[#6B21A8]',
+                    'detail_status' => '5. Dirakit & Diuji (QC)',
+                    'status_tag' => 'aktif',
+                ],
+            ];
+        }
 
         return view('admin.dashboard', compact(
             'user',

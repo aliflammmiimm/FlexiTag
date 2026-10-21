@@ -3,7 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Order;
+use App\Models\OrderStatusLog;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class OrderController extends Controller
@@ -16,98 +21,91 @@ class OrderController extends Controller
         $statusFilter = $request->query('status', 'all');
         $search = $request->query('search', '');
 
-        $metrics = [
-            'total_hardware' => 500,
-            'tag_aktif' => 124,
-            'perlu_dikirim' => 12,
-            'total_pesanan' => 48,
-            'terkirim' => 32,
-        ];
+        // Query real database orders with log history
+        $query = Order::with('statusLogs.admin')->latest();
 
-        // Orders exclusively for Ganci variants (Bulat, Persegi, Motif Bugis, Motif Toraja, Custom)
-        $orders = [
-            [
-                'id_pesanan' => '#ORD-001',
-                'nama_pembeli' => 'Budi Santoso',
-                'kota' => 'Makassar',
-                'jenis_produk' => "Ganci Akrilik Persegi – Pa'teddong (Toraja)",
-                'bentuk_ganci' => 'Persegi',
-                'status_tag' => 'aktif',
-                'pengiriman' => 'dikirim',
-            ],
-            [
-                'id_pesanan' => '#ORD-002',
-                'nama_pembeli' => 'Nurul Aisyah',
-                'kota' => 'Gowa',
-                'jenis_produk' => 'Ganci Kulit Bulat – Motif Saqbe (Bugis)',
-                'bentuk_ganci' => 'Bulat',
-                'status_tag' => 'aktif',
-                'pengiriman' => 'selesai',
-            ],
-            [
-                'id_pesanan' => '#ORD-003',
-                'nama_pembeli' => 'Rahmat Hidayat',
-                'kota' => 'Maros',
-                'jenis_produk' => 'Ganci Kayu Persegi – Ukir Khas Toraja',
-                'bentuk_ganci' => 'Persegi',
-                'status_tag' => 'belum_aktif',
-                'pengiriman' => 'pending',
-            ],
-            [
-                'id_pesanan' => '#ORD-004',
-                'nama_pembeli' => 'Dewi Sartika',
-                'kota' => 'Makassar',
-                'jenis_produk' => "Ganci Bulat – Pa'barre Allo (Toraja)",
-                'bentuk_ganci' => 'Bulat',
-                'status_tag' => 'aktif',
-                'pengiriman' => 'dikirim',
-            ],
-            [
-                'id_pesanan' => '#ORD-005',
-                'nama_pembeli' => 'Fajar Pratama',
-                'kota' => 'Parepare',
-                'jenis_produk' => 'Ganci Karet Persegi – Motif Saqbe (Bugis)',
-                'bentuk_ganci' => 'Persegi',
-                'status_tag' => 'belum_aktif',
-                'pengiriman' => 'pending',
-            ],
-            [
-                'id_pesanan' => '#ORD-006',
-                'nama_pembeli' => 'Siti Nurhaliza',
-                'kota' => 'Bone',
-                'jenis_produk' => 'Ganci Custom Akrilik – Edisi Tenun Lagosi',
-                'bentuk_ganci' => 'Custom',
-                'status_tag' => 'aktif',
-                'pengiriman' => 'selesai',
-            ],
-        ];
-
-        // Filter by Delivery Status
-        if ($statusFilter !== 'all') {
-            $orders = array_values(array_filter($orders, function ($order) use ($statusFilter) {
-                if ($statusFilter === 'perlu_dikirim') {
-                    return $order['pengiriman'] === 'pending';
-                }
-                if ($statusFilter === 'terkirim') {
-                    return in_array($order['pengiriman'], ['dikirim', 'selesai']);
-                }
-
-                return true;
-            }));
+        // Filter by Delivery / Workflow Stage
+        if ($statusFilter === 'perlu_dikirim') {
+            $query->whereIn('status', [
+                Order::STATUS_PEMBAYARAN_DIKONFIRMASI,
+                Order::STATUS_DESAIN_DISETUJUI,
+                Order::STATUS_DICETAK,
+                Order::STATUS_DIRAKIT_DAN_DIUJI,
+            ]);
+        } elseif ($statusFilter === 'terkirim') {
+            $query->whereIn('status', [
+                Order::STATUS_SIAP_DIAMBIL_DIKIRIM,
+                Order::STATUS_SELESAI,
+            ]);
+        } elseif ($statusFilter === 'pending') {
+            $query->where('status', Order::STATUS_MENUNGGU_PEMBAYARAN);
         }
 
         // Filter by Search Query
         if (! empty($search)) {
-            $searchTerm = strtolower($search);
-            $orders = array_values(array_filter($orders, function ($order) use ($searchTerm) {
-                $idMatch = str_contains(strtolower($order['id_pesanan']), $searchTerm);
-                $nameMatch = str_contains(strtolower($order['nama_pembeli']), $searchTerm);
-                $productMatch = str_contains(strtolower($order['jenis_produk']), $searchTerm);
-
-                return $idMatch || $nameMatch || $productMatch;
-            }));
+            $query->where(function ($q) use ($search) {
+                $q->where('order_no', 'like', "%{$search}%")
+                    ->orWhere('customer_name', 'like', "%{$search}%")
+                    ->orWhere('whatsapp', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('shape', 'like', "%{$search}%")
+                    ->orWhere('color', 'like', "%{$search}%")
+                    ->orWhere('notes', 'like', "%{$search}%");
+            });
         }
 
-        return view('admin.orders', compact('metrics', 'orders', 'statusFilter', 'search'));
+        $orders = $query->get();
+
+        // Calculate metrics from database with design baseline
+        $totalOrdersCount = Order::count();
+        $perluDikirimCount = Order::whereIn('status', [
+            Order::STATUS_PEMBAYARAN_DIKONFIRMASI,
+            Order::STATUS_DESAIN_DISETUJUI,
+            Order::STATUS_DICETAK,
+            Order::STATUS_DIRAKIT_DAN_DIUJI,
+        ])->count();
+        $terkirimCount = Order::whereIn('status', [
+            Order::STATUS_SIAP_DIAMBIL_DIKIRIM,
+            Order::STATUS_SELESAI,
+        ])->count();
+        $activeTagsCount = DB::table('tags')->where('status', 'aktif')->count();
+
+        $metrics = [
+            'total_hardware' => max(500, DB::table('tags')->count()),
+            'tag_aktif' => max(124, $activeTagsCount),
+            'perlu_dikirim' => $perluDikirimCount,
+            'total_pesanan' => max(48, $totalOrdersCount),
+            'terkirim' => max(32, $terkirimCount),
+        ];
+
+        $availableStatuses = Order::allStatuses();
+
+        return view('admin.orders', compact('metrics', 'orders', 'statusFilter', 'search', 'availableStatuses'));
+    }
+
+    /**
+     * Update order status to one of the 8 official SRS workflow stages.
+     */
+    public function updateStatus(Request $request, Order $order): RedirectResponse
+    {
+        $validated = $request->validate([
+            'status' => ['required', 'string', 'in:'.implode(',', array_keys(Order::allStatuses()))],
+            'note' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        $previousStatus = $order->status;
+        $order->update(['status' => $validated['status']]);
+
+        // Audit log status transition
+        $statusLabel = Order::allStatuses()[$validated['status']] ?? $validated['status'];
+        OrderStatusLog::create([
+            'order_id' => $order->id,
+            'status' => $validated['status'],
+            'changed_at' => now(),
+            'note' => $validated['note'] ?: ("Status diubah dari [{$previousStatus}] ke [{$statusLabel}] oleh administrator."),
+            'admin_id' => Auth::id() ?? 1,
+        ]);
+
+        return back()->with('success', "Status pesanan {$order->order_no} berhasil diperbarui ke: {$statusLabel}.");
     }
 }
