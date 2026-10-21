@@ -18,50 +18,53 @@ class BatchController extends Controller
     /**
      * Display the Generate Tag page.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
-        $dbBatchCount = DB::table('tags')->whereNotNull('batch_id')->distinct('batch_id')->count('batch_id');
-        $dbTagSum = DB::table('tags')->count();
+        $filter = $request->query('filter', 'all');
+
+        $totalBatchCount = DB::table('tags')->whereNotNull('batch_id')->distinct()->count('batch_id');
+        $totalTagCount = DB::table('tags')->count();
 
         $metrics = [
-            'total_batch' => $dbBatchCount > 0 ? max(24, $dbBatchCount) : 24,
-            'total_tags' => $dbTagSum > 0 ? number_format(max(1250, $dbTagSum), 0, ',', '.') : '1,250',
+            'total_batch' => $totalBatchCount,
+            'total_tags' => number_format($totalTagCount, 0, ',', '.'),
         ];
 
-        // Seed or load historical batches matching the design
-        // Query batches from database
-        $dbBatches = DB::table('tags')
+        // Query batches from database with live counts
+        $query = DB::table('tags')
             ->whereNotNull('batch_id')
-            ->select('batch_id', DB::raw('count(*) as jumlah_tag'), DB::raw('min(produced_at) as created_at'))
+            ->select(
+                'batch_id',
+                DB::raw('count(*) as jumlah_tag'),
+                DB::raw('sum(case when status = "aktif" then 1 else 0 end) as jumlah_aktif'),
+                DB::raw('min(produced_at) as created_at')
+            )
             ->groupBy('batch_id')
-            ->orderByDesc('created_at')
-            ->get();
+            ->orderByDesc('created_at');
+
+        if ($filter === 'this_month') {
+            $query->whereBetween('produced_at', [now()->startOfMonth(), now()->endOfMonth()]);
+        }
+
+        $dbBatches = $query->get();
 
         if ($dbBatches->isNotEmpty()) {
             $batches = $dbBatches->map(function ($b, $idx) {
                 return [
                     'id_batch' => $b->batch_id,
                     'edisi_label' => 'Toraja & Bugis Heritage',
-                    'produk_label' => 'Ganci Pintar FlexiTag',
-                    'jumlah_tag' => $b->jumlah_tag,
+                    'produk_label' => 'Ganci Pintar FlexiTag (NTAG215)',
+                    'jumlah_tag' => (int) $b->jumlah_tag,
+                    'jumlah_aktif' => (int) $b->jumlah_aktif,
                     'is_gold' => $idx === 0,
                     'tanggal_dibuat' => $b->created_at ? Carbon::parse($b->created_at)->translatedFormat('d M Y, H:i') : now()->translatedFormat('d M Y, H:i'),
                 ];
             })->toArray();
         } else {
-            $batches = [
-                [
-                    'id_batch' => '#B-883',
-                    'edisi_label' => 'Pa\'teddong (Toraja)',
-                    'produk_label' => 'Ganci Akrilik Bulat',
-                    'jumlah_tag' => 50,
-                    'is_gold' => true,
-                    'tanggal_dibuat' => now()->translatedFormat('d M Y, H:i'),
-                ],
-            ];
+            $batches = [];
         }
 
-        return view('admin.generate', compact('metrics', 'batches'));
+        return view('admin.generate', compact('metrics', 'batches', 'filter', 'totalBatchCount'));
     }
 
     /**
@@ -80,12 +83,15 @@ class BatchController extends Controller
         $count = (int) $validated['jumlah_tag'];
         $prefix = rtrim($validated['prefix_kode'], '-').'-';
 
-        // Auto-generate next batch code
-        $latestBatch = DB::table('tags')->whereNotNull('batch_id')->orderBy('id', 'desc')->first();
-        $nextNumber = 883;
-        if ($latestBatch && preg_match('/#B-(\d+)/', $latestBatch->batch_id, $matches)) {
-            $nextNumber = ((int) $matches[1]) + 1;
+        // Auto-generate next batch code sequentially
+        $existingBatchIds = DB::table('tags')->whereNotNull('batch_id')->distinct()->pluck('batch_id');
+        $maxNum = 880;
+        foreach ($existingBatchIds as $bId) {
+            if (preg_match('/#B-(\d+)/', (string) $bId, $matches)) {
+                $maxNum = max($maxNum, (int) $matches[1]);
+            }
         }
+        $nextNumber = $maxNum + 1;
         $batchCode = '#B-'.$nextNumber;
 
         // Generate N tags and prepare CSV data

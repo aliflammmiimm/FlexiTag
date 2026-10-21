@@ -269,22 +269,22 @@
                         <div class="flex items-center gap-2.5">
                             <h3 class="text-base font-bold text-[#1A1A1A]">Riwayat Pembuatan Batch</h3>
                             <span class="bg-[#F6F5F2] text-[#666] text-xs font-semibold px-2.5 py-0.5 rounded-full">
-                                18 Total
+                                {{ count($batches) }} Total
                             </span>
                         </div>
                         <p class="text-xs text-[#737373] mt-0.5 font-normal">
-                            Daftar kumpulan kode NFC yang telah diexport ke CSV
+                            Daftar kumpulan kode NFC yang telah diekspor dan dicatat di database
                         </p>
                     </div>
 
                     <!-- Filter Pill Switcher -->
                     <div class="inline-flex items-center bg-[#F6F5F2] p-1 rounded-2xl text-xs font-semibold shrink-0">
-                        <button type="button" class="bg-white shadow-xs rounded-xl px-3 py-1.5 text-[#1A1A1A] font-bold">
-                            Semua Batch (18)
-                        </button>
-                        <button type="button" class="text-[#737373] hover:text-[#1A1A1A] px-3 py-1.5 transition">
+                        <a href="{{ route('admin.generate') }}" class="{{ ($filter ?? 'all') === 'all' ? 'bg-white shadow-xs text-[#1A1A1A] font-bold' : 'text-[#737373] hover:text-[#1A1A1A]' }} rounded-xl px-3 py-1.5 transition">
+                            Semua Batch ({{ $totalBatchCount ?? count($batches) }})
+                        </a>
+                        <a href="{{ route('admin.generate', ['filter' => 'this_month']) }}" class="{{ ($filter ?? 'all') === 'this_month' ? 'bg-white shadow-xs text-[#1A1A1A] font-bold' : 'text-[#737373] hover:text-[#1A1A1A]' }} rounded-xl px-3 py-1.5 transition">
                             Bulan Ini
-                        </button>
+                        </a>
                     </div>
                 </div>
 
@@ -296,15 +296,18 @@
                                 <th class="pb-3 px-3">ID Batch</th>
                                 <th class="pb-3 px-3">Edisi Budaya &amp; Produk</th>
                                 <th class="pb-3 px-3">Jumlah</th>
-                                <th class="pb-3 px-3 text-right">Tanggal Dibuat</th>
+                                <th class="pb-3 px-3 text-right">Tanggal &amp; Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-[#F2EEE9]">
-                            @foreach ($batches as $batch)
+                            @forelse ($batches as $batch)
                                 <tr class="hover:bg-[#FAF9F6] transition-colors">
-                                    <!-- ID Batch -->
+                                    <!-- ID Batch (Direct link to tags filtered by batch) -->
                                     <td class="py-4 px-3 font-bold text-maroon whitespace-nowrap">
-                                        {{ $batch['id_batch'] }}
+                                        <a href="{{ route('admin.tags', ['search' => $batch['id_batch']]) }}" class="hover:underline flex items-center gap-1 font-mono tracking-wide" title="Lihat semua tag dalam batch ini">
+                                            <span>{{ $batch['id_batch'] }}</span>
+                                            <span class="text-[10px] text-gold-accent">↗</span>
+                                        </a>
                                     </td>
 
                                     <!-- Edisi Budaya & Produk -->
@@ -315,51 +318,51 @@
 
                                     <!-- Jumlah Tag -->
                                     <td class="py-4 px-3 whitespace-nowrap">
-                                        @if ($batch['is_gold'])
-                                            <span class="inline-block bg-[#FDF3D6] text-[#B8860B] font-bold text-[11px] px-3 py-0.5 rounded-full">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="inline-block {{ $batch['is_gold'] ? 'bg-[#FDF3D6] text-[#B8860B]' : 'bg-[#F0ECE7] text-[#555]' }} font-bold text-[11px] px-3 py-0.5 rounded-full">
                                                 {{ $batch['jumlah_tag'] }} Tag
                                             </span>
-                                        @else
-                                            <span class="inline-block bg-[#F0ECE7] text-[#555] font-bold text-[11px] px-3 py-0.5 rounded-full">
-                                                {{ $batch['jumlah_tag'] }} Tag
-                                            </span>
-                                        @endif
+                                            @if (($batch['jumlah_aktif'] ?? 0) > 0)
+                                                <span class="text-[10px] font-semibold text-[#2E7D32] bg-[#EAF5EC] px-2 py-0.5 rounded-full">
+                                                    {{ $batch['jumlah_aktif'] }} Aktif
+                                                </span>
+                                            @endif
+                                        </div>
                                     </td>
 
-                                    <!-- Tanggal Dibuat -->
-                                    <td class="py-4 px-3 text-right text-xs text-[#737373] font-normal whitespace-nowrap">
-                                        {{ $batch['tanggal_dibuat'] }}
+                                    <!-- Tanggal Dibuat & Link Aksi -->
+                                    <td class="py-4 px-3 text-right whitespace-nowrap">
+                                        <span class="text-xs text-[#737373] font-normal block">
+                                            {{ $batch['tanggal_dibuat'] }}
+                                        </span>
+                                        <a href="{{ route('admin.tags', ['search' => $batch['id_batch']]) }}" class="text-[10.5px] font-semibold text-maroon hover:underline mt-0.5 inline-block">
+                                            Lihat Tag di Inventaris →
+                                        </a>
                                     </td>
                                 </tr>
-                            @endforeach
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="py-8 text-center text-xs text-[#737373]">
+                                        Belum ada riwayat batch yang sesuai dengan filter.
+                                    </td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Table Footer: Pagination -->
+            <!-- Table Footer: Pagination & Count -->
             <div class="border-t border-[#ECE8E1] pt-4 mt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
                 <span class="text-[#737373]">
-                    Menampilkan <strong class="text-[#1A1A1A]">1 – 6</strong> dari <strong class="text-[#1A1A1A]">18</strong> batch terbit
+                    Menampilkan <strong class="text-[#1A1A1A]">1 – {{ count($batches) }}</strong> dari <strong class="text-[#1A1A1A]">{{ $totalBatchCount ?? count($batches) }}</strong> batch terbit
                 </span>
 
-                <!-- Pagination Buttons -->
-                <div class="flex items-center gap-1.5 text-xs">
-                    <button class="w-7 h-7 rounded-lg text-[#8A8A85] hover:bg-[#F6F5F2] flex items-center justify-center transition disabled:opacity-50">
-                        ‹
-                    </button>
-                    <button class="w-7 h-7 rounded-lg bg-gold-accent text-[#1A1A1A] font-bold flex items-center justify-center shadow-xs">
-                        1
-                    </button>
-                    <button class="w-7 h-7 rounded-lg text-[#737373] hover:bg-[#F6F5F2] flex items-center justify-center transition">
-                        2
-                    </button>
-                    <button class="w-7 h-7 rounded-lg text-[#737373] hover:bg-[#F6F5F2] flex items-center justify-center transition">
-                        3
-                    </button>
-                    <button class="w-7 h-7 rounded-lg text-[#8A8A85] hover:bg-[#F6F5F2] flex items-center justify-center transition">
-                        ›
-                    </button>
+                <div class="flex items-center gap-2">
+                    <a href="{{ route('admin.tags') }}" class="text-xs font-semibold text-maroon hover:underline flex items-center gap-1">
+                        <span>Buka Semua Inventaris Tag</span>
+                        <span>→</span>
+                    </a>
                 </div>
             </div>
 
