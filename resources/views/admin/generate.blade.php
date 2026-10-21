@@ -15,7 +15,7 @@
         </div>
 
         <!-- Top Right Mini Summary Badges -->
-        <div class="flex items-center gap-4 shrink-0">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full lg:w-auto shrink-0">
             <!-- Metric 1: Total Batch Aktif -->
             <div class="bg-white rounded-2xl px-4 py-3 border border-[#ECE8E1] shadow-xs flex items-center gap-3.5">
                 <div class="w-10 h-10 rounded-xl bg-[#FCF5E3] text-[#B8860B] flex items-center justify-center shrink-0">
@@ -177,7 +177,7 @@
                         </div>
                         
                         <!-- Radio options grid -->
-                        <div class="grid grid-cols-4 gap-2.5">
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                             @foreach ([10, 50, 100, 250] as $amount)
                                 <label class="cursor-pointer">
                                     <input 

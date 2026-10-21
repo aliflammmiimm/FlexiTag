@@ -55,15 +55,35 @@
             background: #D4C9BC;
             border-radius: 9999px;
         }
+
+        .no-scrollbar::-webkit-scrollbar,
+        .scrollbar-none::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar,
+        .scrollbar-none {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
     </style>
     @stack('styles')
 </head>
 <body class="bg-cream text-[#1A1A1A] min-h-screen flex antialiased selection:bg-[#8B0000] selection:text-[#F0C75E]">
 
+    <!-- Mobile Sidebar Backdrop Overlay -->
+    <div 
+        id="mobile-sidebar-backdrop" 
+        class="fixed inset-0 z-40 bg-black/50 backdrop-blur-xs transition-opacity duration-300 opacity-0 pointer-events-none lg:hidden" 
+        onclick="toggleMobileSidebar()"
+    ></div>
+
     <!-- ========================================================= -->
-    <!-- LEFT SIDEBAR: STICKY / FIXED IN PLACE ON SCROLL           -->
+    <!-- LEFT SIDEBAR: RESPONSIVE OFF-CANVAS (MOBILE) / STICKY (DESKTOP) -->
     <!-- ========================================================= -->
-    <aside class="w-64 sm:w-72 bg-sidebar h-screen sticky top-0 shrink-0 flex flex-col justify-between p-5 overflow-y-auto z-30 shadow-xl">
+    <aside 
+        id="admin-sidebar" 
+        class="fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] bg-sidebar h-full flex flex-col justify-between p-5 overflow-y-auto shadow-2xl transition-transform duration-300 ease-in-out -translate-x-full lg:translate-x-0 lg:static lg:sticky lg:top-0 lg:h-screen lg:shrink-0 lg:shadow-xl lg:z-30"
+    >
         
         <div>
             <!-- Sidebar Header: FlexiTag Logo & NFC PRO Pill -->
@@ -90,9 +110,22 @@
                     </div>
                 </div>
 
-                <span class="bg-[#4A0A12] text-[#F0C75E] text-[9.5px] font-extrabold uppercase px-2 py-0.5 rounded-md border border-[#6E1420] shrink-0">
-                    NFC PRO
-                </span>
+                <div class="flex items-center gap-2">
+                    <span class="bg-[#4A0A12] text-[#F0C75E] text-[9.5px] font-extrabold uppercase px-2 py-0.5 rounded-md border border-[#6E1420] shrink-0">
+                        NFC PRO
+                    </span>
+                    <!-- Mobile Close Button -->
+                    <button 
+                        type="button" 
+                        onclick="toggleMobileSidebar()" 
+                        class="lg:hidden text-[#E2D4C8] hover:text-white p-1 rounded-lg hover:bg-white/10 transition cursor-pointer"
+                        aria-label="Tutup Menu"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
             </div>
 
             <!-- Navigation Section Heading -->
@@ -220,22 +253,37 @@
         <!-- ===================================================== -->
         <!-- TOP HEADER: STICKY AT TOP ON SCROLL                   -->
         <!-- ===================================================== -->
-        <header class="sticky top-0 z-20 bg-cream/95 backdrop-blur-md px-6 lg:px-9 py-4 border-b border-[#ECE8E1]/80 flex items-center justify-between transition-shadow">
-            <!-- Console Fleet Path -->
-            <div class="flex items-center gap-2 text-xs text-[#737373] font-medium">
-                <svg class="w-4 h-4 text-[#8C6D23]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/>
-                </svg>
-                <span>Console</span>
-                <span class="text-[#8A8A85]">›</span>
-                <span class="font-bold text-maroon">Makassar Core Node</span>
-                <span class="text-[#8A8A85]">›</span>
-                <span>Workspace</span>
+        <header class="sticky top-0 z-20 bg-cream/95 backdrop-blur-md px-4 sm:px-6 lg:px-9 py-3 sm:py-4 border-b border-[#ECE8E1]/80 flex items-center justify-between transition-shadow">
+            <!-- Left: Mobile Hamburger Toggle + Console Path -->
+            <div class="flex items-center gap-2.5 sm:gap-3">
+                <!-- Hamburger Button (Mobile Only) -->
+                <button 
+                    type="button" 
+                    onclick="toggleMobileSidebar()" 
+                    class="lg:hidden p-2 rounded-xl text-[#1A1A1A] hover:bg-[#F2EEE9] active:scale-95 transition cursor-pointer -ml-1"
+                    aria-label="Buka Menu Navigasi"
+                >
+                    <svg class="w-6 h-6 text-[#380208]" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/>
+                    </svg>
+                </button>
+
+                <!-- Console Fleet Path -->
+                <div class="flex items-center gap-1.5 sm:gap-2 text-xs text-[#737373] font-medium">
+                    <svg class="w-4 h-4 text-[#8C6D23] shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/>
+                    </svg>
+                    <span class="hidden sm:inline">Console</span>
+                    <span class="hidden sm:inline text-[#8A8A85]">›</span>
+                    <span class="font-bold text-maroon truncate max-w-[140px] sm:max-w-none">Makassar Core Node</span>
+                    <span class="hidden md:inline text-[#8A8A85]">›</span>
+                    <span class="hidden md:inline">Workspace</span>
+                </div>
             </div>
 
             <!-- Right Toolbar: Regional Node Pill, Notification, Avatar -->
-            <div class="flex items-center gap-3.5">
+            <div class="flex items-center gap-2 sm:gap-3.5">
                 <div class="hidden sm:inline-flex items-center gap-2 bg-[#FCF5E3] text-[#8C6D23] px-3.5 py-1.5 rounded-full text-xs font-semibold shadow-2xs">
                     <span class="w-2 h-2 rounded-full bg-[#8C6D23] animate-pulse"></span>
                     <span>Regional Node: <strong>South Sulawesi (UPG-01)</strong> ⚡</span>
@@ -266,7 +314,7 @@
         </header>
 
         <!-- Main Body Content Slot -->
-        <main class="flex-1 p-6 lg:p-9">
+        <main class="flex-1 p-4 sm:p-6 lg:p-9 max-w-full overflow-x-hidden">
             @yield('content')
         </main>
     </div>
@@ -460,6 +508,37 @@
                 activeBtn.classList.add('bg-[#380208]', 'text-white');
             }
         }
+
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('admin-sidebar');
+            const backdrop = document.getElementById('mobile-sidebar-backdrop');
+            if (!sidebar || !backdrop) return;
+
+            const isClosed = sidebar.classList.contains('-translate-x-full');
+            if (isClosed) {
+                sidebar.classList.remove('-translate-x-full');
+                backdrop.classList.remove('pointer-events-none', 'opacity-0');
+                backdrop.classList.add('opacity-100');
+                document.body.classList.add('overflow-hidden', 'lg:overflow-auto');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                backdrop.classList.remove('opacity-100');
+                backdrop.classList.add('opacity-0', 'pointer-events-none');
+                document.body.classList.remove('overflow-hidden', 'lg:overflow-auto');
+            }
+        }
+
+        window.addEventListener('resize', function() {
+            if (window.innerWidth >= 1024) {
+                const sidebar = document.getElementById('admin-sidebar');
+                const backdrop = document.getElementById('mobile-sidebar-backdrop');
+                if (sidebar && backdrop) {
+                    backdrop.classList.remove('opacity-100');
+                    backdrop.classList.add('opacity-0', 'pointer-events-none');
+                    document.body.classList.remove('overflow-hidden');
+                }
+            }
+        });
     </script>
 
     @stack('scripts')

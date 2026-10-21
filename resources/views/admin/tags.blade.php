@@ -15,30 +15,28 @@
     @endif
 
     <!-- Top System Badges Row -->
-    <div class="flex justify-end gap-2.5 mb-2">
-        <div class="flex items-center gap-2.5 shrink-0">
-            <!-- Chip Info -->
-            <div class="inline-flex items-center gap-2 bg-[#F0ECE7]/80 border border-[#ECE8E1] px-3.5 py-1.5 rounded-full text-xs font-medium text-[#555]">
-                <svg class="w-4 h-4 text-[#7A735E]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                    <rect x="4" y="4" width="16" height="16" rx="2"/>
-                    <rect x="9" y="9" width="6" height="6"/>
-                    <line x1="9" y1="1" x2="9" y2="4"/>
-                    <line x1="15" y1="1" x2="15" y2="4"/>
-                    <line x1="9" y1="20" x2="9" y2="23"/>
-                    <line x1="15" y1="20" x2="15" y2="23"/>
-                    <line x1="20" y1="9" x2="23" y2="9"/>
-                    <line x1="20" y1="15" x2="23" y2="15"/>
-                    <line x1="1" y1="9" x2="4" y2="9"/>
-                    <line x1="1" y1="15" x2="4" y2="15"/>
-                </svg>
-                <span>Chiptype: <strong>NXP NTAG215 (504 Bytes)</strong></span>
-            </div>
+    <div class="flex flex-wrap items-center justify-between sm:justify-end gap-2 mb-3">
+        <!-- Chip Info -->
+        <div class="inline-flex items-center gap-2 bg-[#F0ECE7]/80 border border-[#ECE8E1] px-3 sm:px-3.5 py-1.5 rounded-full text-[11px] sm:text-xs font-medium text-[#555]">
+            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#7A735E]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                <rect x="4" y="4" width="16" height="16" rx="2"/>
+                <rect x="9" y="9" width="6" height="6"/>
+                <line x1="9" y1="1" x2="9" y2="4"/>
+                <line x1="15" y1="1" x2="15" y2="4"/>
+                <line x1="9" y1="20" x2="9" y2="23"/>
+                <line x1="15" y1="20" x2="15" y2="23"/>
+                <line x1="20" y1="9" x2="23" y2="9"/>
+                <line x1="20" y1="15" x2="23" y2="15"/>
+                <line x1="1" y1="9" x2="4" y2="9"/>
+                <line x1="1" y1="15" x2="4" y2="15"/>
+            </svg>
+            <span>Chiptype: <strong>NXP NTAG215 (504 Bytes)</strong></span>
+        </div>
 
-            <!-- Sync Live Indicator -->
-            <div class="inline-flex items-center gap-2 bg-[#FCE8E8] text-maroon font-bold text-xs px-3.5 py-1.5 rounded-full border border-[#F5C2C2]">
-                <span class="w-2 h-2 rounded-full bg-maroon animate-pulse"></span>
-                <span>Database Sync: Online</span>
-            </div>
+        <!-- Sync Live Indicator -->
+        <div class="inline-flex items-center gap-2 bg-[#FCE8E8] text-maroon font-bold text-[11px] sm:text-xs px-3 sm:px-3.5 py-1.5 rounded-full border border-[#F5C2C2]">
+            <span class="w-2 h-2 rounded-full bg-maroon animate-pulse"></span>
+            <span>Database Sync: Online</span>
         </div>
     </div>
 
@@ -54,9 +52,9 @@
         </div>
 
         <!-- Filter & Action Toolbar -->
-        <div class="flex flex-wrap items-center gap-2.5 shrink-0">
+        <div class="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
             <!-- Search Form -->
-            <form action="{{ route('admin.tags') }}" method="GET" class="relative">
+            <form action="{{ route('admin.tags') }}" method="GET" class="relative flex-1 sm:flex-initial w-full sm:w-auto">
                 <input type="hidden" name="status" value="{{ $statusFilter }}">
                 <svg class="w-4 h-4 text-[#8A8A85] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <circle cx="11" cy="11" r="8"/>
@@ -67,7 +65,7 @@
                     name="search" 
                     value="{{ $search }}"
                     placeholder="Cari Tag Code / Pemilik..." 
-                    class="w-56 sm:w-64 bg-white border border-[#ECE8E1] rounded-2xl pl-10 pr-4 py-2 text-xs text-[#1A1A1A] placeholder-[#9E9E98] focus:outline-none focus:ring-2 focus:ring-[#8B0000]/10 focus:border-[#8B0000] shadow-xs transition"
+                    class="w-full sm:w-64 bg-white border border-[#ECE8E1] rounded-2xl pl-10 pr-4 py-2 text-xs text-[#1A1A1A] placeholder-[#9E9E98] focus:outline-none focus:ring-2 focus:ring-[#8B0000]/10 focus:border-[#8B0000] shadow-xs transition"
                 >
             </form>
 
@@ -251,28 +249,28 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#ECE8E1] mb-6">
             
             <!-- Filter Pills -->
-            <div class="flex flex-wrap items-center gap-1.5 text-xs font-semibold bg-[#F6F5F2] p-1.5 rounded-full border border-[#ECE8E1] self-start sm:self-auto">
+            <div class="flex overflow-x-auto no-scrollbar sm:flex-wrap items-center gap-1.5 text-xs font-semibold bg-[#F6F5F2] p-1.5 rounded-2xl sm:rounded-full border border-[#ECE8E1] w-full sm:w-auto max-w-full">
                 <a 
                     href="{{ route('admin.tags', ['status' => 'all', 'search' => $search]) }}" 
-                    class="px-4 py-2 rounded-full transition {{ $statusFilter === 'all' ? 'bg-[#380208] text-white shadow-xs font-bold' : 'text-[#737373] hover:text-[#1A1A1A]' }}"
+                    class="whitespace-nowrap px-4 py-2 rounded-full transition {{ $statusFilter === 'all' ? 'bg-[#380208] text-white shadow-xs font-bold' : 'text-[#737373] hover:text-[#1A1A1A]' }}"
                 >
                     Semua ({{ $metrics['total_diproduksi'] }})
                 </a>
                 <a 
                     href="{{ route('admin.tags', ['status' => 'aktif', 'search' => $search]) }}" 
-                    class="px-4 py-2 rounded-full transition {{ $statusFilter === 'aktif' ? 'bg-[#380208] text-white shadow-xs font-bold' : 'text-[#737373] hover:text-[#1A1A1A]' }}"
+                    class="whitespace-nowrap px-4 py-2 rounded-full transition {{ $statusFilter === 'aktif' ? 'bg-[#380208] text-white shadow-xs font-bold' : 'text-[#737373] hover:text-[#1A1A1A]' }}"
                 >
                     Aktif ({{ $metrics['tag_terhubung'] }})
                 </a>
                 <a 
                     href="{{ route('admin.tags', ['status' => 'belum_aktif', 'search' => $search]) }}" 
-                    class="px-4 py-2 rounded-full transition {{ $statusFilter === 'belum_aktif' ? 'bg-[#380208] text-white shadow-xs font-bold' : 'text-[#737373] hover:text-[#1A1A1A]' }}"
+                    class="whitespace-nowrap px-4 py-2 rounded-full transition {{ $statusFilter === 'belum_aktif' ? 'bg-[#380208] text-white shadow-xs font-bold' : 'text-[#737373] hover:text-[#1A1A1A]' }}"
                 >
                     Belum Aktif ({{ $metrics['tag_stok'] }})
                 </a>
                 <a 
                     href="{{ route('admin.tags', ['status' => 'diblokir', 'search' => $search]) }}" 
-                    class="px-4 py-2 rounded-full transition {{ in_array($statusFilter, ['diblokir', 'nonaktif']) ? 'bg-[#380208] text-white shadow-xs font-bold' : 'text-[#737373] hover:text-[#1A1A1A]' }}"
+                    class="whitespace-nowrap px-4 py-2 rounded-full transition {{ in_array($statusFilter, ['diblokir', 'nonaktif']) ? 'bg-[#380208] text-white shadow-xs font-bold' : 'text-[#737373] hover:text-[#1A1A1A]' }}"
                 >
                     Nonaktif / Blokir ({{ $metrics['tag_diblokir'] }})
                 </a>
