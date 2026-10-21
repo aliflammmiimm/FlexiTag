@@ -60,6 +60,34 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
+        $userAndi = User::updateOrCreate(
+            ['email' => 'andi.muhammad@example.com'],
+            [
+                'name' => 'Andi Muhammad',
+                'password' => Hash::make('password'),
+                'role' => 'user',
+                'jabatan_admin' => null,
+                'no_whatsapp' => '081234567802',
+                'is_active' => true,
+                'two_factor_enabled' => false,
+                'email_verified_at' => now(),
+            ]
+        );
+
+        $userSiti = User::updateOrCreate(
+            ['email' => 'siti.rahmawati@example.com'],
+            [
+                'name' => 'Siti Rahmawati',
+                'password' => Hash::make('password'),
+                'role' => 'user',
+                'jabatan_admin' => null,
+                'no_whatsapp' => '081234567803',
+                'is_active' => true,
+                'two_factor_enabled' => false,
+                'email_verified_at' => now(),
+            ]
+        );
+
         // 2. Seed Profile (1:1 with users)
         DB::table('profiles')->updateOrInsert(
             ['user_id' => $user->id],
@@ -69,8 +97,38 @@ class DatabaseSeeder extends Seeder
                 'bio' => 'Mahasiswa Pascasarjana Sistem Informasi & Founder Kedai Kopi Celebes. Suka mengeksplorasi IoT dan Web Development.',
                 'photo_path' => 'uploads/profiles/budi.jpg',
                 'theme' => 'sulawesi_heritage',
-                'active_mode' => 'kampus',
+                'active_mode' => 'kerja',
                 'username' => 'budisantoso',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]
+        );
+
+        DB::table('profiles')->updateOrInsert(
+            ['user_id' => $userAndi->id],
+            [
+                'display_name' => 'Andi Muhammad Rifki',
+                'headline' => 'Teknik Informatika UNHAS 2022',
+                'bio' => 'Aktif di organisasi HIMA TI dan penggiat komunitas teknologi di Makassar.',
+                'photo_path' => null,
+                'theme' => 'sulawesi_heritage',
+                'active_mode' => 'kampus',
+                'username' => 'andirifki',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]
+        );
+
+        DB::table('profiles')->updateOrInsert(
+            ['user_id' => $userSiti->id],
+            [
+                'display_name' => 'Siti Rahmawati (Tenun Saqbe)',
+                'headline' => 'Owner Pengrajin Sutera Bugis Sengkang',
+                'bio' => 'Menyediakan kain tenun sutera motif tradisional Saqbe khas Wajo & Bugis.',
+                'photo_path' => null,
+                'theme' => 'sulawesi_heritage',
+                'active_mode' => 'umkm',
+                'username' => 'saqbebugis',
                 'created_at' => now(),
                 'updated_at' => now(),
             ]
@@ -195,7 +253,7 @@ class DatabaseSeeder extends Seeder
         $sampleTags = [
             [
                 'tag_code' => 'FLX-8X9Y2Z',
-                'activation_code' => 'ACT-882-98234',
+                'activation_code' => hash('sha256', 'FLX-2026-8X9Y2Z'),
                 'user_id' => $user->id,
                 'status' => 'aktif',
                 'disabled_by' => null,
@@ -207,8 +265,8 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'tag_code' => 'FLX-9A2B4C',
-                'activation_code' => 'ACT-881-12345',
-                'user_id' => $user->id,
+                'activation_code' => hash('sha256', 'FLX-2026-9A2B4C'),
+                'user_id' => $userSiti->id,
                 'status' => 'aktif',
                 'disabled_by' => null,
                 'batch_id' => '#B-881',
@@ -218,16 +276,76 @@ class DatabaseSeeder extends Seeder
                 'updated_at' => now()->subDays(10),
             ],
             [
+                'tag_code' => 'FLX-5T1W8Q',
+                'activation_code' => hash('sha256', 'FLX-2026-5T1W8Q'),
+                'user_id' => $userAndi->id,
+                'status' => 'aktif',
+                'disabled_by' => null,
+                'batch_id' => '#B-882',
+                'produced_at' => now()->subMonths(1),
+                'activated_at' => now()->subDays(8),
+                'created_at' => now()->subMonths(1),
+                'updated_at' => now()->subDays(8),
+            ],
+            [
+                'tag_code' => 'FLX-BL-999',
+                'activation_code' => hash('sha256', 'FLX-2026-BL-999'),
+                'user_id' => $user->id,
+                'status' => 'nonaktif',
+                'disabled_by' => 'admin',
+                'batch_id' => '#B-880',
+                'produced_at' => now()->subMonths(2),
+                'activated_at' => now()->subDays(20),
+                'created_at' => now()->subMonths(2),
+                'updated_at' => now()->subDays(2),
+            ],
+            [
+                'tag_code' => 'FLX-KS-777',
+                'activation_code' => hash('sha256', 'FLX-2026-KS-777'),
+                'user_id' => $userAndi->id,
+                'status' => 'nonaktif',
+                'disabled_by' => 'owner',
+                'batch_id' => '#B-881',
+                'produced_at' => now()->subMonths(1),
+                'activated_at' => now()->subDays(12),
+                'created_at' => now()->subMonths(1),
+                'updated_at' => now()->subDays(1),
+            ],
+            [
                 'tag_code' => 'FLX-KM-001',
-                'activation_code' => 'ACT-880-99887',
+                'activation_code' => hash('sha256', 'FLX-2026-KM-001'),
                 'user_id' => null,
                 'status' => 'belum_aktif',
                 'disabled_by' => null,
-                'batch_id' => '#B-880',
-                'produced_at' => now()->subWeeks(2),
+                'batch_id' => '#B-883',
+                'produced_at' => now()->subWeeks(1),
                 'activated_at' => null,
-                'created_at' => now()->subWeeks(2),
-                'updated_at' => now()->subWeeks(2),
+                'created_at' => now()->subWeeks(1),
+                'updated_at' => now()->subWeeks(1),
+            ],
+            [
+                'tag_code' => 'FLX-KM-002',
+                'activation_code' => hash('sha256', 'FLX-2026-KM-002'),
+                'user_id' => null,
+                'status' => 'belum_aktif',
+                'disabled_by' => null,
+                'batch_id' => '#B-883',
+                'produced_at' => now()->subWeeks(1),
+                'activated_at' => null,
+                'created_at' => now()->subWeeks(1),
+                'updated_at' => now()->subWeeks(1),
+            ],
+            [
+                'tag_code' => 'FLX-KM-003',
+                'activation_code' => hash('sha256', 'FLX-2026-KM-003'),
+                'user_id' => null,
+                'status' => 'belum_aktif',
+                'disabled_by' => null,
+                'batch_id' => '#B-883',
+                'produced_at' => now()->subWeeks(1),
+                'activated_at' => null,
+                'created_at' => now()->subWeeks(1),
+                'updated_at' => now()->subWeeks(1),
             ],
         ];
 

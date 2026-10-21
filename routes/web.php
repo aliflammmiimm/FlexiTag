@@ -34,6 +34,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/generate', [BatchController::class, 'index'])->name('generate');
         Route::post('/generate', [BatchController::class, 'store'])->name('generate.store');
         Route::get('/tags', [TagController::class, 'index'])->name('tags');
+        Route::get('/tags/export-csv', [TagController::class, 'exportCsv'])->name('tags.exportCsv');
+        Route::post('/tags/{tag}/block', [TagController::class, 'block'])->name('tags.block');
+        Route::post('/tags/{tag}/unblock', [TagController::class, 'unblock'])->name('tags.unblock');
+        Route::post('/tags/{tag}/unlink', [TagController::class, 'unlink'])->name('tags.unlink');
+        Route::post('/tags/{tag}/pair', [TagController::class, 'pair'])->name('tags.pair');
         Route::get('/orders', [OrderController::class, 'index'])->name('orders');
         Route::post('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.status');
         Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics');

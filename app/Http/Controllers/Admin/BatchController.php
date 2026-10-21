@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -27,56 +29,37 @@ class BatchController extends Controller
         ];
 
         // Seed or load historical batches matching the design
-        $batches = [
-            [
-                'id_batch' => '#B-882',
-                'edisi_label' => "Pa'teddong (Toraja)",
-                'produk_label' => 'Ganci Akrilik Persegi',
-                'jumlah_tag' => 50,
-                'is_gold' => true,
-                'tanggal_dibuat' => '18 Mei 2025, 14:20',
-            ],
-            [
-                'id_batch' => '#B-881',
-                'edisi_label' => 'Saqbe (Bugis)',
-                'produk_label' => 'Ganci Kulit Bulat',
-                'jumlah_tag' => 100,
-                'is_gold' => false,
-                'tanggal_dibuat' => '16 Mei 2025, 09:45',
-            ],
-            [
-                'id_batch' => '#B-880',
-                'edisi_label' => "Pa'barre Allo (Toraja)",
-                'produk_label' => 'Ganci Akrilik Bulat',
-                'jumlah_tag' => 10,
-                'is_gold' => false,
-                'tanggal_dibuat' => '12 Mei 2025, 11:15',
-            ],
-            [
-                'id_batch' => '#B-879',
-                'edisi_label' => "Sulapa Eppa' (Bugis)",
-                'produk_label' => 'Ganci Kayu Persegi Ukir',
-                'jumlah_tag' => 50,
-                'is_gold' => true,
-                'tanggal_dibuat' => '08 Mei 2025, 16:30',
-            ],
-            [
-                'id_batch' => '#B-878',
-                'edisi_label' => "Pa'teddong (Toraja)",
-                'produk_label' => 'Ganci Akrilik Persegi',
-                'jumlah_tag' => 250,
-                'is_gold' => false,
-                'tanggal_dibuat' => '04 Mei 2025, 10:05',
-            ],
-            [
-                'id_batch' => '#B-877',
-                'edisi_label' => 'Lagosi (Bugis)',
-                'produk_label' => 'Ganci Custom Akrilik',
-                'jumlah_tag' => 100,
-                'is_gold' => false,
-                'tanggal_dibuat' => '29 Apr 2025, 13:40',
-            ],
-        ];
+        // Query batches from database
+        $dbBatches = DB::table('tags')
+            ->whereNotNull('batch_id')
+            ->select('batch_id', DB::raw('count(*) as jumlah_tag'), DB::raw('min(produced_at) as created_at'))
+            ->groupBy('batch_id')
+            ->orderByDesc('created_at')
+            ->get();
+
+        if ($dbBatches->isNotEmpty()) {
+            $batches = $dbBatches->map(function ($b, $idx) {
+                return [
+                    'id_batch' => $b->batch_id,
+                    'edisi_label' => 'Toraja & Bugis Heritage',
+                    'produk_label' => 'Ganci Pintar FlexiTag',
+                    'jumlah_tag' => $b->jumlah_tag,
+                    'is_gold' => $idx === 0,
+                    'tanggal_dibuat' => $b->created_at ? Carbon::parse($b->created_at)->translatedFormat('d M Y, H:i') : now()->translatedFormat('d M Y, H:i'),
+                ];
+            })->toArray();
+        } else {
+            $batches = [
+                [
+                    'id_batch' => '#B-883',
+                    'edisi_label' => 'Pa\'teddong (Toraja)',
+                    'produk_label' => 'Ganci Akrilik Bulat',
+                    'jumlah_tag' => 50,
+                    'is_gold' => true,
+                    'tanggal_dibuat' => now()->translatedFormat('d M Y, H:i'),
+                ],
+            ];
+        }
 
         return view('admin.generate', compact('metrics', 'batches'));
     }
@@ -155,6 +138,9 @@ class BatchController extends Controller
         foreach (array_chunk($tagsData, 100) as $chunk) {
             DB::table('tags')->insert($chunk);
         }
+
+        // Record administrative audit trail (FR-ADM-10)
+        AuditLog::record('generate_batch', "Batch {$batchCode} ({$count} tag) produk '{$validated['jenis_produk']}' di-generate oleh admin");
 
         // Stream and download the CSV
         $filename = 'FlexiTag_'.str_replace('#', '', $batchCode).'_'.date('Ymd_His').'.csv';

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use App\Models\Order;
 use App\Models\OrderStatusLog;
 use Illuminate\Http\RedirectResponse;
@@ -105,6 +106,8 @@ class OrderController extends Controller
             'note' => $validated['note'] ?: ("Status diubah dari [{$previousStatus}] ke [{$statusLabel}] oleh administrator."),
             'admin_id' => Auth::id() ?? 1,
         ]);
+
+        AuditLog::record('update_order_status', "Status pesanan [{$order->order_no}] diubah dari [{$previousStatus}] ke [{$statusLabel}]");
 
         return back()->with('success', "Status pesanan {$order->order_no} berhasil diperbarui ke: {$statusLabel}.");
     }

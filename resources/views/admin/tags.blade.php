@@ -3,10 +3,19 @@
 @section('title', 'Inventaris & Status NFC Tag')
 
 @section('content')
+    <!-- Success Notification Alert -->
+    @if (session('success'))
+        <div class="mb-5 p-4 rounded-2xl bg-[#EAF5EC] border border-[#C8E6C9] text-xs text-[#2E7D32] flex items-center justify-between shadow-xs animate-in fade-in duration-200">
+            <div class="flex items-center gap-2.5">
+                <div class="w-6 h-6 rounded-full bg-[#C8E6C9] flex items-center justify-center font-bold text-xs">✓</div>
+                <span class="font-semibold">{{ session('success') }}</span>
+            </div>
+            <button type="button" onclick="this.parentElement.remove()" class="text-[#2E7D32] hover:text-[#1B5E20] font-bold p-1 cursor-pointer">✕</button>
+        </div>
+    @endif
+
     <!-- Top System Badges Row -->
     <div class="flex justify-end gap-2.5 mb-2">
-
-        <!-- Hardware & Sync Badges -->
         <div class="flex items-center gap-2.5 shrink-0">
             <!-- Chip Info -->
             <div class="inline-flex items-center gap-2 bg-[#F0ECE7]/80 border border-[#ECE8E1] px-3.5 py-1.5 rounded-full text-xs font-medium text-[#555]">
@@ -28,7 +37,7 @@
             <!-- Sync Live Indicator -->
             <div class="inline-flex items-center gap-2 bg-[#FCE8E8] text-maroon font-bold text-xs px-3.5 py-1.5 rounded-full border border-[#F5C2C2]">
                 <span class="w-2 h-2 rounded-full bg-maroon animate-pulse"></span>
-                <span>Sync Live: Online</span>
+                <span>Database Sync: Online</span>
             </div>
         </div>
     </div>
@@ -57,7 +66,7 @@
                     type="text" 
                     name="search" 
                     value="{{ $search }}"
-                    placeholder="Cari Kode Aktivasi / Pemilik..." 
+                    placeholder="Cari Tag Code / Pemilik..." 
                     class="w-56 sm:w-64 bg-white border border-[#ECE8E1] rounded-2xl pl-10 pr-4 py-2 text-xs text-[#1A1A1A] placeholder-[#9E9E98] focus:outline-none focus:ring-2 focus:ring-[#8B0000]/10 focus:border-[#8B0000] shadow-xs transition"
                 >
             </form>
@@ -72,24 +81,34 @@
                     <svg class="w-3.5 h-3.5 text-[#8A8A85]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 4.5h18m-14 7.5h10m-7 7.5h4"/>
                     </svg>
-                    <span>{{ $statusFilter === 'aktif' ? 'Status: Aktif' : ($statusFilter === 'belum_aktif' ? 'Status: Stok' : 'Semua Status') }}</span>
+                    <span>
+                        @if ($statusFilter === 'aktif')
+                            Status: Aktif
+                        @elseif ($statusFilter === 'belum_aktif')
+                            Status: Stok
+                        @elseif ($statusFilter === 'diblokir' || $statusFilter === 'nonaktif')
+                            Status: Nonaktif / Blokir
+                        @else
+                            Semua Status
+                        @endif
+                    </span>
                     <svg class="w-3 h-3 text-[#8A8A85]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
                     </svg>
                 </button>
-                <div id="status-dropdown-menu" class="hidden absolute right-0 mt-1.5 w-44 bg-white rounded-2xl shadow-xl border border-[#ECE8E1] py-1.5 z-40 text-xs">
-                    <a href="{{ route('admin.tags', ['status' => 'all', 'search' => $search]) }}" class="block px-4 py-2 hover:bg-[#F6F5F2] {{ $statusFilter === 'all' ? 'font-bold text-maroon' : 'text-[#4A4A4A]' }}">Semua Status</a>
-                    <a href="{{ route('admin.tags', ['status' => 'aktif', 'search' => $search]) }}" class="block px-4 py-2 hover:bg-[#F6F5F2] {{ $statusFilter === 'aktif' ? 'font-bold text-maroon' : 'text-[#4A4A4A]' }}">Aktif</a>
-                    <a href="{{ route('admin.tags', ['status' => 'belum_aktif', 'search' => $search]) }}" class="block px-4 py-2 hover:bg-[#F6F5F2] {{ $statusFilter === 'belum_aktif' ? 'font-bold text-maroon' : 'text-[#4A4A4A]' }}">Belum Aktif (Stok)</a>
-                    <a href="{{ route('admin.tags', ['status' => 'diblokir', 'search' => $search]) }}" class="block px-4 py-2 hover:bg-[#F6F5F2] {{ $statusFilter === 'diblokir' ? 'font-bold text-maroon' : 'text-[#4A4A4A]' }}">Diblokir</a>
+                <div id="status-dropdown-menu" class="hidden absolute right-0 mt-1.5 w-48 bg-white rounded-2xl shadow-xl border border-[#ECE8E1] py-1.5 z-40 text-xs">
+                    <a href="{{ route('admin.tags', ['status' => 'all', 'search' => $search]) }}" class="block px-4 py-2 hover:bg-[#F6F5F2] {{ $statusFilter === 'all' ? 'font-bold text-maroon' : 'text-[#4A4A4A]' }}">Semua Status ({{ $metrics['total_diproduksi'] }})</a>
+                    <a href="{{ route('admin.tags', ['status' => 'aktif', 'search' => $search]) }}" class="block px-4 py-2 hover:bg-[#F6F5F2] {{ $statusFilter === 'aktif' ? 'font-bold text-maroon' : 'text-[#4A4A4A]' }}">Aktif ({{ $metrics['tag_terhubung'] }})</a>
+                    <a href="{{ route('admin.tags', ['status' => 'belum_aktif', 'search' => $search]) }}" class="block px-4 py-2 hover:bg-[#F6F5F2] {{ $statusFilter === 'belum_aktif' ? 'font-bold text-maroon' : 'text-[#4A4A4A]' }}">Belum Aktif / Stok ({{ $metrics['tag_stok'] }})</a>
+                    <a href="{{ route('admin.tags', ['status' => 'diblokir', 'search' => $search]) }}" class="block px-4 py-2 hover:bg-[#F6F5F2] {{ in_array($statusFilter, ['diblokir', 'nonaktif']) ? 'font-bold text-maroon' : 'text-[#4A4A4A]' }}">Nonaktif / Blokir ({{ $metrics['tag_diblokir'] }})</a>
                 </div>
             </div>
 
-            <!-- Export CSV Button -->
+            <!-- Export CSV Button (FR-ADM-04) -->
             <a 
-                href="javascript:void(0)" 
-                onclick="alert('Mengekspor inventaris 500 tag ke file CSV...')" 
+                href="{{ route('admin.tags.exportCsv', ['status' => $statusFilter, 'search' => $search]) }}" 
                 class="bg-white hover:bg-[#F9F7F4] border border-[#ECE8E1] rounded-2xl px-3.5 py-2 text-xs font-semibold text-[#1A1A1A] flex items-center gap-1.5 shadow-xs transition"
+                title="Unduh data inventaris tag ke berkas CSV"
             >
                 <svg class="w-3.5 h-3.5 text-[#737373]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>
@@ -102,7 +121,7 @@
                 href="{{ route('admin.generate') }}" 
                 class="bg-gold-accent hover:bg-[#E5BC50] active:scale-95 text-[#1A1A1A] font-bold text-xs px-4 py-2 rounded-2xl shadow-xs flex items-center gap-1.5 transition"
             >
-                <span>+ Cetak Baru</span>
+                <span>+ Cetak Batch Baru</span>
             </a>
         </div>
     </div>
@@ -112,13 +131,13 @@
     <!-- ========================================================= -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-7">
 
-        <!-- Card 1: BATCH PRODUKSI MAKASSAR -->
+        <!-- Card 1: TOTAL TAG DIPRODUKSI -->
         <div class="bg-white rounded-3xl p-5 sm:p-6 border border-[#ECE8E1] shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col justify-between">
             <div>
                 <div class="flex items-center justify-between">
                     <div>
                         <span class="text-[10px] font-bold tracking-wider text-[#8A8A85] uppercase block">
-                            Batch Produksi Makassar
+                            Inventaris Hardware
                         </span>
                         <h4 class="text-xs font-semibold text-[#737373] mt-0.5">
                             Total Tag Diproduksi
@@ -134,7 +153,7 @@
 
                 <div class="flex items-baseline gap-2.5 mt-3">
                     <h3 class="text-3xl font-extrabold text-[#1A1A1A] tracking-tight">
-                        {{ $metrics['total_diproduksi'] }}
+                        {{ number_format($metrics['total_diproduksi']) }}
                     </h3>
                     <span class="bg-[#F6F5F2] text-[#666] text-xs font-bold px-2.5 py-0.5 rounded-full">
                         Unit NTAG215
@@ -146,11 +165,11 @@
                 <svg class="w-4 h-4 text-[#4E6333]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
-                <span>Alokasi Kloter I &amp; II (Toraja &amp; Bugis)</span>
+                <span>Produksi Batch Sulawesi Heritage</span>
             </div>
         </div>
 
-        <!-- Card 2: KONEKSI DINAMIS TERPAUT -->
+        <!-- Card 2: TAG TERHUBUNG (AKTIF) -->
         <div class="bg-white rounded-3xl p-5 sm:p-6 border border-[#ECE8E1] shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col justify-between">
             <div>
                 <div class="flex items-center justify-between">
@@ -171,7 +190,7 @@
 
                 <div class="flex items-baseline gap-2.5 mt-3">
                     <h3 class="text-3xl font-extrabold text-[#1A1A1A] tracking-tight">
-                        {{ $metrics['tag_terhubung'] }}
+                        {{ number_format($metrics['tag_terhubung']) }}
                     </h3>
                     <span class="bg-[#FDF3D6] text-[#B8860B] text-xs font-bold px-2.5 py-0.5 rounded-full">
                         {{ $metrics['rasio_aktif'] }} teraktivasi
@@ -181,11 +200,11 @@
 
             <div class="mt-4 pt-3 border-t border-[#F2EEE9] flex items-center gap-1.5 text-xs text-[#737373]">
                 <span class="text-[#D4AF37]">📶</span>
-                <span>Rata-rata 4.2 tap per hari per pengguna</span>
+                <span>Tersinkronisasi dengan profil aktif pengguna</span>
             </div>
         </div>
 
-        <!-- Card 3: SIAP ENKODING & PAIRING -->
+        <!-- Card 3: TAG BELUM AKTIF (STOK) -->
         <div class="bg-white rounded-3xl p-5 sm:p-6 border border-[#ECE8E1] shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col justify-between">
             <div>
                 <div class="flex items-center justify-between">
@@ -198,65 +217,64 @@
                         </h4>
                     </div>
                     <div class="w-9 h-9 rounded-xl bg-[#F0ECE7] text-[#555] flex items-center justify-center shrink-0">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9"/>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <rect x="2" y="7" width="20" height="14" rx="2"/>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
                         </svg>
                     </div>
                 </div>
 
                 <div class="flex items-baseline gap-2.5 mt-3">
                     <h3 class="text-3xl font-extrabold text-[#1A1A1A] tracking-tight">
-                        {{ $metrics['tag_stok'] }}
+                        {{ number_format($metrics['tag_stok']) }}
                     </h3>
-                    <span class="bg-[#F6F5F2] text-[#666] text-xs font-bold px-2.5 py-0.5 rounded-full">
-                        Siap distribusi
+                    <span class="bg-[#FCE8E8] text-maroon text-xs font-bold px-2.5 py-0.5 rounded-full">
+                        {{ $metrics['tag_diblokir'] }} Nonaktif / Diblokir
                     </span>
                 </div>
             </div>
 
             <div class="mt-4 pt-3 border-t border-[#F2EEE9] flex items-center gap-1.5 text-xs text-[#737373]">
-                <svg class="w-4 h-4 text-[#8A8A85]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.65V9.35m0 0a3.001 3.001 0 003.75-.615A2.993 2.993 0 009 9.35c.66 0 1.284-.214 1.794-.582a3 3 0 004.412 0c.51.368 1.134.582 1.794.582a2.993 2.993 0 002.25-.965 3.001 3.001 0 003.75.615V21"/>
-                </svg>
-                <span>Tersedia di Gudang Logistik BTP Tamalanrea</span>
+                <span class="w-2 h-2 rounded-full bg-[#16A34A]"></span>
+                <span>Siap di-pair atau diklaim pelanggan baru</span>
             </div>
         </div>
 
     </div>
 
     <!-- ========================================================= -->
-    <!-- MAIN INVENTORY CARD WITH FILTER TABS                      -->
+    <!-- MAIN INVENTORY CARD                                       -->
     <!-- ========================================================= -->
-    <div class="bg-white rounded-3xl p-6 sm:p-7 border border-[#ECE8E1] shadow-[0_2px_15px_rgba(0,0,0,0.02)]">
+    <div class="bg-white rounded-3xl p-6 sm:p-8 border border-[#ECE8E1] shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
 
-        <!-- Top Bar: Filter Status Tabs + Terminal NFC Reader Button -->
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-[#ECE8E1]/80 mb-6">
+        <!-- Top Table Controls: Status Filter Pills & NFC Scanner -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#ECE8E1] mb-6">
             
-            <!-- Filter Status Tabs -->
-            <div class="inline-flex items-center bg-[#F6F5F2] p-1 rounded-full text-xs font-semibold gap-1">
+            <!-- Filter Pills -->
+            <div class="flex flex-wrap items-center gap-1.5 text-xs font-semibold bg-[#F6F5F2] p-1.5 rounded-full border border-[#ECE8E1] self-start sm:self-auto">
                 <a 
                     href="{{ route('admin.tags', ['status' => 'all', 'search' => $search]) }}" 
                     class="px-4 py-2 rounded-full transition {{ $statusFilter === 'all' ? 'bg-[#380208] text-white shadow-xs font-bold' : 'text-[#737373] hover:text-[#1A1A1A]' }}"
                 >
-                    Semua (500)
+                    Semua ({{ $metrics['total_diproduksi'] }})
                 </a>
                 <a 
                     href="{{ route('admin.tags', ['status' => 'aktif', 'search' => $search]) }}" 
                     class="px-4 py-2 rounded-full transition {{ $statusFilter === 'aktif' ? 'bg-[#380208] text-white shadow-xs font-bold' : 'text-[#737373] hover:text-[#1A1A1A]' }}"
                 >
-                    Aktif (124)
+                    Aktif ({{ $metrics['tag_terhubung'] }})
                 </a>
                 <a 
                     href="{{ route('admin.tags', ['status' => 'belum_aktif', 'search' => $search]) }}" 
                     class="px-4 py-2 rounded-full transition {{ $statusFilter === 'belum_aktif' ? 'bg-[#380208] text-white shadow-xs font-bold' : 'text-[#737373] hover:text-[#1A1A1A]' }}"
                 >
-                    Belum Aktif (376)
+                    Belum Aktif ({{ $metrics['tag_stok'] }})
                 </a>
                 <a 
                     href="{{ route('admin.tags', ['status' => 'diblokir', 'search' => $search]) }}" 
-                    class="px-4 py-2 rounded-full transition {{ $statusFilter === 'diblokir' ? 'bg-[#380208] text-white shadow-xs font-bold' : 'text-[#737373] hover:text-[#1A1A1A]' }}"
+                    class="px-4 py-2 rounded-full transition {{ in_array($statusFilter, ['diblokir', 'nonaktif']) ? 'bg-[#380208] text-white shadow-xs font-bold' : 'text-[#737373] hover:text-[#1A1A1A]' }}"
                 >
-                    Diblokir (0)
+                    Nonaktif / Blokir ({{ $metrics['tag_diblokir'] }})
                 </a>
             </div>
 
@@ -265,13 +283,13 @@
                 <span class="text-xs text-[#737373] font-medium hidden sm:inline">Terminal NFC Reader:</span>
                 <button 
                     type="button" 
-                    onclick="openNfcModal()"
+                    onclick="openNfcModal()" 
                     class="bg-[#FBE8E8] hover:bg-[#F7D8D8] text-maroon font-bold text-xs px-4 py-2 rounded-full border border-[#F5C2C2] flex items-center gap-2 shadow-xs transition active:scale-95 cursor-pointer"
                 >
                     <svg class="w-4 h-4 text-maroon animate-pulse" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M8.53 16.11a6 6 0 0 1 6.95 0m-9.5-3.56a11 11 0 0 1 12.08 0M12 20h.01"/>
                     </svg>
-                    <span>Pindai Tag Fisik</span>
+                    <span>Simulasi Scan Tag</span>
                 </button>
             </div>
         </div>
@@ -281,19 +299,25 @@
             <table class="w-full text-left text-xs">
                 <thead>
                     <tr class="text-[10px] font-bold uppercase tracking-wider text-[#8A8A85] border-b border-[#ECE8E1]">
-                        <th class="pb-3.5 px-3">Kode Aktivasi</th>
-                        <th class="pb-3.5 px-3">Batch &amp; Edisi</th>
-                        <th class="pb-3.5 px-3">Status Tag</th>
+                        <th class="pb-3.5 px-3">Kode Tag &amp; Batch</th>
+                        <th class="pb-3.5 px-3">Status Hardware</th>
                         <th class="pb-3.5 px-3">Pemilik Terdaftar</th>
-                        <th class="pb-3.5 px-3">Mode Saat Ini</th>
-                        <th class="pb-3.5 px-3 text-right">Aksi</th>
+                        <th class="pb-3.5 px-3">Mode Publik Aktif</th>
+                        <th class="pb-3.5 px-3">Tanggal Siklus</th>
+                        <th class="pb-3.5 px-3 text-right">Aksi Manajemen</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-[#F2EEE9]">
                     @forelse ($tags as $tag)
+                        @php
+                            $badge = $tag->status_badge;
+                            $owner = $tag->user;
+                            $profile = $owner?->profile;
+                            $activeMode = $profile?->active_mode ?? 'kampus';
+                        @endphp
                         <tr class="hover:bg-[#FAF9F6] transition-colors">
                             
-                            <!-- 1. Kode Aktivasi & UID -->
+                            <!-- 1. Kode Tag & Batch -->
                             <td class="py-4 px-3 whitespace-nowrap">
                                 <div class="flex items-center gap-2.5">
                                     <div class="w-7 h-7 rounded-lg bg-[#FAF4EB] text-[#8B0000] flex items-center justify-center shrink-0 border border-[#EFECE6]">
@@ -303,59 +327,42 @@
                                         </svg>
                                     </div>
                                     <div>
-                                        <span class="font-bold text-xs text-[#1A1A1A] block tracking-wide">
-                                            {{ $tag['kode_aktivasi'] }}
+                                        <span class="font-bold text-xs text-maroon block tracking-wider font-mono">
+                                            {{ $tag->tag_code }}
                                         </span>
-                                        <span class="text-[10px] font-mono text-[#8A8A85] block">
-                                            UID: {{ $tag['hardware_uid'] }}
+                                        <span class="text-[10.5px] text-[#737373] block mt-0.5">
+                                            Batch: <strong class="text-[#1A1A1A]">{{ $tag->batch_id ?? '#B-883' }}</strong>
                                         </span>
                                     </div>
                                 </div>
                             </td>
 
-                            <!-- 2. Batch & Edisi -->
+                            <!-- 2. Status Tag (Compact Badge) -->
                             <td class="py-4 px-3 whitespace-nowrap">
-                                <div class="font-bold text-xs text-[#1A1A1A]">
-                                    {{ $tag['batch_id'] }} • {{ $tag['edisi'] }}
-                                </div>
-                                <div class="text-[11px] text-[#737373] font-normal">
-                                    {{ $tag['sub_edisi'] }}
-                                </div>
-                            </td>
-
-                            <!-- 3. Status Tag -->
-                            <td class="py-4 px-3 whitespace-nowrap">
-                                @if ($tag['status'] === 'aktif')
-                                    <span class="inline-flex items-center gap-1.5 bg-[#FDF3D6] text-[#B8860B] font-bold text-[11px] px-3 py-1 rounded-full">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-[#B8860B]"></span>
-                                        Aktif
-                                    </span>
-                                @elseif ($tag['status'] === 'tersedia')
-                                    <span class="inline-flex items-center gap-1.5 bg-[#F0ECE7] text-[#736B5E] font-semibold text-[11px] px-3 py-1 rounded-full">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-[#736B5E]"></span>
-                                        Tersedia
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center gap-1.5 bg-[#FCE8E8] text-maroon font-semibold text-[11px] px-3 py-1 rounded-full">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-maroon"></span>
-                                        Diblokir
+                                <span class="inline-flex items-center gap-1.5 {{ $badge['bg_class'] }} font-bold text-[11px] px-3 py-1 rounded-full shadow-2xs">
+                                    <span class="w-1.5 h-1.5 rounded-full {{ $badge['dot_class'] }}"></span>
+                                    {{ $badge['label'] }}
+                                </span>
+                                @if ($tag->disabled_by)
+                                    <span class="block text-[9.5px] text-[#8A8A85] mt-0.5">
+                                        Oleh: {{ $tag->disabled_by === 'admin' ? 'Pengelola (Admin)' : 'Pemilik (Kill Switch)' }}
                                     </span>
                                 @endif
                             </td>
 
-                            <!-- 4. Pemilik Terdaftar -->
+                            <!-- 3. Pemilik Terdaftar -->
                             <td class="py-4 px-3 whitespace-nowrap">
-                                @if ($tag['pemilik'])
+                                @if ($owner)
                                     <div class="flex items-center gap-2.5">
                                         <div class="w-7 h-7 rounded-full bg-[#F0ECE7] text-[#1A1A1A] font-bold text-[10px] flex items-center justify-center shrink-0 border border-[#ECE8E1]">
-                                            {{ $tag['pemilik']['initials'] }}
+                                            {{ strtoupper(substr($owner->name, 0, 2)) }}
                                         </div>
                                         <div>
                                             <span class="font-bold text-xs text-[#1A1A1A] block">
-                                                {{ $tag['pemilik']['nama'] }}
+                                                {{ $profile->display_name ?? $owner->name }}
                                             </span>
                                             <span class="text-[11px] text-[#737373] font-normal block">
-                                                {{ $tag['pemilik']['lokasi'] }}
+                                                {{ $owner->email }}
                                             </span>
                                         </div>
                                     </div>
@@ -369,64 +376,79 @@
                                 @endif
                             </td>
 
-                            <!-- 5. Mode Saat Ini -->
+                            <!-- 4. Mode Publik Aktif -->
                             <td class="py-4 px-3 whitespace-nowrap">
-                                @if ($tag['mode'] === 'kampus')
-                                    <span class="inline-flex items-center gap-1.5 bg-[#F3EEFA] text-[#6A40A0] font-semibold text-[11px] px-3 py-1 rounded-full">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5"/>
-                                        </svg>
-                                        Mode Kampus
-                                    </span>
-                                @elseif ($tag['mode'] === 'umkm')
-                                    <span class="inline-flex items-center gap-1.5 bg-[#FFF3E6] text-[#B85D19] font-semibold text-[11px] px-3 py-1 rounded-full">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.65V9.35m0 0a3.001 3.001 0 003.75-.615A2.993 2.993 0 009 9.35c.66 0 1.284-.214 1.794-.582a3 3 0 004.412 0c.51.368 1.134.582 1.794.582a2.993 2.993 0 002.25-.965 3.001 3.001 0 003.75.615V21"/>
-                                        </svg>
-                                        Mode UMKM
-                                    </span>
-                                @elseif ($tag['mode'] === 'kerja')
-                                    <span class="inline-flex items-center gap-1.5 bg-[#EBF0F5] text-[#2C4863] font-semibold text-[11px] px-3 py-1 rounded-full">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25v.894m7.5 0a48.667 48.667 0 00-7.5 0"/>
-                                        </svg>
-                                        Mode Kerja
-                                    </span>
+                                @if ($owner && $profile)
+                                    @if ($activeMode === 'kampus')
+                                        <span class="inline-flex items-center gap-1.5 bg-[#F3EEFA] text-[#6A40A0] font-semibold text-[11px] px-3 py-1 rounded-full">
+                                            🎓 Mode Kampus
+                                        </span>
+                                    @elseif ($activeMode === 'umkm')
+                                        <span class="inline-flex items-center gap-1.5 bg-[#FFF3E6] text-[#B85D19] font-semibold text-[11px] px-3 py-1 rounded-full">
+                                            🏪 Mode UMKM
+                                        </span>
+                                    @elseif ($activeMode === 'kerja')
+                                        <span class="inline-flex items-center gap-1.5 bg-[#EBF0F5] text-[#2C4863] font-semibold text-[11px] px-3 py-1 rounded-full">
+                                            💼 Mode Kerja
+                                        </span>
+                                    @elseif ($activeMode === 'hilang')
+                                        <span class="inline-flex items-center gap-1.5 bg-[#FCE8E8] text-[#8B0000] font-bold text-[11px] px-3 py-1 rounded-full animate-pulse">
+                                            🚨 Mode Hilang
+                                        </span>
+                                    @endif
                                 @else
-                                    <span class="text-sm text-[#8A8A85] font-bold pl-3">—</span>
+                                    <span class="text-xs text-[#8A8A85] font-normal pl-3">—</span>
                                 @endif
+                            </td>
+
+                            <!-- 5. Tanggal Siklus -->
+                            <td class="py-4 px-3 whitespace-nowrap text-[11px] text-[#737373]">
+                                <span class="block">Diproduksi: <strong>{{ $tag->produced_at ? $tag->produced_at->translatedFormat('d M Y') : now()->translatedFormat('d M Y') }}</strong></span>
+                                <span class="block text-[10px] text-[#8A8A85] mt-0.5">
+                                    {{ $tag->activated_at ? 'Aktif sejak: '.$tag->activated_at->translatedFormat('d M Y') : 'Status: Menunggu Pairing' }}
+                                </span>
                             </td>
 
                             <!-- 6. Aksi: Primary Button + Three Dots Dropdown -->
                             <td class="py-4 px-3 text-right whitespace-nowrap">
                                 <div class="inline-flex items-center gap-1.5 relative">
                                     
-                                    <!-- Primary Button: Kelola atau Tautkan -->
-                                    @if ($tag['status'] === 'aktif')
+                                    <!-- Primary Button -->
+                                    @if ($tag->status === 'aktif')
                                         <button 
                                             type="button" 
-                                            onclick="openTagDetailModal('{{ $tag['kode_aktivasi'] }}', '{{ $tag['pemilik']['nama'] ?? '' }}', '{{ $tag['hardware_uid'] }}', '{{ $tag['mode'] }}')"
+                                            onclick="openTagDetailModal('{{ $tag->tag_code }}', '{{ $owner->name ?? '' }}', '{{ $tag->batch_id ?? '' }}', '{{ $activeMode }}', '{{ $tag->public_url }}')"
                                             class="bg-gold-accent hover:bg-[#E5BC50] text-[#1A1A1A] font-semibold text-xs px-3.5 py-1.5 rounded-full shadow-xs transition cursor-pointer"
                                         >
-                                            Kelola
+                                            Detail Tag
                                         </button>
-                                    @else
+                                    @elseif ($tag->status === 'belum_aktif')
                                         <button 
                                             type="button" 
-                                            onclick="openPairingModal('{{ $tag['kode_aktivasi'] }}')"
+                                            onclick="openPairingModal({{ $tag->id }}, '{{ $tag->tag_code }}')"
                                             class="bg-[#F0ECE7] hover:bg-[#E5DFD6] text-[#4A4A4A] font-semibold text-xs px-3.5 py-1.5 rounded-full transition cursor-pointer"
                                         >
                                             Tautkan
                                         </button>
+                                    @else
+                                        <form action="{{ route('admin.tags.unblock', $tag->id) }}" method="POST" class="inline">
+                                            @csrf
+                                            <button 
+                                                type="submit" 
+                                                class="bg-[#EAF5EC] hover:bg-[#C8E6C9] text-[#2E7D32] font-semibold text-xs px-3.5 py-1.5 rounded-full transition cursor-pointer"
+                                            >
+                                                Buka Blokir
+                                            </button>
+                                        </form>
                                     @endif
 
                                     <!-- Three Dots Menu Toggle Button -->
                                     <div class="relative">
                                         <button 
                                             type="button" 
-                                            onclick="toggleActionMenu(event, 'menu-{{ $tag['id'] }}')"
+                                            onclick="toggleActionMenu(event, 'menu-{{ $tag->id }}')"
                                             class="p-1.5 text-[#8A8A85] hover:text-[#1A1A1A] hover:bg-[#F0ECE7] rounded-full transition cursor-pointer"
-                                            title="Opsi Lanjutan Chip"
+                                            title="Opsi Lanjutan Tag"
                                         >
                                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                                 <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/>
@@ -435,48 +457,70 @@
 
                                         <!-- Three Dots Context Dropdown Menu -->
                                         <div 
-                                            id="menu-{{ $tag['id'] }}" 
+                                            id="menu-{{ $tag->id }}" 
                                             class="action-menu hidden absolute right-0 mt-1 w-56 bg-white rounded-2xl shadow-xl border border-[#ECE8E1] py-2 z-50 text-left text-xs"
                                         >
-                                            <!-- Option 1: View Tap Analytics -->
-                                            <a href="javascript:void(0)" onclick="alert('Membuka Telemetri Scan untuk {{ $tag['kode_aktivasi'] }}...')" class="flex items-center gap-2.5 px-4 py-2 hover:bg-[#FAF9F6] text-[#1A1A1A] font-medium transition">
-                                                <span class="text-base">📊</span>
-                                                <span>Lihat Log Scan (Tap)</span>
-                                            </a>
-
-                                            <!-- Option 2: Override Active Mode -->
-                                            <a href="javascript:void(0)" onclick="alert('Alihkan Mode Aktif via Admin Override')" class="flex items-center gap-2.5 px-4 py-2 hover:bg-[#FAF9F6] text-[#1A1A1A] font-medium transition">
-                                                <span class="text-base">🔄</span>
-                                                <span>Alihkan Mode Aktif</span>
-                                            </a>
-
-                                            <!-- Option 3: Copy NDEF URI -->
-                                            <a href="javascript:void(0)" onclick="navigator.clipboard.writeText('https://flexitag.id/t/{{ $tag['kode_aktivasi'] }}'); alert('Tautan NDEF disalin: https://flexitag.id/t/{{ $tag['kode_aktivasi'] }}');" class="flex items-center gap-2.5 px-4 py-2 hover:bg-[#FAF9F6] text-[#1A1A1A] font-medium transition">
+                                            <!-- Option 1: Copy Public NDEF URL -->
+                                            <a 
+                                                href="javascript:void(0)" 
+                                                onclick="copyToClipboard('{{ $tag->public_url }}')" 
+                                                class="flex items-center gap-2.5 px-4 py-2 hover:bg-[#FAF9F6] text-[#1A1A1A] font-medium transition"
+                                            >
                                                 <span class="text-base">📋</span>
-                                                <span>Salin NDEF URI String</span>
+                                                <span>Salin URL NDEF Publik</span>
+                                            </a>
+
+                                            <!-- Option 2: Visit Public URL -->
+                                            <a 
+                                                href="{{ $tag->public_url }}" 
+                                                target="_blank" 
+                                                class="flex items-center gap-2.5 px-4 py-2 hover:bg-[#FAF9F6] text-[#1A1A1A] font-medium transition"
+                                            >
+                                                <span class="text-base">🔗</span>
+                                                <span>Buka Halaman Publik (/u)</span>
+                                            </a>
+
+                                            <!-- Option 3: Pair / Re-link -->
+                                            <a 
+                                                href="javascript:void(0)" 
+                                                onclick="openPairingModal({{ $tag->id }}, '{{ $tag->tag_code }}')" 
+                                                class="flex items-center gap-2.5 px-4 py-2 hover:bg-[#FAF9F6] text-[#1A1A1A] font-medium transition"
+                                            >
+                                                <span class="text-base">👤</span>
+                                                <span>{{ $tag->user_id ? 'Ganti Pemilik' : 'Tautkan ke Pengguna' }}</span>
                                             </a>
 
                                             <div class="h-px bg-[#F2EEE9] my-1"></div>
 
-                                            <!-- Option 4: Kill-Switch Toggle -->
-                                            <a href="javascript:void(0)" onclick="alert('Kill-switch diaktifkan: Tag {{ $tag['kode_aktivasi'] }} sementara dialihkan ke mode nonaktif.')" class="flex items-center gap-2.5 px-4 py-2 hover:bg-[#FFF5F5] text-[#8B0000] font-medium transition">
-                                                <span class="text-base">🔒</span>
-                                                <span>Aktifkan Kill-Switch</span>
-                                            </a>
-
-                                            <!-- Option 5: Unlink User -->
-                                            @if ($tag['status'] === 'aktif')
-                                                <a href="javascript:void(0)" onclick="confirm('Yakin ingin melepas tautan pemilik tag ini?') && alert('Tautan pemilik dilepas.')" class="flex items-center gap-2.5 px-4 py-2 hover:bg-[#FFF5F5] text-[#737373] font-medium transition">
-                                                    <span class="text-base">⚠️</span>
-                                                    <span>Lepas Tautan Pengguna</span>
-                                                </a>
+                                            <!-- Option 4: Unlink User (if paired) -->
+                                            @if ($tag->user_id)
+                                                <form action="{{ route('admin.tags.unlink', $tag->id) }}" method="POST" onsubmit="return confirm('Lepas kepemilikan tag {{ $tag->tag_code }} dari {{ $owner->name ?? 'pengguna' }}? Status akan kembali menjadi Belum Aktif.')">
+                                                    @csrf
+                                                    <button type="submit" class="w-full flex items-center gap-2.5 px-4 py-2 hover:bg-[#FFF5F5] text-[#737373] hover:text-[#1A1A1A] font-medium transition text-left cursor-pointer">
+                                                        <span class="text-base">⚠️</span>
+                                                        <span>Lepas Tautan Pemilik</span>
+                                                    </button>
+                                                </form>
                                             @endif
 
-                                            <!-- Option 6: Block Chip Permanently -->
-                                            <a href="javascript:void(0)" onclick="confirm('Peringatan: Blokir tag ini permanen dari sistem?') && alert('Tag telah diblokir.')" class="flex items-center gap-2.5 px-4 py-2 hover:bg-[#FFF5F5] text-[#8B0000] font-semibold transition">
-                                                <span class="text-base">🚫</span>
-                                                <span>Blokir Tag Permanen</span>
-                                            </a>
+                                            <!-- Option 5: Block / Unblock Tag (BR-04) -->
+                                            @if ($tag->status !== 'nonaktif')
+                                                <form action="{{ route('admin.tags.block', $tag->id) }}" method="POST" onsubmit="return confirm('Blokir tag {{ $tag->tag_code }}? Tag ini tidak akan bisa menampilkan profil publik sampai dibuka oleh admin.')">
+                                                    @csrf
+                                                    <button type="submit" class="w-full flex items-center gap-2.5 px-4 py-2 hover:bg-[#FFF5F5] text-[#8B0000] font-semibold transition text-left cursor-pointer">
+                                                        <span class="text-base">🔒</span>
+                                                        <span>Blokir Tag (Admin)</span>
+                                                    </button>
+                                                </form>
+                                            @else
+                                                <form action="{{ route('admin.tags.unblock', $tag->id) }}" method="POST">
+                                                    @csrf
+                                                    <button type="submit" class="w-full flex items-center gap-2.5 px-4 py-2 hover:bg-[#EAF5EC] text-[#2E7D32] font-semibold transition text-left cursor-pointer">
+                                                        <span class="text-base">🔓</span>
+                                                        <span>Buka Blokir Tag</span>
+                                                    </button>
+                                                </form>
+                                            @endif
                                         </div>
                                     </div>
 
@@ -486,8 +530,15 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="py-8 text-center text-xs text-[#737373]">
-                                Tidak ada data tag NFC yang sesuai dengan filter.
+                            <td colspan="6" class="py-12 text-center text-xs text-[#737373]">
+                                <div class="w-12 h-12 rounded-full bg-[#F6F5F2] flex items-center justify-center mx-auto mb-2 text-[#8A8A85]">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                        <rect x="4" y="4" width="16" height="16" rx="2"/>
+                                        <rect x="9" y="9" width="6" height="6"/>
+                                    </svg>
+                                </div>
+                                <p class="font-bold text-[#1A1A1A]">Tidak ada data tag NFC</p>
+                                <p class="text-[11px] text-[#8A8A85] mt-1">Coba sesuaikan kata kunci pencarian atau tab filter status di atas.</p>
                             </td>
                         </tr>
                     @endforelse
@@ -498,30 +549,12 @@
         <!-- Table Footer: Pagination -->
         <div class="border-t border-[#ECE8E1] pt-5 mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
             <span class="text-[#737373]">
-                Menampilkan <strong class="text-[#1A1A1A]">1 – {{ count($tags) }}</strong> dari <strong class="text-[#1A1A1A]">500</strong> tag NFC
+                Menampilkan <strong class="text-[#1A1A1A]">{{ $tags->firstItem() ?? 0 }} – {{ $tags->lastItem() ?? 0 }}</strong> dari <strong class="text-[#1A1A1A]">{{ $tags->total() }}</strong> tag NFC
             </span>
 
-            <!-- Pagination Numbers -->
-            <div class="flex items-center gap-1.5">
-                <button class="w-7 h-7 rounded-lg text-[#8A8A85] hover:bg-[#F6F5F2] flex items-center justify-center transition">
-                    ‹
-                </button>
-                <button class="w-7 h-7 rounded-lg bg-maroon text-white font-bold flex items-center justify-center shadow-xs">
-                    1
-                </button>
-                <button class="w-7 h-7 rounded-lg text-[#737373] hover:bg-[#F6F5F2] flex items-center justify-center transition">
-                    2
-                </button>
-                <button class="w-7 h-7 rounded-lg text-[#737373] hover:bg-[#F6F5F2] flex items-center justify-center transition">
-                    3
-                </button>
-                <span class="px-1 text-[#8A8A85]">...</span>
-                <button class="w-7 h-7 rounded-lg text-[#737373] hover:bg-[#F6F5F2] flex items-center justify-center transition">
-                    84
-                </button>
-                <button class="w-7 h-7 rounded-lg text-[#8A8A85] hover:bg-[#F6F5F2] flex items-center justify-center transition">
-                    ›
-                </button>
+            <!-- Pagination Links -->
+            <div>
+                {{ $tags->links() }}
             </div>
         </div>
 
@@ -530,7 +563,7 @@
     <!-- ========================================================= -->
     <!-- INTERACTIVE MODAL 1: NFC WEB SCANNER SIMULATOR            -->
     <!-- ========================================================= -->
-    <div id="nfc-scanner-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
+    <div id="nfc-scanner-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/45 backdrop-blur-xs p-4">
         <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full text-center shadow-2xl border border-[#ECE8E1] animate-in fade-in zoom-in-95 duration-200">
             <div class="w-16 h-16 mx-auto rounded-full bg-[#FBE8E8] text-maroon flex items-center justify-center mb-4 relative">
                 <span class="absolute inset-0 rounded-full bg-maroon/20 animate-ping"></span>
@@ -538,19 +571,37 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M8.53 16.11a6 6 0 0 1 6.95 0m-9.5-3.56a11 11 0 0 1 12.08 0M12 20h.01"/>
                 </svg>
             </div>
-            <h3 class="text-lg font-bold text-[#1A1A1A]">Terminal NFC Aktif</h3>
+            <h3 class="text-base font-bold text-[#1A1A1A]">Simulasi Pemindaian NFC</h3>
             <p class="text-xs text-[#737373] mt-1 leading-relaxed">
-                Tempelkan keping ganci NFC fisik (bulat, persegi, motif budaya, atau custom) pada reader USB untuk membaca UID chip.
+                Uji coba respons halaman publik tag NFC dengan memilih atau mengetik kode tag di bawah ini:
             </p>
-            <div class="mt-4 p-3 rounded-2xl bg-[#F6F5F2] text-xs font-mono text-[#555]">
-                Menunggu respon sinyal 13.56 MHz...
+            
+            <div class="mt-4 text-left">
+                <label for="sim-tag-code" class="block text-[11px] font-bold text-[#1A1A1A] mb-1">Pilih / Ketik Kode Tag:</label>
+                <div class="flex gap-2">
+                    <input 
+                        type="text" 
+                        id="sim-tag-code" 
+                        placeholder="FLX-8X9Y2Z" 
+                        value="{{ $tags->first()->tag_code ?? 'FLX-8X9Y2Z' }}"
+                        class="w-full bg-[#F6F5F2] border border-[#ECE8E1] rounded-xl px-3 py-2 text-xs font-mono text-[#1A1A1A] focus:outline-none focus:border-maroon"
+                    >
+                    <button 
+                        type="button" 
+                        onclick="testScanTag()" 
+                        class="bg-maroon hover:bg-[#6B0000] text-gold-accent px-4 py-2 rounded-xl text-xs font-bold transition shrink-0 cursor-pointer"
+                    >
+                        Scan ⚡
+                    </button>
+                </div>
             </div>
+
             <button 
                 type="button" 
                 onclick="closeNfcModal()" 
                 class="mt-5 w-full bg-[#F6F5F2] hover:bg-[#EAE8E3] text-[#1A1A1A] font-semibold text-xs py-2.5 rounded-full transition cursor-pointer"
             >
-                Tutup Terminal
+                Tutup Simulator
             </button>
         </div>
     </div>
@@ -558,38 +609,103 @@
     <!-- ========================================================= -->
     <!-- INTERACTIVE MODAL 2: DETAIL & KELOLA TAG                   -->
     <!-- ========================================================= -->
-    <div id="tag-detail-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
+    <div id="tag-detail-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/45 backdrop-blur-xs p-4">
         <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-[#ECE8E1]">
             <div class="flex items-center justify-between pb-3 border-b border-[#ECE8E1]">
-                <h3 class="text-base font-bold text-[#1A1A1A]">Detail Chip NFC</h3>
-                <button type="button" onclick="closeTagDetailModal()" class="text-[#8A8A85] hover:text-[#1A1A1A] p-1">✕</button>
+                <div>
+                    <h3 class="text-base font-bold text-[#1A1A1A]">Detail Keping Chip NFC</h3>
+                    <p class="text-[11px] text-[#737373]">Spesifikasi NTAG215 Sulawesi Heritage</p>
+                </div>
+                <button type="button" onclick="closeTagDetailModal()" class="text-[#8A8A85] hover:text-[#1A1A1A] p-1 cursor-pointer">✕</button>
             </div>
-            <div class="mt-4 space-y-3 text-xs">
-                <div>
-                    <span class="text-[#737373] block text-[11px]">Kode Aktivasi:</span>
-                    <strong id="modal-tag-code" class="text-maroon font-bold text-sm">FLX-XXXXXX</strong>
+
+            <div class="mt-4 space-y-3 text-xs bg-[#F8F7F4] p-4 rounded-2xl border border-[#ECE8E1]">
+                <div class="flex justify-between items-center">
+                    <span class="text-[#737373]">Tag Code (Publik):</span>
+                    <strong id="modal-tag-code" class="text-maroon font-bold text-sm font-mono">FLX-XXXXXX</strong>
                 </div>
-                <div>
-                    <span class="text-[#737373] block text-[11px]">Hardware UID:</span>
-                    <span id="modal-tag-uid" class="font-mono text-[#1A1A1A]">04:XX:XX:XX:XX</span>
+                <div class="flex justify-between items-center">
+                    <span class="text-[#737373]">Batch ID:</span>
+                    <span id="modal-tag-batch" class="font-bold text-[#1A1A1A]">#B-883</span>
                 </div>
-                <div>
-                    <span class="text-[#737373] block text-[11px]">Pemilik Terdaftar:</span>
+                <div class="flex justify-between items-center">
+                    <span class="text-[#737373]">Pemilik Terdaftar:</span>
                     <span id="modal-tag-owner" class="font-semibold text-[#1A1A1A]">Nama Pemilik</span>
                 </div>
-                <div>
-                    <span class="text-[#737373] block text-[11px]">Mode Publik Aktif:</span>
-                    <span id="modal-tag-mode" class="font-semibold text-[#6A40A0] uppercase">Mode</span>
+                <div class="flex justify-between items-center">
+                    <span class="text-[#737373]">Mode Publik Aktif:</span>
+                    <span id="modal-tag-mode" class="font-bold text-[#6A40A0] uppercase text-[11px]">Mode</span>
+                </div>
+                <div class="pt-2 border-t border-[#ECE8E1]">
+                    <span class="text-[#737373] block mb-1">URL Publik (/u):</span>
+                    <div class="flex items-center gap-2">
+                        <input type="text" id="modal-tag-url" readonly class="w-full bg-white px-2.5 py-1.5 rounded-lg border border-[#ECE8E1] text-[11px] font-mono text-[#1A1A1A]">
+                        <button type="button" onclick="copyToClipboard(document.getElementById('modal-tag-url').value)" class="bg-gold-accent hover:bg-[#E5BC50] text-[#1A1A1A] px-2.5 py-1.5 rounded-lg text-[11px] font-bold shrink-0 cursor-pointer">Salin</button>
+                    </div>
                 </div>
             </div>
+
             <div class="mt-6 flex justify-end gap-2">
-                <button type="button" onclick="closeTagDetailModal()" class="bg-[#F6F5F2] hover:bg-[#EAE8E3] text-[#1A1A1A] text-xs font-semibold px-4 py-2 rounded-full transition">
+                <button type="button" onclick="closeTagDetailModal()" class="bg-[#F6F5F2] hover:bg-[#EAE8E3] text-[#1A1A1A] text-xs font-semibold px-4 py-2 rounded-full transition cursor-pointer">
                     Tutup
                 </button>
-                <button type="button" onclick="alert('Pengaturan tag disimpan.'); closeTagDetailModal();" class="bg-gold-accent hover:bg-[#E5BC50] text-[#1A1A1A] text-xs font-bold px-4 py-2 rounded-full transition">
-                    Simpan Perubahan
-                </button>
+                <a id="modal-tag-visit-btn" href="#" target="_blank" class="bg-maroon hover:bg-[#6B0000] text-gold-accent text-xs font-bold px-4 py-2 rounded-full transition flex items-center gap-1 cursor-pointer">
+                    <span>Kunjungi Profil</span>
+                    <span>→</span>
+                </a>
             </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- INTERACTIVE MODAL 3: PAIRING / TAUTKAN TAG KE USER         -->
+    <!-- ========================================================= -->
+    <div id="tag-pairing-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/45 backdrop-blur-xs p-4">
+        <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-[#ECE8E1]">
+            <div class="flex items-center justify-between pb-3 border-b border-[#ECE8E1]">
+                <div>
+                    <h3 class="text-base font-bold text-[#1A1A1A]">Tautkan Tag ke Pengguna</h3>
+                    <p class="text-[11px] text-[#737373]">Penetapan kepemilikan tag fisik (BR-01 &amp; BR-02)</p>
+                </div>
+                <button type="button" onclick="closePairingModal()" class="text-[#8A8A85] hover:text-[#1A1A1A] p-1 cursor-pointer">✕</button>
+            </div>
+
+            <form id="tag-pairing-form" method="POST" action="" class="mt-4 space-y-4">
+                @csrf
+                <div class="bg-[#F8F7F4] p-3 rounded-2xl border border-[#ECE8E1] text-xs flex justify-between items-center">
+                    <span class="text-[#737373]">Kode Tag:</span>
+                    <strong id="pairing-modal-code" class="text-maroon font-mono font-bold text-sm">FLX-XXXXXX</strong>
+                </div>
+
+                <div>
+                    <label for="pairing-user-select" class="block text-xs font-bold text-[#1A1A1A] mb-1.5">
+                        Pilih Akun Pemilik <span class="text-maroon">*</span>
+                    </label>
+                    <select 
+                        name="user_id" 
+                        id="pairing-user-select" 
+                        required 
+                        class="w-full bg-[#F6F5F2] hover:bg-[#F2F1ED] focus:bg-white text-xs font-semibold text-[#1A1A1A] py-2.5 px-3.5 rounded-2xl border border-[#ECE8E1] focus:outline-none focus:ring-2 focus:ring-[#8B0000]/10 focus:border-[#8B0000] transition cursor-pointer"
+                    >
+                        <option value="" disabled selected>Pilih pengguna terdaftar...</option>
+                        @foreach ($users as $u)
+                            <option value="{{ $u->id }}">{{ $u->name }} ({{ $u->email }})</option>
+                        @endforeach
+                    </select>
+                    <span class="text-[10.5px] text-[#8A8A85] block mt-1">
+                        Tag akan otomatis berubah status menjadi Aktif dan sinkron dengan profil pengguna.
+                    </span>
+                </div>
+
+                <div class="pt-2 flex justify-end gap-2 border-t border-[#ECE8E1]">
+                    <button type="button" onclick="closePairingModal()" class="bg-[#F6F5F2] hover:bg-[#EAE8E3] text-[#1A1A1A] text-xs font-semibold px-4 py-2 rounded-full transition cursor-pointer">
+                        Batal
+                    </button>
+                    <button type="submit" class="bg-gold-accent hover:bg-[#E5BC50] text-[#1A1A1A] text-xs font-bold px-5 py-2 rounded-full shadow-xs transition cursor-pointer">
+                        Simpan Tautan Tag
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 @endsection
@@ -628,6 +744,16 @@
         }
     });
 
+    // Copy to clipboard helper
+    function copyToClipboard(text) {
+        if (!text) return;
+        navigator.clipboard.writeText(text).then(function() {
+            alert('Tautan NDEF disalin ke clipboard: ' + text);
+        }).catch(function() {
+            prompt('Salin tautan:', text);
+        });
+    }
+
     // NFC Scanner Modal Controls
     function openNfcModal() {
         document.getElementById('nfc-scanner-modal').classList.remove('hidden');
@@ -635,21 +761,36 @@
     function closeNfcModal() {
         document.getElementById('nfc-scanner-modal').classList.add('hidden');
     }
+    function testScanTag() {
+        const code = document.getElementById('sim-tag-code').value.trim();
+        if (code) {
+            window.open('{{ url("/u") }}/' + code, '_blank');
+        }
+    }
 
     // Tag Detail Modal Controls
-    function openTagDetailModal(code, owner, uid, mode) {
+    function openTagDetailModal(code, owner, batch, mode, url) {
         document.getElementById('modal-tag-code').textContent = code;
         document.getElementById('modal-tag-owner').textContent = owner || 'Belum Terhubung';
-        document.getElementById('modal-tag-uid').textContent = uid;
+        document.getElementById('modal-tag-batch').textContent = batch || '#B-883';
         document.getElementById('modal-tag-mode').textContent = mode ? 'Mode ' + mode : 'Belum Dipilih';
+        document.getElementById('modal-tag-url').value = url;
+        document.getElementById('modal-tag-visit-btn').href = url;
         document.getElementById('tag-detail-modal').classList.remove('hidden');
     }
     function closeTagDetailModal() {
         document.getElementById('tag-detail-modal').classList.add('hidden');
     }
 
-    function openPairingModal(code) {
-        alert('Membuka wizard pairing untuk menautkan keping tag ' + code + ' ke pesanan atau profil pelanggan baru.');
+    // Pairing Modal Controls
+    function openPairingModal(tagId, tagCode) {
+        document.getElementById('pairing-modal-code').textContent = tagCode;
+        const form = document.getElementById('tag-pairing-form');
+        form.action = '{{ url("/admin/tags") }}/' + tagId + '/pair';
+        document.getElementById('tag-pairing-modal').classList.remove('hidden');
+    }
+    function closePairingModal() {
+        document.getElementById('tag-pairing-modal').classList.add('hidden');
     }
 </script>
 @endpush
