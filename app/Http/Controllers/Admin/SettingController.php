@@ -20,19 +20,15 @@ class SettingController extends Controller
     {
         $user = Auth::user();
 
-        // Get or initialize system settings
-        $settings = DB::table('system_settings')->first();
-        if (! $settings) {
-            $id = DB::table('system_settings')->insertGetId([
-                'relay_wa_otomatis_aktif' => true,
-                'notifikasi_email_pesanan' => true,
-                'mode_maintenance' => false,
-                'no_wa_cs_pusat' => '+62 812-3456-7890',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-            $settings = DB::table('system_settings')->find($id);
-        }
+        // Get system settings from key-value settings table
+        $settingsList = DB::table('settings')->pluck('value', 'key');
+
+        $settings = (object) [
+            'no_wa_cs_pusat' => $settingsList['no_wa_cs_pusat'] ?? '+62 812-3456-7890',
+            'relay_wa_otomatis_aktif' => filter_var($settingsList['relay_wa_otomatis_aktif'] ?? true, FILTER_VALIDATE_BOOLEAN),
+            'notifikasi_email_pesanan' => filter_var($settingsList['notifikasi_email_pesanan'] ?? true, FILTER_VALIDATE_BOOLEAN),
+            'mode_maintenance' => filter_var($settingsList['mode_maintenance'] ?? false, FILTER_VALIDATE_BOOLEAN),
+        ];
 
         return view('admin.settings', compact('user', 'settings'));
     }
@@ -59,16 +55,16 @@ class SettingController extends Controller
             ]);
         }
 
-        DB::table('system_settings')->updateOrInsert(
-            ['id' => 1],
-            [
-                'no_wa_cs_pusat' => $validated['no_wa_cs_pusat'],
-                'relay_wa_otomatis_aktif' => $request->boolean('relay_wa_otomatis_aktif'),
-                'notifikasi_email_pesanan' => $request->boolean('notifikasi_email_pesanan'),
-                'mode_maintenance' => $request->boolean('mode_maintenance'),
-                'updated_at' => now(),
-            ]
-        );
+        $items = [
+            'no_wa_cs_pusat' => $validated['no_wa_cs_pusat'],
+            'relay_wa_otomatis_aktif' => $request->boolean('relay_wa_otomatis_aktif') ? '1' : '0',
+            'notifikasi_email_pesanan' => $request->boolean('notifikasi_email_pesanan') ? '1' : '0',
+            'mode_maintenance' => $request->boolean('mode_maintenance') ? '1' : '0',
+        ];
+
+        foreach ($items as $k => $v) {
+            DB::table('settings')->updateOrInsert(['key' => $k], ['value' => $v, 'updated_at' => now()]);
+        }
 
         return back()->with('success', 'Semua pengaturan sistem dan kredensial admin berhasil disimpan & diverifikasi.');
     }

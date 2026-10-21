@@ -18,9 +18,9 @@ class DashboardController extends Controller
 
         // 1. Metric Counts (from DB with design baseline)
         $dbOrderCount = DB::table('orders')->count();
-        $dbTagCount = DB::table('nfc_tags')->where('status_tag', 'aktif')->count();
-        $dbPendingCount = DB::table('orders')->where('status_pengiriman', 'pending')->count();
-        $dbRevenue = DB::table('orders')->sum('total_harga');
+        $dbTagCount = DB::table('tags')->where('status', 'aktif')->count();
+        $dbPendingCount = DB::table('orders')->whereIn('status', ['menunggu_pembayaran', 'pembayaran_dikonfirmasi'])->count();
+        $dbRevenue = DB::table('orders')->sum('total');
 
         $metrics = [
             'total_pendapatan' => $dbRevenue > 0 ? 'Rp '.number_format($dbRevenue, 0, ',', '.') : 'Rp 14.500.000',

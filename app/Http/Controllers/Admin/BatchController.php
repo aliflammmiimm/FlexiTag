@@ -18,8 +18,8 @@ class BatchController extends Controller
      */
     public function index(): View
     {
-        $dbBatchCount = DB::table('tag_batches')->count();
-        $dbTagSum = DB::table('tag_batches')->sum('jumlah_tag');
+        $dbBatchCount = DB::table('tags')->whereNotNull('batch_id')->distinct('batch_id')->count('batch_id');
+        $dbTagSum = DB::table('tags')->count();
 
         $metrics = [
             'total_batch' => $dbBatchCount > 0 ? max(24, $dbBatchCount) : 24,
@@ -98,71 +98,33 @@ class BatchController extends Controller
         $prefix = rtrim($validated['prefix_kode'], '-').'-';
 
         // Auto-generate next batch code
-        $latestBatch = DB::table('tag_batches')->orderBy('id', 'desc')->first();
+        $latestBatch = DB::table('tags')->whereNotNull('batch_id')->orderBy('id', 'desc')->first();
         $nextNumber = 883;
-        if ($latestBatch && preg_match('/#B-(\d+)/', $latestBatch->id_batch, $matches)) {
+        if ($latestBatch && preg_match('/#B-(\d+)/', $latestBatch->batch_id, $matches)) {
             $nextNumber = ((int) $matches[1]) + 1;
         }
         $batchCode = '#B-'.$nextNumber;
 
-        // Map selection to valid database enum values
-        $jenisSlug = match ($validated['jenis_produk']) {
-            'Ganci Akrilik Persegi', 'Ganci Bentuk Persegi' => 'ganci_persegi',
-            'Ganci Edisi Motif Toraja', 'Ganci Motif Toraja' => 'ganci_motif_toraja',
-            'Ganci Edisi Motif Bugis', 'Ganci Motif Bugis' => 'ganci_motif_bugis',
-            'Ganci Custom Desain', 'Ganci Custom' => 'ganci_custom',
-            default => 'ganci_bulat',
-        };
-
-        $edisiSlug = match ($validated['edisi_budaya']) {
-            'Saqbe (Bugis)' => 'saqbe',
-            "Sulapa Eppa' (Makassar)", "Sulapa Eppa'" => 'sulapa_eppa',
-            "Pa'barre Allo (Toraja)" => 'pabarre_allo',
-            default => 'pateddong',
-        };
-
-        $batchId = DB::table('tag_batches')->insertGetId([
-            'id_batch' => $batchCode,
-            'jenis_produk' => $jenisSlug,
-            'edisi_budaya' => $edisiSlug,
-            'spesifikasi_ic' => 'NTAG215',
-            'jumlah_tag' => $count,
-            'prefix_kode' => $prefix,
-            'tanggal_dibuat' => now(),
-            'created_by_admin_id' => $adminId,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
         // Generate N tags and prepare CSV data
         $tagsData = [];
         $csvRows = [];
-        $csvRows[] = ['No', 'ID_Batch', 'Kode_Aktivasi', 'Hardware_UID', 'Spesifikasi_IC', 'Jenis_Produk', 'Edisi_Budaya', 'URL_Tap_NFC'];
+        $csvRows[] = ['No', 'ID_Batch', 'Tag_Code', 'Kode_Aktivasi', 'Status', 'Jenis_Produk', 'Edisi_Budaya', 'URL_Tap'];
 
         for ($i = 1; $i <= $count; $i++) {
             $uniqueHash = strtoupper(Str::random(5));
             $activationCode = $prefix.$uniqueHash;
-            $hardwareUid = sprintf(
-                '04:%02X:%02X:%02X:%02X:%02X:%02X',
-                random_int(0, 255),
-                random_int(0, 255),
-                random_int(0, 255),
-                random_int(0, 255),
-                random_int(0, 255),
-                random_int(0, 255)
-            );
-            $tapUrl = url('/t/'.$activationCode);
+            $tagCode = 'FLX-'.strtoupper(Str::random(6));
+            $tapUrl = url('/u/'.$tagCode);
 
             $tagsData[] = [
-                'batch_id' => $batchId,
+                'tag_code' => $tagCode,
+                'activation_code' => $activationCode,
                 'user_id' => null,
-                'kode_aktivasi' => $activationCode,
-                'hardware_uid' => $hardwareUid,
-                'nama_custom_merch' => $validated['jenis_produk'].' '.$validated['edisi_budaya'],
-                'status_tag' => 'tersedia',
-                'is_kill_switch_on' => false,
-                'active_mode' => 'kampus',
-                'tanggal_aktivasi' => null,
+                'status' => 'belum_aktif',
+                'disabled_by' => null,
+                'batch_id' => $batchCode,
+                'produced_at' => now(),
+                'activated_at' => null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
@@ -170,18 +132,18 @@ class BatchController extends Controller
             $csvRows[] = [
                 $i,
                 $batchCode,
+                $tagCode,
                 $activationCode,
-                $hardwareUid,
-                'NTAG215',
+                'belum_aktif',
                 $validated['jenis_produk'],
                 $validated['edisi_budaya'],
                 $tapUrl,
             ];
         }
 
-        // Bulk insert generated tags
+        // Bulk insert generated tags into tags table
         foreach (array_chunk($tagsData, 100) as $chunk) {
-            DB::table('nfc_tags')->insert($chunk);
+            DB::table('tags')->insert($chunk);
         }
 
         // Stream and download the CSV

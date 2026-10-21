@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('system_settings', function (Blueprint $table) {
+        Schema::create('designs', function (Blueprint $table) {
             $table->id();
-            $table->boolean('relay_wa_otomatis_aktif')->default(true);
-            $table->boolean('notifikasi_email_pesanan')->default(true);
-            $table->boolean('mode_maintenance')->default(false);
-            $table->string('no_wa_cs_pusat', 25)->default('6281234567890');
+            $table->string('name', 100);
+            $table->enum('category', ['pribadi', 'organisasi', 'umkm', 'motif_lokal']);
+            $table->string('image_path', 255);
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('system_settings');
+        Schema::dropIfExists('designs');
     }
 };
