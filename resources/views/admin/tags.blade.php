@@ -69,39 +69,6 @@
                 >
             </form>
 
-            <!-- Status Dropdown Filter -->
-            <div class="relative">
-                <button 
-                    type="button" 
-                    onclick="toggleStatusDropdown()" 
-                    class="bg-white hover:bg-[#F9F7F4] border border-[#ECE8E1] rounded-2xl px-3.5 py-2 text-xs font-semibold text-[#1A1A1A] flex items-center gap-2 shadow-xs transition cursor-pointer"
-                >
-                    <svg class="w-3.5 h-3.5 text-[#8A8A85]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 4.5h18m-14 7.5h10m-7 7.5h4"/>
-                    </svg>
-                    <span>
-                        @if ($statusFilter === 'aktif')
-                            Status: Aktif
-                        @elseif ($statusFilter === 'belum_aktif')
-                            Status: Stok
-                        @elseif ($statusFilter === 'diblokir' || $statusFilter === 'nonaktif')
-                            Status: Nonaktif / Blokir
-                        @else
-                            Semua Status
-                        @endif
-                    </span>
-                    <svg class="w-3 h-3 text-[#8A8A85]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
-                    </svg>
-                </button>
-                <div id="status-dropdown-menu" class="hidden absolute right-0 mt-1.5 w-48 bg-white rounded-2xl shadow-xl border border-[#ECE8E1] py-1.5 z-40 text-xs">
-                    <a href="{{ route('admin.tags', ['status' => 'all', 'search' => $search]) }}" class="block px-4 py-2 hover:bg-[#F6F5F2] {{ $statusFilter === 'all' ? 'font-bold text-maroon' : 'text-[#4A4A4A]' }}">Semua Status ({{ $metrics['total_diproduksi'] }})</a>
-                    <a href="{{ route('admin.tags', ['status' => 'aktif', 'search' => $search]) }}" class="block px-4 py-2 hover:bg-[#F6F5F2] {{ $statusFilter === 'aktif' ? 'font-bold text-maroon' : 'text-[#4A4A4A]' }}">Aktif ({{ $metrics['tag_terhubung'] }})</a>
-                    <a href="{{ route('admin.tags', ['status' => 'belum_aktif', 'search' => $search]) }}" class="block px-4 py-2 hover:bg-[#F6F5F2] {{ $statusFilter === 'belum_aktif' ? 'font-bold text-maroon' : 'text-[#4A4A4A]' }}">Belum Aktif / Stok ({{ $metrics['tag_stok'] }})</a>
-                    <a href="{{ route('admin.tags', ['status' => 'diblokir', 'search' => $search]) }}" class="block px-4 py-2 hover:bg-[#F6F5F2] {{ in_array($statusFilter, ['diblokir', 'nonaktif']) ? 'font-bold text-maroon' : 'text-[#4A4A4A]' }}">Nonaktif / Blokir ({{ $metrics['tag_diblokir'] }})</a>
-                </div>
-            </div>
-
             <!-- Export CSV Button (FR-ADM-04) -->
             <a 
                 href="{{ route('admin.tags.exportCsv', ['status' => $statusFilter, 'search' => $search]) }}" 
@@ -710,12 +677,6 @@
 
 @push('scripts')
 <script>
-    // Toggle Status Filter Dropdown
-    function toggleStatusDropdown() {
-        const menu = document.getElementById('status-dropdown-menu');
-        menu.classList.toggle('hidden');
-    }
-
     // Toggle Three Dots Context Dropdown Menu
     function toggleActionMenu(event, menuId) {
         event.stopPropagation();
@@ -736,10 +697,6 @@
     // Close open menus when clicking anywhere outside
     window.addEventListener('click', function(e) {
         document.querySelectorAll('.action-menu').forEach(el => el.classList.add('hidden'));
-        const statusDropdown = document.getElementById('status-dropdown-menu');
-        if (statusDropdown) {
-            statusDropdown.classList.add('hidden');
-        }
     });
 
     // Copy to clipboard helper
