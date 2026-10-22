@@ -9,7 +9,6 @@ use App\Models\OrderStatusLog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class OrderController extends Controller
@@ -57,8 +56,9 @@ class OrderController extends Controller
 
         $orders = $query->get();
 
-        // Calculate metrics from database with design baseline
+        // Calculate dynamic metrics directly from database
         $totalOrdersCount = Order::count();
+        $pendingCount = Order::where('status', Order::STATUS_MENUNGGU_PEMBAYARAN)->count();
         $perluDikirimCount = Order::whereIn('status', [
             Order::STATUS_PEMBAYARAN_DIKONFIRMASI,
             Order::STATUS_DESAIN_DISETUJUI,
@@ -69,14 +69,14 @@ class OrderController extends Controller
             Order::STATUS_SIAP_DIAMBIL_DIKIRIM,
             Order::STATUS_SELESAI,
         ])->count();
-        $activeTagsCount = DB::table('tags')->where('status', 'aktif')->count();
+        $totalQuantityOrdered = (int) Order::sum('quantity');
 
         $metrics = [
-            'total_hardware' => max(500, DB::table('tags')->count()),
-            'tag_aktif' => max(124, $activeTagsCount),
+            'total_pesanan' => $totalOrdersCount,
+            'total_hardware' => $totalQuantityOrdered,
+            'pending' => $pendingCount,
             'perlu_dikirim' => $perluDikirimCount,
-            'total_pesanan' => max(48, $totalOrdersCount),
-            'terkirim' => max(32, $terkirimCount),
+            'terkirim' => $terkirimCount,
         ];
 
         $availableStatuses = Order::allStatuses();

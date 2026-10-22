@@ -23,47 +23,27 @@
     <!-- ========================================================= -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
         
-        <!-- Card 1: TOTAL HARDWARE -->
+        <!-- Card 1: TOTAL PESANAN -->
         <div class="bg-white rounded-3xl p-5 sm:p-6 border border-[#ECE8E1] shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex items-center justify-between">
             <div>
                 <span class="text-[10px] font-bold tracking-wider text-[#8A8A85] uppercase block">
-                    Total Hardware Ganci
+                    Total Pesanan Masuk
                 </span>
                 <div class="flex items-baseline gap-2 mt-2">
                     <h3 class="text-3xl font-extrabold text-[#1A1A1A] tracking-tight">
-                        {{ number_format($metrics['total_hardware'], 0, ',', '.') }}
+                        {{ number_format($metrics['total_pesanan'], 0, ',', '.') }}
                     </h3>
-                    <span class="text-xs font-medium text-[#737373]">Tercetak/Stok</span>
+                    <span class="text-xs font-medium text-[#737373]">({{ $metrics['total_hardware'] }} Unit Ganci)</span>
                 </div>
             </div>
             <div class="w-11 h-11 rounded-2xl bg-[#FCF5E3] text-[#B8860B] flex items-center justify-center shrink-0">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/>
                 </svg>
             </div>
         </div>
 
-        <!-- Card 2: TAG AKTIF -->
-        <div class="bg-white rounded-3xl p-5 sm:p-6 border border-[#ECE8E1] shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex items-center justify-between">
-            <div>
-                <span class="text-[10px] font-bold tracking-wider text-[#8A8A85] uppercase block">
-                    Tag Teraktivasi Pengguna
-                </span>
-                <div class="flex items-baseline gap-2 mt-2">
-                    <h3 class="text-3xl font-extrabold text-[#1A1A1A] tracking-tight">
-                        {{ $metrics['tag_aktif'] }}
-                    </h3>
-                    <span class="text-xs font-medium text-[#737373]">Tag Aktif</span>
-                </div>
-            </div>
-            <div class="w-11 h-11 rounded-2xl bg-[#FCF5E3] text-[#B8860B] flex items-center justify-center shrink-0">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.53 16.11a6 6 0 0 1 6.95 0m-9.5-3.56a11 11 0 0 1 12.08 0M12 20h.01"/>
-                </svg>
-            </div>
-        </div>
-
-        <!-- Card 3: ANTREAN PEMENUHAN -->
+        <!-- Card 2: ANTREAN PEMENUHAN (DIPROSES) -->
         <div class="bg-white rounded-3xl p-5 sm:p-6 border border-[#ECE8E1] shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex items-center justify-between">
             <div>
                 <span class="text-[10px] font-bold tracking-wider text-[#8A8A85] uppercase block">
@@ -73,12 +53,32 @@
                     <h3 class="text-3xl font-extrabold text-[#1A1A1A] tracking-tight">
                         {{ $metrics['perlu_dikirim'] }}
                     </h3>
-                    <span class="text-xs font-medium text-[#737373]">Perlu Diproses/Kirim</span>
+                    <span class="text-xs font-medium text-maroon">Perlu Diproses/Kirim</span>
                 </div>
             </div>
-            <div class="w-11 h-11 rounded-2xl bg-[#FCF5E3] text-[#B8860B] flex items-center justify-center shrink-0">
+            <div class="w-11 h-11 rounded-2xl bg-[#FBE8E8] text-maroon flex items-center justify-center shrink-0">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.25H4.5a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25h1.5m8.25-11.25V16.5"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Card 3: SIAP & TERKIRIM -->
+        <div class="bg-white rounded-3xl p-5 sm:p-6 border border-[#ECE8E1] shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex items-center justify-between">
+            <div>
+                <span class="text-[10px] font-bold tracking-wider text-[#8A8A85] uppercase block">
+                    Siap &amp; Terkirim
+                </span>
+                <div class="flex items-baseline gap-2 mt-2">
+                    <h3 class="text-3xl font-extrabold text-[#1A1A1A] tracking-tight">
+                        {{ $metrics['terkirim'] }}
+                    </h3>
+                    <span class="text-xs font-medium text-[#2E7D32]">Pesanan Selesai</span>
+                </div>
+            </div>
+            <div class="w-11 h-11 rounded-2xl bg-[#EAF5EC] text-[#2E7D32] flex items-center justify-center shrink-0">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
             </div>
         </div>
@@ -113,7 +113,7 @@
                     href="{{ route('admin.orders', ['status' => 'pending', 'search' => $search]) }}" 
                     class="whitespace-nowrap px-4 py-2 rounded-full transition {{ $statusFilter === 'pending' ? 'bg-[#380208] text-white shadow-xs font-bold' : 'text-[#737373] hover:text-[#1A1A1A]' }}"
                 >
-                    Pending Bayar
+                    Pending Bayar ({{ $metrics['pending'] }})
                 </a>
                 <a 
                     href="{{ route('admin.orders', ['status' => 'perlu_dikirim', 'search' => $search]) }}" 

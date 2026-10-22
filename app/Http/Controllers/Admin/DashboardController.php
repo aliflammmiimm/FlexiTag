@@ -24,14 +24,17 @@ class DashboardController extends Controller
         $dbPendingCount = DB::table('orders')->whereIn('status', ['menunggu_pembayaran', 'pembayaran_dikonfirmasi'])->count();
         $dbRevenue = DB::table('orders')->sum('total');
 
+        $totalTags = DB::table('tags')->count();
+        $rasioAktif = $totalTags > 0 ? round(($dbTagCount / $totalTags) * 100, 1) : 0;
+
         $metrics = [
-            'total_pendapatan' => $dbRevenue > 0 ? 'Rp '.number_format($dbRevenue, 0, ',', '.') : 'Rp 14.500.000',
+            'total_pendapatan' => 'Rp '.number_format($dbRevenue, 0, ',', '.'),
             'growth_pendapatan' => '+12.5%',
-            'total_pesanan' => $dbOrderCount >= 5 ? 48 : $dbOrderCount,
-            'new_orders' => '+8 pesanan baru',
-            'tag_aktif' => $dbTagCount > 0 ? 124 : 124,
-            'rasio_aktif' => '96.8%',
-            'perlu_dikirim' => $dbPendingCount > 0 ? 12 : 12,
+            'total_pesanan' => $dbOrderCount,
+            'new_orders' => '+'.$dbOrderCount.' pesanan',
+            'tag_aktif' => $dbTagCount,
+            'rasio_aktif' => $rasioAktif.'%',
+            'perlu_dikirim' => $dbPendingCount,
         ];
 
         // 2. Weekly Trend Data (Sen - Min)
