@@ -10,9 +10,11 @@ use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\TagController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return redirect()->route('admin.dashboard');
-});
+use App\Http\Controllers\LandingController;
+use App\Http\Controllers\PublicProfileController;
+
+// Public Landing Page
+Route::get('/', [LandingController::class, 'index'])->name('landing');
 
 // Alias for standard Laravel auth redirection
 Route::get('/login', function () {
@@ -66,3 +68,26 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/messages/{id}/deactivate-tag', [MessageController::class, 'deactivateTag'])->name('messages.deactivateTag');
     });
 });
+
+// Public Link Click Telemetry Route
+Route::get('/link/{link}/click', [PublicProfileController::class, 'trackLinkClick'])
+    ->name('public.link.click')
+    ->whereNumber('link');
+
+// Public User & NFC Tag Profile Routes
+Route::prefix('u')->group(function () {
+    Route::get('/{tag_code}', [PublicProfileController::class, 'showByTag'])
+        ->name('public.tag')
+        ->where('tag_code', '[A-Za-z0-9_-]+');
+
+    Route::post('/{tag_code}/lost-message', [PublicProfileController::class, 'storeLostMessage'])
+        ->name('public.lost-message')
+        ->where('tag_code', '[A-Za-z0-9_-]+')
+        ->middleware('throttle:3,15');
+});
+
+// Public Username Route (Strictly prefixed with @ to prevent collisions)
+Route::get('/@{username}', [PublicProfileController::class, 'showByUsername'])
+    ->name('public.username')
+    ->where('username', '[A-Za-z0-9_.-]+');
+

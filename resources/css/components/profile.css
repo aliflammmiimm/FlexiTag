@@ -1,0 +1,307 @@
+/* ==========================================================================
+   FlexiTag Design System - Public Profile Components
+   ========================================================================== */
+
+.ft-profile-wrapper {
+    max-width: 640px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.ft-profile-card {
+    background-color: var(--ft-cream-light);
+    border: 1px solid var(--ft-border);
+    border-radius: var(--ft-radius-xl);
+    box-shadow: var(--ft-shadow-md);
+    overflow: hidden;
+}
+
+.ft-profile-cover {
+    height: 120px;
+    background: linear-gradient(135deg, var(--ft-maroon-dark) 0%, var(--ft-maroon) 50%, var(--ft-gold) 100%);
+    position: relative;
+}
+
+.ft-profile-cover::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.15;
+    background-image: radial-gradient(#ffffff 1px, transparent 1px);
+    background-size: 16px 16px;
+}
+
+.ft-profile-header {
+    padding: 0 1.5rem 1.5rem;
+    position: relative;
+    text-align: center;
+}
+
+.ft-profile-avatar-container {
+    margin-top: -55px;
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
+}
+
+.ft-profile-avatar {
+    width: 104px;
+    height: 104px;
+    border-radius: var(--ft-radius-full);
+    border: 4px solid var(--ft-cream-light);
+    object-fit: cover;
+    box-shadow: var(--ft-shadow-md);
+    background-color: var(--ft-cream);
+}
+
+.ft-profile-avatar-placeholder {
+    width: 104px;
+    height: 104px;
+    border-radius: var(--ft-radius-full);
+    border: 4px solid var(--ft-cream-light);
+    background: linear-gradient(135deg, var(--ft-maroon), var(--ft-maroon-dark));
+    color: var(--ft-gold-light);
+    font-size: 2.25rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--ft-shadow-md);
+    font-family: var(--ft-font-heading);
+}
+
+.ft-profile-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--ft-charcoal);
+    margin-bottom: 0.25rem;
+}
+
+.ft-profile-headline {
+    font-size: 0.95rem;
+    color: var(--ft-muted);
+    margin-bottom: 0.75rem;
+}
+
+.ft-profile-bio {
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: var(--ft-charcoal);
+    max-width: 480px;
+    margin: 0 auto 1.25rem;
+}
+
+/* Mode-Specific Indicators */
+.ft-mode-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.85rem;
+    border-radius: var(--ft-radius-full);
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 1.25rem;
+}
+
+.ft-mode-kampus {
+    background-color: #eff6ff;
+    color: #1e40af;
+    border: 1px solid #bfdbfe;
+}
+
+.ft-mode-kerja {
+    background-color: #f0fdf4;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+}
+
+.ft-mode-umkm {
+    background-color: #fffbeb;
+    color: #92400e;
+    border: 1px solid #fde68a;
+}
+
+.ft-mode-hilang {
+    background-color: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+    animation: ft-pulse-danger 2s infinite ease-in-out;
+}
+
+@keyframes ft-pulse-danger {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(220, 38, 38, 0); }
+}
+
+/* Details Section */
+.ft-info-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    text-align: left;
+    margin-bottom: 1.5rem;
+    background-color: var(--ft-cream);
+    padding: 1rem;
+    border-radius: var(--ft-radius-lg);
+    border: 1px solid var(--ft-border);
+}
+
+@media (min-width: 520px) {
+    .ft-info-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.ft-info-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.ft-info-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--ft-muted);
+}
+
+.ft-info-val {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--ft-charcoal);
+}
+
+/* Links Section */
+.ft-links-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.ft-link-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.875rem 1.25rem;
+    background-color: #ffffff;
+    border: 1px solid var(--ft-border);
+    border-radius: var(--ft-radius-lg);
+    color: var(--ft-charcoal);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: transform var(--ft-transition-fast), border-color var(--ft-transition-fast), box-shadow var(--ft-transition-fast);
+}
+
+.ft-link-btn:hover {
+    transform: translateY(-2px);
+    border-color: var(--ft-maroon);
+    box-shadow: var(--ft-shadow-sm);
+    color: var(--ft-maroon);
+}
+
+.ft-link-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* Mode UMKM Catalog Grid */
+.ft-catalog-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    text-align: left;
+    margin-top: 1.5rem;
+}
+
+@media (min-width: 480px) {
+    .ft-catalog-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.ft-product-card {
+    background-color: #ffffff;
+    border: 1px solid var(--ft-border);
+    border-radius: var(--ft-radius-md);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.ft-product-img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    background-color: var(--ft-cream);
+}
+
+.ft-product-body {
+    padding: 0.875rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.ft-product-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--ft-charcoal);
+    margin-bottom: 0.25rem;
+}
+
+.ft-product-desc {
+    font-size: 0.8rem;
+    color: var(--ft-muted);
+    margin-bottom: 0.5rem;
+}
+
+.ft-product-price {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--ft-maroon);
+}
+
+/* Lost Item Mode Elements */
+.ft-lost-banner {
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: var(--ft-radius-lg);
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    text-align: left;
+}
+
+.ft-lost-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #991b1b;
+    margin-bottom: 0.35rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.ft-lost-note {
+    font-size: 0.85rem;
+    color: #7f1d1d;
+    line-height: 1.5;
+}
+
+.ft-security-notice {
+    font-size: 0.8rem;
+    color: var(--ft-muted);
+    background-color: rgba(245, 240, 235, 0.7);
+    border: 1px solid var(--ft-border);
+    border-radius: var(--ft-radius-md);
+    padding: 0.75rem 1rem;
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-align: left;
+}

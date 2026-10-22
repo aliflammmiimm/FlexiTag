@@ -1,0 +1,95 @@
+/* ==========================================================================
+   FlexiTag Design System - Forms & Alerts Component
+   ========================================================================== */
+
+.ft-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    margin-bottom: 1.25rem;
+}
+
+.ft-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--ft-charcoal);
+}
+
+.ft-label .required {
+    color: #dc2626;
+    margin-left: 2px;
+}
+
+.ft-input,
+.ft-textarea,
+.ft-select {
+    width: 100%;
+    padding: 0.6875rem 0.875rem;
+    border: 1px solid var(--ft-border);
+    border-radius: var(--ft-radius-md);
+    background-color: #ffffff;
+    font-family: inherit;
+    font-size: 0.95rem;
+    color: var(--ft-charcoal);
+    transition: border-color var(--ft-transition-fast), box-shadow var(--ft-transition-fast);
+}
+
+.ft-input:focus,
+.ft-textarea:focus,
+.ft-select:focus {
+    outline: none;
+    border-color: var(--ft-maroon);
+    box-shadow: 0 0 0 3px rgba(139, 0, 0, 0.12);
+}
+
+.ft-textarea {
+    min-height: 110px;
+    resize: vertical;
+}
+
+.ft-help-text {
+    font-size: 0.8rem;
+    color: var(--ft-muted);
+}
+
+.ft-error-text {
+    font-size: 0.8rem;
+    color: #dc2626;
+    font-weight: 500;
+}
+
+/* Status Alerts */
+.ft-alert {
+    padding: 1rem 1.25rem;
+    border-radius: var(--ft-radius-md);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.ft-alert-success {
+    background-color: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    color: #065f46;
+}
+
+.ft-alert-error {
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+}
+
+.ft-alert-info {
+    background-color: #f0fdfa;
+    border: 1px solid #99f6e4;
+    color: #115e59;
+}
+
+.ft-alert-warning {
+    background-color: #fffbeb;
+    border: 1px solid #fde68a;
+    color: #92400e;
+}
