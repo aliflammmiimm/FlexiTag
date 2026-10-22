@@ -33,11 +33,23 @@ class PublicController extends Controller
 
         $links = $tag->user ? $tag->user->hasMany(Link::class, 'user_id')->where('is_visible', true)->orderBy('sort_order')->get() : collect();
 
+        $modeData = null;
+        if ($tag->user && $tag->user->profile?->active_mode === 'hilang') {
+            $modeRow = \Illuminate\Support\Facades\DB::table('mode_data')
+                ->where('user_id', $tag->user->id)
+                ->where('mode', 'hilang')
+                ->first();
+            if ($modeRow && $modeRow->data) {
+                $modeData = json_decode($modeRow->data, true);
+            }
+        }
+
         return view('user.public_profile', [
             'tag' => $tag,
             'user' => $tag->user,
             'profile' => $tag->user?->profile,
             'links' => $links,
+            'modeData' => $modeData,
         ]);
     }
 }

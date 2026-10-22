@@ -164,21 +164,47 @@
 
         <span class="mode-pill">{{ $modeText }}</span>
 
-        <div class="links-list">
-            @if ($user?->no_whatsapp)
-                <a href="https://wa.me/{{ $user->no_whatsapp }}" target="_blank" rel="noopener" class="link-btn link-btn-wa">
-                    <span>💬 Hubungi via WhatsApp</span>
-                </a>
-            @endif
-
-            @foreach ($links as $link)
-                @if ($link->type !== 'whatsapp')
-                    <a href="{{ $link->url }}" target="_blank" rel="noopener" class="link-btn" style="background:#F7F4EC; color:#423A36; border:1px solid #EAE3D5;">
-                        <span>🔗 {{ $link->label }}</span>
+        @if (($profile?->active_mode ?? 'kampus') === 'hilang')
+            {{-- Mode Hilang / Penemu Display --}}
+            <div style="background: #FEF2F2; border: 1.5px solid #FCA5A5; border-radius: 16px; padding: 1.2rem; margin-bottom: 1.5rem; text-align: left;">
+                <div style="display: flex; align-items: center; gap: 0.5rem; color: #991B1B; font-weight: 800; font-size: 0.88rem; margin-bottom: 0.5rem;">
+                    <span>🛡️</span>
+                    <span>PESAN DARURAT PEMILIK</span>
+                </div>
+                <p style="font-size: 0.82rem; color: #4B1A1A; line-height: 1.5; margin-bottom: 0.75rem;">
+                    {{ $modeData['message'] ?? 'Barang ini milik saya dan berharga. Jika Anda menemukannya, mohon bantu hubungi saya.' }}
+                </p>
+                @if (!empty($modeData['reward']))
+                    <div style="background: #FDF6B2; border: 1px solid #FCE96A; border-radius: 8px; padding: 0.5rem 0.75rem; font-size: 0.76rem; color: #723B13; font-weight: 700; margin-bottom: 0.75rem;">
+                        🎁 Imbalan bagi penemu: {{ $modeData['reward'] }}
+                    </div>
+                @endif
+                @php
+                    $relayContact = $modeData['relay_phone'] ?? $user?->no_whatsapp;
+                @endphp
+                @if ($relayContact)
+                    <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $relayContact) }}?text={{ urlencode('Halo, saya menemukan barang bertag FlexiTag Anda: ' . $tag->tag_code) }}" target="_blank" rel="noopener" class="link-btn link-btn-wa" style="margin-top: 0.5rem;">
+                        <span>💬 Hubungi Pemilik via Relay Aman</span>
                     </a>
                 @endif
-            @endforeach
-        </div>
+            </div>
+        @else
+            <div class="links-list">
+                @if ($user?->no_whatsapp)
+                    <a href="https://wa.me/{{ $user->no_whatsapp }}" target="_blank" rel="noopener" class="link-btn link-btn-wa">
+                        <span>💬 Hubungi via WhatsApp</span>
+                    </a>
+                @endif
+
+                @foreach ($links as $link)
+                    @if ($link->type !== 'whatsapp')
+                        <a href="{{ $link->url }}" target="_blank" rel="noopener" class="link-btn" style="background:#F7F4EC; color:#423A36; border:1px solid #EAE3D5;">
+                            <span>🔗 {{ $link->label }}</span>
+                        </a>
+                    @endif
+                @endforeach
+            </div>
+        @endif
 
         <div class="footer-brand">
             Ditenagai oleh <b>{{ config('flexitag.brand', 'FlexiTag') }}</b> — {{ config('flexitag.tagline', 'Satu Tap, Seribu Identitas') }}
