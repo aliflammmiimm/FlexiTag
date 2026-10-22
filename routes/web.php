@@ -28,16 +28,28 @@ Route::middleware('guest')->group(function () {
     Route::post('/daftar', [UserAuthController::class, 'register'])->name('register.submit');
 });
 
-Route::middleware(['auth', 'role:user'])->group(function () {
+Route::middleware('auth')->group(function () {
     Route::post('/keluar', [UserAuthController::class, 'logout'])->name('logout');
     Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('user.dashboard');
+    Route::post('/dashboard/switch-mode', [UserDashboardController::class, 'switchMode'])->name('user.dashboard.switchMode');
+    Route::post('/dashboard/profile', [UserDashboardController::class, 'updateProfile'])->name('user.dashboard.updateProfile');
+    Route::post('/dashboard/privacy', [UserDashboardController::class, 'updatePrivacy'])->name('user.dashboard.updatePrivacy');
 });
 
 Route::get('/aktivasi-tag', [TagActivationController::class, 'show'])
     ->name('user.activation.show');
 
+Route::post('/aktivasi-tag/auth', [TagActivationController::class, 'authStep'])
+    ->name('user.activation.auth');
+
 Route::post('/aktivasi-tag', [TagActivationController::class, 'store'])
     ->name('user.activation.store');
+
+Route::post('/aktivasi-tag/profil', [TagActivationController::class, 'profileStep'])
+    ->name('user.activation.profile');
+
+Route::get('/u/{tag_code}', [PublicController::class, 'showTagProfile'])
+    ->name('public.tag');
 
 /*
 |--------------------------------------------------------------------------

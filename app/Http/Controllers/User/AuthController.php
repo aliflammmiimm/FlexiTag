@@ -109,18 +109,11 @@ class AuthController extends Controller
                     'email' => 'Akun Anda dinonaktifkan. Silakan hubungi admin FlexiTag.',
                 ]);
             }
-
-            if ($candidate->role !== 'user') {
-                throw ValidationException::withMessages([
-                    'email' => 'Akun ini adalah akun pengelola. Silakan masuk melalui halaman login Admin.',
-                ]);
-            }
         }
 
         $attempt = [
             'email' => $credentials['email'],
             'password' => $credentials['password'],
-            'role' => 'user',
             'is_active' => true,
         ];
 

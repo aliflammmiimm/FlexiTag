@@ -101,10 +101,14 @@
 
             <div class="header-actions">
                 @auth
-                    <a href="{{ in_array(auth()->user()->role, ['admin', 'staff'], true) ? route('admin.dashboard') : route('user.dashboard') }}" class="btn btn-maroon">Buka Dashboard</a>
+                    <a href="{{ route('user.dashboard') }}" class="btn btn-gold">Buka Dashboard</a>
+                    <form method="POST" action="{{ route('logout') }}" style="display:inline;">
+                        @csrf
+                        <button type="submit" class="btn btn-outline" style="padding: .5rem .9rem;">Keluar</button>
+                    </form>
                 @else
-                    {{-- TODO Tahap 3: arahkan ke halaman Aktivasi Tag setelah route tersedia --}}
-                    <a href="{{ route('login') }}" class="btn btn-gold">Aktivasi Tag</a>
+                    <a href="{{ route('login') }}" class="btn btn-outline">Masuk</a>
+                    <a href="{{ route('user.activation.show') }}" class="btn btn-gold">Aktivasi Tag</a>
                     <a href="{{ route('register') }}" class="btn btn-maroon">Pesan Sekarang</a>
                 @endauth
             </div>

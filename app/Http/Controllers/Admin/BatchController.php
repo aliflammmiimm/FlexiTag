@@ -108,15 +108,14 @@ class BatchController extends Controller
             } while (isset($existingTagCodes[$tagCode]) || DB::table('tags')->where('tag_code', $tagCode)->exists());
             $existingTagCodes[$tagCode] = true;
 
-            // b. Plain-text activation code generated once for CSV, stored as SHA-256 hash in DB
-            $plainActivationCode = $prefix.strtoupper(Str::random(8));
-            $hashedActivationCode = hash('sha256', $plainActivationCode);
+            // b. Plain-text activation code: format sederhana & mudah diketik (contoh: KD-8821-XQ)
+            $plainActivationCode = 'KD-'.rand(1000, 9999).'-'.strtoupper(Str::random(2));
 
             $tapUrl = url('/u/'.$tagCode);
 
             $tagsData[] = [
                 'tag_code' => $tagCode,
-                'activation_code' => $hashedActivationCode,
+                'activation_code' => $plainActivationCode,
                 'user_id' => null,
                 'status' => 'belum_aktif',
                 'disabled_by' => null,

@@ -36,9 +36,9 @@ class EnsureUserRole
         }
 
         if (! in_array($user->role, $roles, true)) {
-            // Admin/staff yang tersasar ke area User diarahkan ke konsol Admin.
+            // Jika akun admin/staff mengakses area user, izinkan akses (karena admin juga bisa memiliki tag pribadi).
             if (! $isAdminArea && in_array($user->role, ['admin', 'staff'], true)) {
-                return redirect()->route('admin.dashboard');
+                return $next($request);
             }
 
             abort(403, 'Anda tidak memiliki akses ke halaman ini.');

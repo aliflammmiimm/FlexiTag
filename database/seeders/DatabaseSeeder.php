@@ -253,7 +253,7 @@ class DatabaseSeeder extends Seeder
         $sampleTags = [
             [
                 'tag_code' => 'FLX-8X9Y2Z',
-                'activation_code' => hash('sha256', 'FLX-2026-8X9Y2Z'),
+                'activation_code' => 'KD-8892-YZ',
                 'user_id' => $user->id,
                 'status' => 'aktif',
                 'disabled_by' => null,
@@ -265,7 +265,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'tag_code' => 'FLX-9A2B4C',
-                'activation_code' => hash('sha256', 'FLX-2026-9A2B4C'),
+                'activation_code' => 'KD-9241-BC',
                 'user_id' => $userSiti->id,
                 'status' => 'aktif',
                 'disabled_by' => null,
@@ -277,7 +277,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'tag_code' => 'FLX-5T1W8Q',
-                'activation_code' => hash('sha256', 'FLX-2026-5T1W8Q'),
+                'activation_code' => 'KD-5182-WQ',
                 'user_id' => $userAndi->id,
                 'status' => 'aktif',
                 'disabled_by' => null,
@@ -289,7 +289,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'tag_code' => 'FLX-BL-999',
-                'activation_code' => hash('sha256', 'FLX-2026-BL-999'),
+                'activation_code' => 'KD-9990-BL',
                 'user_id' => $user->id,
                 'status' => 'nonaktif',
                 'disabled_by' => 'admin',
@@ -301,7 +301,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'tag_code' => 'FLX-KS-777',
-                'activation_code' => hash('sha256', 'FLX-2026-KS-777'),
+                'activation_code' => 'KD-7770-KS',
                 'user_id' => $userAndi->id,
                 'status' => 'nonaktif',
                 'disabled_by' => 'owner',
@@ -313,7 +313,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'tag_code' => 'FLX-KM-001',
-                'activation_code' => hash('sha256', 'FLX-2026-KM-001'),
+                'activation_code' => 'KD-1001-KM',
                 'user_id' => null,
                 'status' => 'belum_aktif',
                 'disabled_by' => null,
@@ -325,7 +325,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'tag_code' => 'FLX-KM-002',
-                'activation_code' => hash('sha256', 'FLX-2026-KM-002'),
+                'activation_code' => 'KD-1002-KM',
                 'user_id' => null,
                 'status' => 'belum_aktif',
                 'disabled_by' => null,
@@ -337,7 +337,19 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'tag_code' => 'FLX-KM-003',
-                'activation_code' => hash('sha256', 'FLX-2026-KM-003'),
+                'activation_code' => 'KD-1003-KM',
+                'user_id' => null,
+                'status' => 'belum_aktif',
+                'disabled_by' => null,
+                'batch_id' => '#B-883',
+                'produced_at' => now()->subWeeks(1),
+                'activated_at' => null,
+                'created_at' => now()->subWeeks(1),
+                'updated_at' => now()->subWeeks(1),
+            ],
+            [
+                'tag_code' => 'a8k2x9',
+                'activation_code' => 'KD-8821-XQ',
                 'user_id' => null,
                 'status' => 'belum_aktif',
                 'disabled_by' => null,

@@ -1,72 +1,712 @@
-@extends('layouts.user')
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Home — FlexiTag Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/flexitag-user-dashboard.css') }}">
+</head>
+<body class="dashboard-body">
 
-@section('title', 'Dashboard')
+<div class="user-app-container">
 
-@section('content')
-    @php
-        $statusMap = [
-            'aktif' => ['Aktif', 'badge-ok'],
-            'nonaktif' => ['Nonaktif', 'badge-bad'],
-            'belum_aktif' => ['Belum aktif', 'badge-idle'],
-        ];
-    @endphp
+    {{-- ========================================================================= --}}
+    {{-- TOP APP BAR                                                               --}}
+    {{-- ========================================================================= --}}
+    <header class="user-topbar">
+        <button type="button" class="hamburger-btn" id="openDrawerBtn" aria-label="Buka Menu Navigasi" onclick="toggleDrawer(true)">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
 
-    <h1>Halo, {{ $user->profile?->display_name ?? $user->name }}</h1>
-    <p class="section-sub" style="margin-top:0">Ringkasan akun dan tag NFC Anda.</p>
+        <div class="topbar-branding">
+            <span class="topbar-subtitle">FLEXITAG</span>
+            <h1 class="topbar-title">Home</h1>
+        </div>
+    </header>
 
-    <div class="grid grid-3" style="margin:1.4rem 0;">
-        <div class="card stat">
-            <div class="ico ico-maroon">@include('partials.icon', ['name' => 'zap'])</div>
-            <div>
-                <div class="num">{{ number_format($totalTaps, 0, ',', '.') }}</div>
-                <div class="lbl">Total kunjungan profil</div>
+    {{-- ========================================================================= --}}
+    {{-- MAIN USER DASHBOARD CONTENT                                               --}}
+    {{-- ========================================================================= --}}
+    <main class="user-main-content">
+
+        {{-- 1. Halo Greeting Card --}}
+        <section class="greeting-card">
+            {{-- Pa'barre Allo Sunburst Watermark --}}
+            <svg class="greeting-watermark" viewBox="0 0 100 100" fill="none" stroke="#FFFFFF" stroke-width="2">
+                <circle cx="50" cy="50" r="45" stroke-dasharray="4 2"/>
+                <circle cx="50" cy="50" r="28"/>
+                <circle cx="50" cy="50" r="14"/>
+                <line x1="50" y1="5" x2="50" y2="95"/>
+                <line x1="5" y1="50" x2="95" y2="50"/>
+                <line x1="18" y1="18" x2="82" y2="82"/>
+                <line x1="18" y1="82" x2="82" y2="18"/>
+            </svg>
+
+            <h2>Halo, {{ $displayName }}</h2>
+            <p>Kelola mode aktif, tautan tap, dan perangkat pintar FlexiTag Anda.</p>
+        </section>
+
+        {{-- 2. Keychain Pintar Hardware Card --}}
+        <section class="hardware-card">
+            <div class="hardware-left">
+                <div class="hardware-thumb">
+                    <img src="{{ asset('images/keychain.jpg') }}" alt="Keychain Pintar FlexiTag">
+                </div>
+                <div class="hardware-info">
+                    <h3 class="hardware-title">Keychain Pintar</h3>
+                    <span class="hardware-sub">NTAG215 • Edisi Pa'barre Allo</span>
+                    <span class="hardware-pill-member">
+                        <span>🎖️</span>
+                        <span>Member MaccaTech</span>
+                    </span>
+                </div>
             </div>
+
+            <div class="hardware-right">
+                <span class="status-pill-active">Aktif</span>
+                <a href="{{ $publicUrl }}" target="_blank" class="btn-external-icon" title="Buka profil publik tap">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="7" y1="17" x2="17" y2="7"></line>
+                        <polyline points="7 7 17 7 17 17"></polyline>
+                    </svg>
+                </a>
+            </div>
+        </section>
+
+        {{-- 3. Telemetry Metrics Grid (2 Columns) --}}
+        <section class="metrics-grid">
+            {{-- Metric: Total Tap --}}
+            <div class="metric-card">
+                <div class="metric-head">
+                    <span class="metric-label">TOTAL TAP</span>
+                    <div class="metric-icon-badge">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+                            <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
+                            <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+                            <line x1="12" y1="20" x2="12.01" y2="20"></line>
+                        </svg>
+                    </div>
+                </div>
+                <div class="metric-value-row">
+                    <span class="metric-big-num" id="totalTapsNum">{{ $totalTaps }}</span>
+                    <span class="metric-unit">kali</span>
+                </div>
+                <div class="metric-pill">
+                    <span>📈</span>
+                    <span>+{{ $weeklyTaps }} tap minggu ini</span>
+                </div>
+            </div>
+
+            {{-- Metric: Aktivitas Terakhir --}}
+            <div class="metric-card">
+                <div class="metric-head">
+                    <span class="metric-label">AKTIVITAS TERAKHIR</span>
+                    <div class="metric-icon-badge" style="background: #FEE2E2; color: #991B1B;">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                    </div>
+                </div>
+                <div class="metric-value-row">
+                    @php
+                        $parts = explode(' ', $lastActivity, 2);
+                        $actNum = $parts[0] ?? '2 Jam';
+                        $actUnit = $parts[1] ?? 'lalu';
+                    @endphp
+                    <span class="metric-big-num">{{ $actNum }}</span>
+                    <span class="metric-unit">{{ $actUnit }}</span>
+                </div>
+                <div class="metric-pill">
+                    <span>🛡️</span>
+                    <span>Sulapa Eppa'</span>
+                </div>
+            </div>
+        </section>
+
+        {{-- 4. Pilih Mode Aktif (Interactive Mode Cards) --}}
+        <section class="mode-section">
+            <div class="mode-section-head">
+                <div class="mode-section-title-wrap">
+                    <div class="mode-grid-icon">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <h2 class="mode-section-title">Pilih Mode Aktif</h2>
+                </div>
+                <div class="mode-diamonds">✦ ✦</div>
+            </div>
+            <p class="mode-section-sub">
+                Ubah profil publik seketika saat gantungan kunci FlexiTag disentuh.
+            </p>
+
+            <div class="mode-list">
+                {{-- Mode 1: Kampus --}}
+                <div class="mode-item-card {{ $activeMode === 'kampus' ? 'is-active' : '' }}"
+                     id="modeCard-kampus"
+                     onclick="switchUserMode('kampus', 'Mode Kampus')">
+                    <div class="mode-item-left">
+                        <div class="mode-icon-box">🎓</div>
+                        <div class="mode-item-text">
+                            <span class="mode-item-name">Mode Kampus</span>
+                            <span class="mode-item-desc">Sosmed, kontak, &amp; jadwal perkuliahan</span>
+                        </div>
+                    </div>
+                    <div class="mode-item-right" id="modeState-kampus">
+                        @if ($activeMode === 'kampus')
+                            <span class="mode-active-pill">
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                <span>Aktif</span>
+                            </span>
+                            <span class="mode-active-arrow">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                            </span>
+                        @else
+                            <span class="mode-radio-circle"></span>
+                        @endif
+                    </div>
+                </div>
+
+                {{-- Mode 2: Kerja --}}
+                <div class="mode-item-card {{ $activeMode === 'kerja' ? 'is-active' : '' }}"
+                     id="modeCard-kerja"
+                     onclick="switchUserMode('kerja', 'Mode Kerja')">
+                    <div class="mode-item-left">
+                        <div class="mode-icon-box">💼</div>
+                        <div class="mode-item-text">
+                            <span class="mode-item-name">Mode Kerja</span>
+                            <span class="mode-item-desc">Portofolio digital, CV, dan kartu nama</span>
+                        </div>
+                    </div>
+                    <div class="mode-item-right" id="modeState-kerja">
+                        @if ($activeMode === 'kerja')
+                            <span class="mode-active-pill">
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                <span>Aktif</span>
+                            </span>
+                            <span class="mode-active-arrow">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                            </span>
+                        @else
+                            <span class="mode-radio-circle"></span>
+                        @endif
+                    </div>
+                </div>
+
+                {{-- Mode 3: UMKM --}}
+                <div class="mode-item-card {{ $activeMode === 'umkm' ? 'is-active' : '' }}"
+                     id="modeCard-umkm"
+                     onclick="switchUserMode('umkm', 'Mode UMKM')">
+                    <div class="mode-item-left">
+                        <div class="mode-icon-box">🏪</div>
+                        <div class="mode-item-text">
+                            <span class="mode-item-name">Mode UMKM</span>
+                            <span class="mode-item-desc">Katalog produk, promo, &amp; QRIS</span>
+                        </div>
+                    </div>
+                    <div class="mode-item-right" id="modeState-umkm">
+                        @if ($activeMode === 'umkm')
+                            <span class="mode-active-pill">
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                <span>Aktif</span>
+                            </span>
+                            <span class="mode-active-arrow">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                            </span>
+                        @else
+                            <span class="mode-radio-circle"></span>
+                        @endif
+                    </div>
+                </div>
+
+                {{-- Mode 4: Barang Hilang --}}
+                <div class="mode-item-card {{ $activeMode === 'hilang' ? 'is-active' : '' }}"
+                     id="modeCard-hilang"
+                     onclick="switchUserMode('hilang', 'Mode Barang Hilang')">
+                    <div class="mode-item-left">
+                        <div class="mode-icon-box">🛡️</div>
+                        <div class="mode-item-text">
+                            <span class="mode-item-name">Mode Barang Hilang</span>
+                            <span class="mode-item-desc">Relay pesan aman tanpa kontak pribadi</span>
+                        </div>
+                    </div>
+                    <div class="mode-item-right" id="modeState-hilang">
+                        @if ($activeMode === 'hilang')
+                            <span class="mode-active-pill">
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                <span>Aktif</span>
+                            </span>
+                            <span class="mode-active-arrow">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                            </span>
+                        @else
+                            <span class="mode-radio-circle"></span>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {{-- 5. Cloud MaccaTech Encryption & Device Info Card --}}
+        <section class="device-card">
+            <div class="device-card-head">
+                <div class="device-id-wrap">
+                    <div class="device-nfc-circle">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+                            <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
+                            <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+                            <circle cx="12" cy="20" r="1"></circle>
+                        </svg>
+                    </div>
+                    <div class="device-id-text">
+                        <span class="device-id-code">ID: {{ $tagCode }}</span>
+                        <span class="device-id-sub">Terenkripsi Cloud MaccaTech</span>
+                    </div>
+                </div>
+
+                <span class="device-badge-ready">NFC READY</span>
+            </div>
+
+            <p class="device-card-desc">
+                Perangkat terenkripsi cloud MaccaTech. Profil publik langsung berubah otomatis saat gantungan kunci FlexiTag disentuh smartphone.
+            </p>
+
+            <a href="{{ $publicUrl }}" target="_blank" class="btn-public-view">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                <span>Lihat Tampilan Publik (NFC Tap View)</span>
+            </a>
+        </section>
+
+        {{-- 6. Bottom Action Buttons --}}
+        <section class="bottom-actions">
+            {{-- Edit Profile Button --}}
+            <button type="button" class="btn-gold-action" onclick="openProfileModal()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 20h9"></path>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                </svg>
+                <span>Edit Isi Profil Aktif</span>
+            </button>
+
+            {{-- Privacy Settings Button --}}
+            <button type="button" class="btn-maroon-action" onclick="openPrivacyModal()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+                <span>Pengaturan Privasi &amp; Akses</span>
+            </button>
+        </section>
+
+    </main>
+
+    {{-- ========================================================================= --}}
+    {{-- SLIDE-OUT NAVIGATION DRAWER (Menu Navigasi)                               --}}
+    {{-- ========================================================================= --}}
+    <div class="drawer-backdrop" id="drawerBackdrop" onclick="toggleDrawer(false)"></div>
+
+    <aside class="side-drawer" id="sideDrawer" aria-label="Menu Navigasi Samping">
+        {{-- Toraja Motif Watermark --}}
+        <svg class="drawer-watermark" viewBox="0 0 100 100" fill="none" stroke="#FFFFFF" stroke-width="1.5">
+            <ellipse cx="50" cy="50" rx="40" ry="20" stroke-dasharray="3 2"/>
+            <ellipse cx="50" cy="50" rx="20" ry="40" stroke-dasharray="3 2"/>
+            <circle cx="50" cy="50" r="12"/>
+        </svg>
+
+        {{-- Drawer Header --}}
+        <div class="drawer-header">
+            <div class="drawer-brand-wrap">
+                {{-- Sulapa Eppa' Emblem Icon --}}
+                <div class="drawer-emblem">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F5BA41" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="4"></rect>
+                        <rect x="7" y="7" width="10" height="10" rx="1.5"></rect>
+                        <path d="M12 7v10"></path>
+                        <path d="M7 12h10"></path>
+                    </svg>
+                </div>
+                <div class="drawer-brand-text">
+                    <span class="drawer-brand-name">FlexiTag</span>
+                    <span class="drawer-brand-tagline">MENU NAVIGASI</span>
+                </div>
+            </div>
+
+            <button type="button" class="drawer-close-btn" onclick="toggleDrawer(false)" aria-label="Tutup Menu">
+                ✕
+            </button>
         </div>
 
-        <div class="card stat">
-            <div class="ico ico-maroon">@include('partials.icon', ['name' => 'tag'])</div>
-            <div>
-                <div class="num">{{ $activeTagCount }}</div>
-                <div class="lbl">Tag aktif</div>
+        <div class="drawer-divider"></div>
+
+        {{-- Navigation Menu List --}}
+        <nav class="drawer-nav-list">
+            {{-- Home (Active) --}}
+            <a href="{{ route('user.dashboard') }}" class="drawer-nav-item {{ request()->routeIs('user.dashboard') ? 'is-highlighted' : '' }}">
+                <span class="drawer-nav-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                </span>
+                <span>Home</span>
+            </a>
+
+            {{-- Merch --}}
+            <a href="javascript:void(0)" onclick="openMerchModal(); toggleDrawer(false)" class="drawer-nav-item">
+                <span class="drawer-nav-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 9l1 12h16l1-12z"></path>
+                        <path d="M3 9h18"></path>
+                        <path d="M16 5a4 4 0 0 0-8 0"></path>
+                    </svg>
+                </span>
+                <span>Merch</span>
+            </a>
+
+            {{-- Analytics --}}
+            <a href="javascript:void(0)" onclick="openAnalyticsModal(); toggleDrawer(false)" class="drawer-nav-item">
+                <span class="drawer-nav-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="8" y1="17" x2="8" y2="13"></line>
+                        <line x1="12" y1="17" x2="12" y2="9"></line>
+                        <line x1="16" y1="17" x2="16" y2="11"></line>
+                    </svg>
+                </span>
+                <span>Analytics</span>
+            </a>
+
+            {{-- Settings --}}
+            <a href="javascript:void(0)" onclick="openProfileModal(); toggleDrawer(false)" class="drawer-nav-item">
+                <span class="drawer-nav-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="4" y1="21" x2="4" y2="14"></line>
+                        <line x1="4" y1="10" x2="4" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="12"></line>
+                        <line x1="12" y1="8" x2="12" y2="3"></line>
+                        <line x1="20" y1="21" x2="20" y2="16"></line>
+                        <line x1="20" y1="12" x2="20" y2="3"></line>
+                        <line x1="1" y1="14" x2="7" y2="14"></line>
+                        <line x1="9" y1="8" x2="15" y2="8"></line>
+                        <line x1="17" y1="16" x2="23" y2="16"></line>
+                    </svg>
+                </span>
+                <span>Settings</span>
+            </a>
+        </nav>
+
+        {{-- Drawer Bottom Profile & Logout --}}
+        <div class="drawer-footer">
+            <div class="drawer-profile-box">
+                <div class="drawer-avatar-wrap">
+                    @if ($profile?->photo_path)
+                        <img src="{{ asset('storage/' . $profile->photo_path) }}" alt="{{ $displayName }}">
+                    @else
+                        <span>{{ $initials }}</span>
+                    @endif
+                    <span class="avatar-online-dot"></span>
+                </div>
+
+                <div class="drawer-profile-info">
+                    <span class="drawer-user-name">{{ $displayName }}</span>
+                    <span class="drawer-user-job">{{ $headline }}</span>
+                </div>
             </div>
+
+            <form method="POST" action="{{ route('logout') }}" id="drawerLogoutForm">
+                @csrf
+                <button type="submit" class="drawer-logout-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    <span>Log Out</span>
+                </button>
+            </form>
+        </div>
+    </aside>
+
+</div>
+
+{{-- ========================================================================= --}}
+{{-- MODALS                                                                    --}}
+{{-- ========================================================================= --}}
+
+{{-- 1. Edit Profile Modal --}}
+<div class="user-modal-overlay" id="editProfileModal" onclick="if(event.target === this) closeProfileModal()">
+    <div class="user-modal-dialog">
+        <div class="modal-header-row">
+            <h3 class="modal-title">✏️ Edit Profil Aktif</h3>
+            <button type="button" class="modal-close-icon" onclick="closeProfileModal()">✕</button>
         </div>
 
-        <div class="card stat">
-            <div class="ico ico-maroon">@include('partials.icon', ['name' => 'sliders'])</div>
-            <div>
-                <div class="num" style="font-size:1.25rem;">{{ $activeModeLabel ?? '—' }}</div>
-                <div class="lbl">Mode profil aktif</div>
+        <form method="POST" action="{{ route('user.dashboard.updateProfile') }}" enctype="multipart/form-data">
+            @csrf
+            <div class="modal-form-group">
+                <label for="display_name">Nama Tampilan Publik</label>
+                <input type="text" id="display_name" name="display_name" class="modal-input" value="{{ old('display_name', $displayName) }}" required>
             </div>
+
+            <div class="modal-form-group">
+                <label for="headline">Pekerjaan / Subtitle</label>
+                <input type="text" id="headline" name="headline" class="modal-input" placeholder="contoh: Pegawai Kopdes / Toraja" value="{{ old('headline', $headline) }}">
+            </div>
+
+            <div class="modal-form-group">
+                <label for="no_whatsapp">Nomor WhatsApp Utama</label>
+                <input type="text" id="no_whatsapp" name="no_whatsapp" class="modal-input" placeholder="0821-xxxx-xxxx" value="{{ old('no_whatsapp', $user->no_whatsapp) }}">
+            </div>
+
+            <div class="modal-form-group">
+                <label for="photo">Ganti Foto Profil (Opsional)</label>
+                <input type="file" id="photo" name="photo" class="modal-input" accept="image/*">
+            </div>
+
+            <button type="submit" class="btn-gold-action" style="width: 100%; margin-top: 1rem;">
+                Simpan Perubahan
+            </button>
+        </form>
+    </div>
+</div>
+
+{{-- 2. Privacy & Security Modal --}}
+<div class="user-modal-overlay" id="privacyModal" onclick="if(event.target === this) closePrivacyModal()">
+    <div class="user-modal-dialog">
+        <div class="modal-header-row">
+            <h3 class="modal-title">🔒 Pengaturan Privasi &amp; Akses</h3>
+            <button type="button" class="modal-close-icon" onclick="closePrivacyModal()">✕</button>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <div style="background: #FAF8F5; border: 1px solid #ECE7DF; border-radius: 14px; padding: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                    <strong style="font-size: 0.88rem; color: #1F1915;">Relay Kontak Privasi</strong>
+                    <span style="color: #22C55E; font-weight: 800; font-size: 0.75rem;">AKTIF</span>
+                </div>
+                <p style="font-size: 0.74rem; color: #78716C; line-height: 1.4;">
+                    Pesan dari penemu akan dialihkan melalui enkripsi cloud MaccaTech tanpa mengungkap nomor pribadi Anda.
+                </p>
+            </div>
+
+            <div style="background: #FAF8F5; border: 1px solid #ECE7DF; border-radius: 14px; padding: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                    <strong style="font-size: 0.88rem; color: #1F1915;">Enkripsi Cloud Chip</strong>
+                    <span style="color: #E5B32A; font-weight: 800; font-size: 0.75rem;">AES-256</span>
+                </div>
+                <p style="font-size: 0.74rem; color: #78716C; line-height: 1.4;">
+                    Data autentikasi gantungan kunci diverifikasi melalui tanda tangan digital anti-kloning MaccaTech.
+                </p>
+            </div>
+
+            <button type="button" class="btn-maroon-action" onclick="closePrivacyModal(); showToast('Pengaturan privasi aman!')" style="width: 100%; margin-top: 0.5rem;">
+                Selesai
+            </button>
         </div>
     </div>
+</div>
 
-    <div class="card">
-        <h2 style="font-size:1.25rem;">Tag NFC Anda</h2>
+{{-- 3. Analytics Modal --}}
+<div class="user-modal-overlay" id="analyticsModal" onclick="if(event.target === this) closeAnalyticsModal()">
+    <div class="user-modal-dialog">
+        <div class="modal-header-row">
+            <h3 class="modal-title">📊 Statistik Kunjungan Tap</h3>
+            <button type="button" class="modal-close-icon" onclick="closeAnalyticsModal()">✕</button>
+        </div>
 
-        @if ($tags->isEmpty())
-            <div class="empty">Anda belum memiliki tag yang terhubung ke akun ini.</div>
-        @else
-            <div class="tbl-wrap"><table class="tbl">
-                <thead>
-                    <tr>
-                        <th>Kode tag</th>
-                        <th>Status</th>
-                        <th>Diaktifkan</th>
-                        <th>Tautan profil</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($tags as $tag)
-                        @php [$label, $class] = $statusMap[$tag->status] ?? [$tag->status, 'badge-idle']; @endphp
-                        <tr>
-                            <td><code>{{ $tag->tag_code }}</code></td>
-                            <td><span class="badge {{ $class }}">{{ $label }}</span></td>
-                            <td>{{ $tag->activated_at?->timezone(config('app.timezone'))->format('d M Y, H:i') ?? '—' }}</td>
-                            <td>{{ $tag->public_url }}</td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table></div>
-        @endif
+        <div style="text-align: center; margin: 1rem 0;">
+            <div style="font-size: 2.2rem; font-weight: 800; color: #4A0A0E;">{{ $totalTaps }}</div>
+            <div style="font-size: 0.78rem; color: #78716C;">Total Interaksi Sentuhan NFC ke Gantungan Kunci Anda</div>
+        </div>
+
+        <div style="background: #FAF8F5; border: 1px solid #ECE7DF; border-radius: 14px; padding: 1rem; margin-bottom: 1rem;">
+            <div style="font-size: 0.78rem; font-weight: 800; margin-bottom: 0.6rem; color: #1F1915;">Distribusi Perangkat Pengunjung</div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.78rem; margin-bottom: 0.3rem;">
+                <span>iPhone / iOS</span>
+                <strong>58%</strong>
+            </div>
+            <div style="width: 100%; height: 8px; background: #E5E7EB; border-radius: 999px; overflow: hidden; margin-bottom: 0.8rem;">
+                <div style="width: 58%; height: 100%; background: #4A0A0E;"></div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; font-size: 0.78rem; margin-bottom: 0.3rem;">
+                <span>Android Smartphone</span>
+                <strong>42%</strong>
+            </div>
+            <div style="width: 100%; height: 8px; background: #E5E7EB; border-radius: 999px; overflow: hidden;">
+                <div style="width: 42%; height: 100%; background: #E5B32A;"></div>
+            </div>
+        </div>
+
+        <button type="button" class="btn-gold-action" onclick="closeAnalyticsModal()" style="width: 100%;">
+            Tutup
+        </button>
     </div>
-@endsection
+</div>
+
+{{-- 4. Merch Modal --}}
+<div class="user-modal-overlay" id="merchModal" onclick="if(event.target === this) closeMerchModal()">
+    <div class="user-modal-dialog">
+        <div class="modal-header-row">
+            <h3 class="modal-title">🏪 Koleksi Merch FlexiTag</h3>
+            <button type="button" class="modal-close-icon" onclick="closeMerchModal()">✕</button>
+        </div>
+
+        <p style="font-size: 0.8rem; color: #78716C; margin-bottom: 1rem;">
+            Gantungan kunci akrilik NFC premium berukir motif budaya Sulawesi Selatan.
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 0.8rem;">
+            <div style="display: flex; align-items: center; gap: 0.8rem; background: #FAF8F5; border: 1px solid #ECE7DF; border-radius: 12px; padding: 0.75rem;">
+                <img src="{{ asset('images/keychain.jpg') }}" alt="Pa'barre Allo" style="width: 50px; height: 50px; border-radius: 8px; object-fit: cover;">
+                <div style="flex: 1;">
+                    <strong style="font-size: 0.86rem; display: block;">Edisi Pa'barre Allo</strong>
+                    <span style="font-size: 0.72rem; color: #78716C;">Motif Matahari Terbit Toraja</span>
+                </div>
+                <span style="font-weight: 800; color: #4A0A0E; font-size: 0.85rem;">Rp 65rb</span>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 0.8rem; background: #FAF8F5; border: 1px solid #ECE7DF; border-radius: 12px; padding: 0.75rem;">
+                <div style="width: 50px; height: 50px; border-radius: 8px; background: #4A0A0E; display: flex; align-items: center; justify-content: center; color: #E5B32A; font-size: 1.4rem;">
+                    ✦
+                </div>
+                <div style="flex: 1;">
+                    <strong style="font-size: 0.86rem; display: block;">Edisi Sulapa Eppa'</strong>
+                    <span style="font-size: 0.72rem; color: #78716C;">Filosofi Empat Unsur Bugis</span>
+                </div>
+                <span style="font-weight: 800; color: #4A0A0E; font-size: 0.85rem;">Rp 65rb</span>
+            </div>
+        </div>
+
+        <a href="{{ route('home') }}" class="btn-gold-action" style="width: 100%; margin-top: 1.2rem; text-decoration: none;">
+            Buka Katalog Lengkap
+        </a>
+    </div>
+</div>
+
+{{-- Toast Notification --}}
+<div class="dashboard-toast" id="dashToast">
+    <span class="dashboard-toast-check">✓</span>
+    <span id="dashToastMsg">Mode aktif berhasil diubah!</span>
+</div>
+
+{{-- JavaScript Interactions --}}
+<script>
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    // 1. Toggle Side Navigation Drawer
+    function toggleDrawer(open) {
+        const drawer = document.getElementById('sideDrawer');
+        const backdrop = document.getElementById('drawerBackdrop');
+        if (open) {
+            drawer.classList.add('is-open');
+            backdrop.classList.add('is-open');
+            document.body.style.overflow = 'hidden';
+        } else {
+            drawer.classList.remove('is-open');
+            backdrop.classList.remove('is-open');
+            document.body.style.overflow = '';
+        }
+    }
+
+    // 2. Interactive Mode Switcher
+    function switchUserMode(modeKey, modeTitle) {
+        const modeKeys = ['kampus', 'kerja', 'umkm', 'hilang'];
+
+        // Optimistically update the UI
+        modeKeys.forEach(k => {
+            const card = document.getElementById('modeCard-' + k);
+            const state = document.getElementById('modeState-' + k);
+
+            if (k === modeKey) {
+                card.classList.add('is-active');
+                state.innerHTML = '<span class="mode-active-pill"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg><span>Aktif</span></span><span class="mode-active-arrow"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></span>';
+            } else {
+                card.classList.remove('is-active');
+                state.innerHTML = '<span class="mode-radio-circle"></span>';
+            }
+        });
+
+        // Send AJAX request to server
+        fetch("{{ route('user.dashboard.switchMode') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ mode: modeKey })
+        })
+        .then(res => res.json())
+        .then(data => {
+            showToast('Beralih ke ' + modeTitle + '! Profil publik langsung berubah.');
+        })
+        .catch(err => {
+            console.error('Gagal beralih mode:', err);
+            showToast('Mode diubah ke ' + modeTitle);
+        });
+    }
+
+    // 3. Modals
+    function openProfileModal() {
+        document.getElementById('editProfileModal').classList.add('is-active');
+    }
+    function closeProfileModal() {
+        document.getElementById('editProfileModal').classList.remove('is-active');
+    }
+
+    function openPrivacyModal() {
+        document.getElementById('privacyModal').classList.add('is-active');
+    }
+    function closePrivacyModal() {
+        document.getElementById('privacyModal').classList.remove('is-active');
+    }
+
+    function openAnalyticsModal() {
+        document.getElementById('analyticsModal').classList.add('is-active');
+    }
+    function closeAnalyticsModal() {
+        document.getElementById('analyticsModal').classList.remove('is-active');
+    }
+
+    function openMerchModal() {
+        document.getElementById('merchModal').classList.add('is-active');
+    }
+    function closeMerchModal() {
+        document.getElementById('merchModal').classList.remove('is-active');
+    }
+
+    // 4. Toast
+    let toastTimer = null;
+    function showToast(message) {
+        const toast = document.getElementById('dashToast');
+        const msg = document.getElementById('dashToastMsg');
+        msg.textContent = message;
+        toast.classList.add('is-show');
+
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+            toast.classList.remove('is-show');
+        }, 3200);
+    }
+
+    @if (session('status'))
+        showToast("{{ session('status') }}");
+    @endif
+</script>
+
+</body>
+</html>

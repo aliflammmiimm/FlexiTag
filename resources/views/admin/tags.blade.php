@@ -298,6 +298,12 @@
                                         <span class="text-[10.5px] text-[#737373] block mt-0.5">
                                             Batch: <strong class="text-[#1A1A1A]">{{ $tag->batch_id ?? '#B-883' }}</strong>
                                         </span>
+                                        <div class="mt-1">
+                                            <span class="inline-flex items-center gap-1 text-[10px] bg-[#FCF5E3] text-[#8C6D23] px-1.5 py-0.5 rounded font-mono font-bold border border-[#E5B32A]/35" title="Kode Aktivasi Pengguna (di kartu panduan)">
+                                                <span>Akt:</span>
+                                                <span>{{ $tag->activation_code }}</span>
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                             </td>
@@ -382,7 +388,7 @@
                                     @if ($tag->status === 'aktif')
                                         <button 
                                             type="button" 
-                                            onclick="openTagDetailModal('{{ $tag->tag_code }}', '{{ $owner->name ?? '' }}', '{{ $tag->batch_id ?? '' }}', '{{ $activeMode }}', '{{ $tag->public_url }}')"
+                                            onclick="openTagDetailModal('{{ $tag->tag_code }}', '{{ $tag->activation_code }}', '{{ $owner->name ?? '' }}', '{{ $tag->batch_id ?? '' }}', '{{ $activeMode }}', '{{ $tag->public_url }}')"
                                             class="bg-gold-accent hover:bg-[#E5BC50] text-[#1A1A1A] font-semibold text-xs px-3.5 py-1.5 rounded-full shadow-xs transition cursor-pointer"
                                         >
                                             Detail Tag
@@ -590,6 +596,10 @@
                     <strong id="modal-tag-code" class="text-maroon font-bold text-sm font-mono">FLX-XXXXXX</strong>
                 </div>
                 <div class="flex justify-between items-center">
+                    <span class="text-[#737373]">Kode Aktivasi (Kartu):</span>
+                    <strong id="modal-tag-activation" class="text-[#8C6D23] font-bold text-xs font-mono bg-[#FCF5E3] px-2 py-0.5 rounded border border-[#E5B32A]/30">KD-XXXX-XX</strong>
+                </div>
+                <div class="flex justify-between items-center">
                     <span class="text-[#737373]">Batch ID:</span>
                     <span id="modal-tag-batch" class="font-bold text-[#1A1A1A]">#B-883</span>
                 </div>
@@ -724,8 +734,10 @@
     }
 
     // Tag Detail Modal Controls
-    function openTagDetailModal(code, owner, batch, mode, url) {
+    function openTagDetailModal(code, actCode, owner, batch, mode, url) {
         document.getElementById('modal-tag-code').textContent = code;
+        const actEl = document.getElementById('modal-tag-activation');
+        if (actEl) actEl.textContent = actCode || '—';
         document.getElementById('modal-tag-owner').textContent = owner || 'Belum Terhubung';
         document.getElementById('modal-tag-batch').textContent = batch || '#B-883';
         document.getElementById('modal-tag-mode').textContent = mode ? 'Mode ' + mode : 'Belum Dipilih';
