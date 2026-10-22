@@ -8,18 +8,42 @@ use App\Http\Controllers\Admin\MessageController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\TagController;
+use App\Http\Controllers\User\AuthController as UserAuthController;
+use App\Http\Controllers\User\DashboardController as UserDashboardController;
+use App\Http\Controllers\User\PublicController;
+use App\Http\Controllers\User\TagActivationController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return redirect()->route('admin.dashboard');
+/*
+|--------------------------------------------------------------------------
+| Area publik & User
+|--------------------------------------------------------------------------
+*/
+Route::get('/', [PublicController::class, 'landing'])->name('home');
+
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [UserAuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [UserAuthController::class, 'login'])->name('login.submit');
+    Route::get('/daftar', [UserAuthController::class, 'showRegister'])->name('register');
+    Route::post('/daftar', [UserAuthController::class, 'register'])->name('register.submit');
 });
 
-// Alias for standard Laravel auth redirection
-Route::get('/login', function () {
-    return redirect()->route('admin.login');
-})->name('login');
+Route::middleware(['auth', 'role:user'])->group(function () {
+    Route::post('/keluar', [UserAuthController::class, 'logout'])->name('logout');
+    Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('user.dashboard');
+});
 
-// Admin Authentication & Console Routes
+Route::get('/aktivasi-tag', [TagActivationController::class, 'show'])
+    ->name('user.activation.show');
+
+Route::post('/aktivasi-tag', [TagActivationController::class, 'store'])
+    ->name('user.activation.store');
+
+/*
+|--------------------------------------------------------------------------
+| Area Admin (tidak diubah, kecuali pembatasan role admin/staff)
+|--------------------------------------------------------------------------
+*/
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/', function () {
         return redirect()->route('admin.login');
@@ -29,7 +53,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    Route::middleware(['auth'])->group(function () {
+    Route::middleware(['auth', 'role:admin,staff'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::get('/generate', [BatchController::class, 'index'])->name('generate');
         Route::post('/generate', [BatchController::class, 'store'])->name('generate.store');
