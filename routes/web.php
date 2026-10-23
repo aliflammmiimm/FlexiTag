@@ -31,6 +31,7 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::post('/keluar', [UserAuthController::class, 'logout'])->name('logout');
     Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('user.dashboard');
+    Route::get('/profil-saya', [UserDashboardController::class, 'myProfile'])->name('user.my_profile');
     Route::post('/dashboard/switch-mode', [UserDashboardController::class, 'switchMode'])->name('user.dashboard.switchMode');
     Route::post('/dashboard/profile', [UserDashboardController::class, 'updateProfile'])->name('user.dashboard.updateProfile');
     Route::post('/dashboard/privacy', [UserDashboardController::class, 'updatePrivacy'])->name('user.dashboard.updatePrivacy');
@@ -50,6 +51,15 @@ Route::post('/aktivasi-tag/profil', [TagActivationController::class, 'profileSte
 
 Route::get('/u/{tag_code}', [PublicController::class, 'showTagProfile'])
     ->name('public.tag');
+
+Route::get('/u/{tag_code}/vcard', [PublicController::class, 'downloadVCard'])
+    ->name('public.tag.vcard');
+
+Route::get('/u/{tag_code}/cv', [PublicController::class, 'downloadCv'])
+    ->name('public.tag.cv');
+
+Route::get('/u/{tag_code}/l/{link_id}', [PublicController::class, 'clickLink'])
+    ->name('public.tag.link');
 
 /*
 |--------------------------------------------------------------------------

@@ -167,9 +167,9 @@
                                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                                 <span>Aktif</span>
                             </span>
-                            <span class="mode-active-arrow">
+                            <a href="{{ $publicUrl }}" target="_blank" class="mode-active-arrow" title="Buka Profil Digital Publik" onclick="event.stopPropagation()">
                                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                            </span>
+                            </a>
                         @else
                             <span class="mode-radio-circle"></span>
                         @endif
@@ -193,9 +193,9 @@
                                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                                 <span>Aktif</span>
                             </span>
-                            <span class="mode-active-arrow">
+                            <a href="{{ $publicUrl }}" target="_blank" class="mode-active-arrow" title="Buka Profil Digital Publik" onclick="event.stopPropagation()">
                                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                            </span>
+                            </a>
                         @else
                             <span class="mode-radio-circle"></span>
                         @endif
@@ -219,9 +219,9 @@
                                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                                 <span>Aktif</span>
                             </span>
-                            <span class="mode-active-arrow">
+                            <a href="{{ $publicUrl }}" target="_blank" class="mode-active-arrow" title="Buka Profil Digital Publik" onclick="event.stopPropagation()">
                                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                            </span>
+                            </a>
                         @else
                             <span class="mode-radio-circle"></span>
                         @endif
@@ -245,9 +245,9 @@
                                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                                 <span>Aktif</span>
                             </span>
-                            <span class="mode-active-arrow">
+                            <a href="{{ $publicUrl }}" target="_blank" class="mode-active-arrow" title="Buka Profil Digital Publik" onclick="event.stopPropagation()">
                                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                            </span>
+                            </a>
                         @else
                             <span class="mode-radio-circle"></span>
                         @endif
@@ -362,6 +362,17 @@
                     </svg>
                 </span>
                 <span>Home</span>
+            </a>
+
+            {{-- Lihat Profil Digital Saya --}}
+            <a href="{{ route('user.my_profile') }}" target="_blank" class="drawer-nav-item" style="color: #4A0B10; font-weight: 700;">
+                <span class="drawer-nav-icon" style="color: #E5B239;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                </span>
+                <span>Profil Digital Saya ↗</span>
             </a>
 
             {{-- Merch --}}
@@ -633,7 +644,7 @@
 
             if (k === modeKey) {
                 card.classList.add('is-active');
-                state.innerHTML = '<span class="mode-active-pill"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg><span>Aktif</span></span><span class="mode-active-arrow"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></span>';
+                state.innerHTML = '<span class="mode-active-pill"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg><span>Aktif</span></span><a href="{{ $publicUrl }}" target="_blank" class="mode-active-arrow" title="Buka Profil Digital Publik" onclick="event.stopPropagation()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></a>';
             } else {
                 card.classList.remove('is-active');
                 state.innerHTML = '<span class="mode-radio-circle"></span>';

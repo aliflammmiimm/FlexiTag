@@ -61,13 +61,13 @@ class DatabaseSeeder extends Seeder
         );
 
         $userAndi = User::updateOrCreate(
-            ['email' => 'andi.muhammad@example.com'],
+            ['email' => 'andi.muhammad@student.unm.ac.id'],
             [
                 'name' => 'Andi Muhammad',
                 'password' => Hash::make('password'),
                 'role' => 'user',
                 'jabatan_admin' => null,
-                'no_whatsapp' => '081234567802',
+                'no_whatsapp' => '+62 812-3456-7890',
                 'is_active' => true,
                 'two_factor_enabled' => false,
                 'email_verified_at' => now(),
@@ -107,13 +107,13 @@ class DatabaseSeeder extends Seeder
         DB::table('profiles')->updateOrInsert(
             ['user_id' => $userAndi->id],
             [
-                'display_name' => 'Andi Muhammad Rifki',
-                'headline' => 'Teknik Informatika UNHAS 2022',
-                'bio' => 'Aktif di organisasi HIMA TI dan penggiat komunitas teknologi di Makassar.',
-                'photo_path' => null,
+                'display_name' => 'Andi Muhammad',
+                'headline' => 'Teknik Komputer • Universitas Negeri Makassar',
+                'bio' => 'Angkatan 2023 • Makassar, Sulawesi Selatan',
+                'photo_path' => 'images/avatar_andi.jpg',
                 'theme' => 'sulawesi_heritage',
-                'active_mode' => 'kampus',
-                'username' => 'andirifki',
+                'active_mode' => 'kerja',
+                'username' => 'andimuh',
                 'created_at' => now(),
                 'updated_at' => now(),
             ]
@@ -141,6 +141,18 @@ class DatabaseSeeder extends Seeder
                 'show_phone' => true,
                 'show_email' => true,
                 'show_location' => false,
+                'indexable' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]
+        );
+
+        DB::table('privacy_settings')->updateOrInsert(
+            ['user_id' => $userAndi->id],
+            [
+                'show_phone' => true,
+                'show_email' => true,
+                'show_location' => true,
                 'indexable' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -240,6 +252,80 @@ class DatabaseSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
+            [
+                'user_id' => $userAndi->id,
+                'mode' => 'kerja',
+                'data' => json_encode([
+                    'headline' => 'Software Engineer & Embedded IoT Developer',
+                    'bio' => 'Fokus membangun sistem web modern dan perangkat keras pintar berbasis mikrokontroler.',
+                    'lokasi' => 'Makassar, Sulawesi Selatan',
+                    'email_kerja' => 'andi.muhammad@flexitag.id',
+                    'telepon_kerja' => '+62 812-3456-7890',
+                    'cv_file_path' => 'uploads/cv/andi_muhammad_cv.pdf',
+                    'links' => [
+                        [
+                            'type' => 'portfolio',
+                            'title' => 'Lihat Portofolio Digital',
+                            'subtitle' => 'Koleksi aplikasi web, mobile, & riset IoT',
+                            'url' => 'https://andimuhammad.dev',
+                        ],
+                        [
+                            'type' => 'linkedin',
+                            'title' => 'LinkedIn Profesional',
+                            'subtitle' => 'Rekam jejak karir, pengalaman, & keahlian',
+                            'url' => 'https://linkedin.com/in/andimuhammad',
+                        ],
+                        [
+                            'type' => 'github',
+                            'title' => 'GitHub & Proyek Open Source',
+                            'subtitle' => 'Source code eksperimen embedded & web',
+                            'url' => 'https://github.com/andimuhammad',
+                        ],
+                        [
+                            'type' => 'behance',
+                            'title' => 'Behance & Galeri Desain UI',
+                            'subtitle' => 'Studi kasus perancangan antarmuka sistem',
+                            'url' => 'https://behance.net/andimuhammad',
+                        ],
+                    ],
+                ]),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'user_id' => $userAndi->id,
+                'mode' => 'kampus',
+                'data' => json_encode([
+                    'universitas' => 'Universitas Negeri Makassar',
+                    'jurusan' => 'Teknik Komputer',
+                    'angkatan' => 2023,
+                    'headline' => 'Teknik Komputer • Universitas Negeri Makassar',
+                    'bio' => 'Angkatan 2023 • Makassar, Sulawesi Selatan',
+                    'email_kampus' => 'andi.muhammad@student.unm.ac.id',
+                    'telepon_kampus' => '+62 812-3456-7890',
+                ]),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'user_id' => $userAndi->id,
+                'mode' => 'hilang',
+                'data' => json_encode([
+                    'nama_barang' => 'Gantungan Kunci Pintar & Kunci Rumah / Motor',
+                    'perangkat_tag' => 'FlexiTag Pa\'barre Allo (Sulawesi Heritage Edition)',
+                    'kemungkinan_tertinggal' => 'Area Kampus Unhas Tamalanrea / Sekitar Losari, Makassar',
+                    'pesan_darurat' => 'Halo orang baik! Gantungan kunci ini sangat berharga bagi saya karena berisi kunci rumah utama dan data penting. Ada imbalan terima kasih bagi siapa pun yang bersedia mengembalikan. Terima kasih banyak atas kejujuran Anda!',
+                    'kontak_darurat_1' => '+62 812-3456-7890',
+                    'kontak_darurat_2' => '+62 821-9876-5432',
+                    'bounty_reward' => 'Uang tunai Rp 150.000 sebagai tanda terima kasih',
+                    'instruksi_pengembalian' => 'Dapat dititipkan di Pos Security Kampus atau hubungi via WhatsApp.',
+                    'status_barang' => 'sedang_dicari',
+                    'batch_display' => '#SS-8809',
+                    'show_finder_form' => true,
+                ]),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
         ];
 
         foreach ($modeDataSamples as $item) {
@@ -281,7 +367,7 @@ class DatabaseSeeder extends Seeder
                 'user_id' => $userAndi->id,
                 'status' => 'aktif',
                 'disabled_by' => null,
-                'batch_id' => '#B-882',
+                'batch_id' => '#B-PA-ALLO',
                 'produced_at' => now()->subMonths(1),
                 'activated_at' => now()->subDays(8),
                 'created_at' => now()->subMonths(1),
@@ -391,6 +477,56 @@ class DatabaseSeeder extends Seeder
                 'link_id' => $linkRecordId,
                 'clicked_at' => now()->subHours(3),
             ]);
+        }
+
+        $andiLinks = [
+            [
+                'user_id' => $userAndi->id,
+                'type' => 'academic',
+                'label' => 'HIMA Teknik Komputer UNM|Pengurus Divisi Riset & Teknologi',
+                'url' => 'https://himatekkom.unm.ac.id',
+                'sort_order' => 1,
+                'is_visible' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'user_id' => $userAndi->id,
+                'type' => 'linkedin',
+                'label' => 'LinkedIn Mahasiswa|Jejaring akademik, lomba, & sertifikasi',
+                'url' => 'https://linkedin.com/in/andimuhammad',
+                'sort_order' => 2,
+                'is_visible' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'user_id' => $userAndi->id,
+                'type' => 'instagram',
+                'label' => 'Instagram (@andimuh_)|Aktivitas kampus & dokumentasi kegiatan',
+                'url' => 'https://instagram.com/andimuh_',
+                'sort_order' => 3,
+                'is_visible' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'user_id' => $userAndi->id,
+                'type' => 'github',
+                'label' => 'Proyek Kuliah & Tugas Akhir|Kumpulan laporan riset IoT & sistem tertanam',
+                'url' => 'https://github.com/andimuhammad',
+                'sort_order' => 4,
+                'is_visible' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ];
+
+        foreach ($andiLinks as $l) {
+            DB::table('links')->updateOrInsert(
+                ['user_id' => $l['user_id'], 'url' => $l['url']],
+                $l
+            );
         }
 
         // 7. Seed Taps Telemetry (FR-ADM-06)

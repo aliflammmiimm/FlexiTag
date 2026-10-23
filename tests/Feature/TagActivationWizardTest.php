@@ -58,6 +58,7 @@ class TagActivationWizardTest extends TestCase
     public function test_user_can_activate_valid_code_and_advance_to_step_three(): void
     {
         $user = User::factory()->create();
+        Tag::where('tag_code', 'a8k2x9')->delete();
         $tag = Tag::create([
             'tag_code' => 'a8k2x9',
             'activation_code' => 'KD-8821-XQ',
@@ -107,6 +108,7 @@ class TagActivationWizardTest extends TestCase
     public function test_user_can_save_initial_profile_and_advance_to_step_four(): void
     {
         $user = User::factory()->create();
+        Tag::where('tag_code', 'a8k2x9')->delete();
         $tag = Tag::create([
             'tag_code' => 'a8k2x9',
             'activation_code' => 'KD-8821-XQ',
@@ -143,6 +145,7 @@ class TagActivationWizardTest extends TestCase
     public function test_step_four_shows_celebration_and_public_link(): void
     {
         $user = User::factory()->create();
+        Tag::where('tag_code', 'a8k2x9')->delete();
         $tag = Tag::create([
             'tag_code' => 'a8k2x9',
             'activation_code' => 'KD-8821-XQ',
@@ -169,6 +172,7 @@ class TagActivationWizardTest extends TestCase
             'active_mode' => 'kampus',
         ]);
 
+        Tag::where('tag_code', 'a8k2x9')->delete();
         $tag = Tag::create([
             'tag_code' => 'a8k2x9',
             'activation_code' => 'KD-8821-XQ',
