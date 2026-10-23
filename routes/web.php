@@ -35,6 +35,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/dashboard/switch-mode', [UserDashboardController::class, 'switchMode'])->name('user.dashboard.switchMode');
     Route::post('/dashboard/profile', [UserDashboardController::class, 'updateProfile'])->name('user.dashboard.updateProfile');
     Route::post('/dashboard/privacy', [UserDashboardController::class, 'updatePrivacy'])->name('user.dashboard.updatePrivacy');
+    Route::get('/analytics', [\App\Http\Controllers\User\AnalyticsController::class, 'index'])->name('user.analytics');
+    Route::get('/pengaturan', [\App\Http\Controllers\User\SettingsController::class, 'index'])->name('user.settings');
+    Route::post('/pengaturan/password', [\App\Http\Controllers\User\SettingsController::class, 'updatePassword'])->name('user.settings.password');
+    Route::post('/pengaturan/privacy', [\App\Http\Controllers\User\SettingsController::class, 'updatePrivacy'])->name('user.settings.privacy');
+    Route::get('/mode-hilang', [\App\Http\Controllers\User\LostModeController::class, 'edit'])->name('user.lost-mode.edit');
+    Route::post('/mode-hilang', [\App\Http\Controllers\User\LostModeController::class, 'update'])->name('user.lost-mode.update');
 });
 
 Route::get('/aktivasi-tag', [TagActivationController::class, 'show'])

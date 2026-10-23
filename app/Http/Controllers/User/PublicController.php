@@ -51,7 +51,16 @@ class PublicController extends Controller
         $links = $user?->links ?? collect();
         $privacy = $user?->privacySetting;
         $activeMode = $request->query('mode', $profile?->active_mode ?? 'kampus');
-        $modeData = $user?->modeData?->firstWhere('mode', $activeMode)?->data ?? [];
+
+        // Mode data resolution: check user relation first, fallback to DB query
+        $modeRow = $user?->modeData?->firstWhere('mode', $activeMode);
+        if ($modeRow) {
+            $modeData = is_array($modeRow->data) ? $modeRow->data : json_decode($modeRow->data, true);
+        } else {
+            $dbRow = DB::table('mode_data')->where('user_id', $user?->id)->where('mode', $activeMode)->first();
+            $modeData = $dbRow && $dbRow->data ? json_decode($dbRow->data, true) : [];
+        }
+        $modeData = is_array($modeData) ? $modeData : [];
 
         return view('user.public_profile', [
             'tag' => $tag,

@@ -1,0 +1,843 @@
+/* FlexiTag User Analytics Page Styles
+   Cultural Heritage Colors:
+   Toraja Maroon: #4A0A0E, #2B0407, #3B0508
+   Sulapa Eppa' Gold: #D4AF37, #E5B32A, #FEF3C7
+   Warm Neutral/Sand: #F8F6F2, #FAF9F6, #FFFFFF
+   Charcoal: #1A1A1A, #1F1915
+*/
+
+:root {
+  --color-maroon: #8B0000;
+  --color-maroon-dark: #650000;
+  --color-maroon-deep: #4A0A0E;
+  --color-maroon-header: #3B0508;
+  --color-gold: #D4AF37;
+  --color-gold-bright: #E5B32A;
+  --color-gold-soft: #F2E6B6;
+  --color-cream: #FAF9F6;
+  --color-sand: #F8F6F2;
+  --color-white: #FFFFFF;
+  --color-charcoal: #1A1A1A;
+  --color-muted: #78716C;
+  --color-subtle: #A8A29E;
+  --color-border: #ECE7DF;
+  --color-border-card: #EFECE6;
+  --color-bar-bg: #EAE6DF;
+  --radius-xl: 18px;
+  --radius-lg: 16px;
+  --radius-md: 12px;
+  --shadow-soft: 0 4px 18px rgba(0, 0, 0, 0.05);
+  --shadow-card: 0 6px 20px rgba(74, 10, 14, 0.06);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body.user-analytics-body {
+  background-color: var(--color-sand);
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--color-charcoal);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow-x: hidden;
+}
+
+/* Outer layout container: mobile-first ~342px content width on 400px viewport */
+.analytics-viewport-wrap {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100vh;
+  background-color: var(--color-sand);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 680px) {
+  body.user-analytics-body {
+    background-color: #EDE8DF;
+    padding: 1.5rem 1rem 3rem;
+  }
+  .analytics-viewport-wrap {
+    max-width: 520px;
+    margin: 0 auto;
+    border-radius: 24px;
+    box-shadow: 0 10px 40px rgba(74, 10, 14, 0.08);
+    border: 1px solid var(--color-border);
+    overflow: hidden;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Header Maroon (~70px height)
+   -------------------------------------------------------------------------- */
+.analytics-header {
+  height: 70px;
+  background: linear-gradient(180deg, var(--color-maroon-header) 0%, var(--color-maroon-deep) 100%);
+  padding: 0 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1.15rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+}
+
+.analytics-hamburger-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 32px;
+  height: 32px;
+  padding: 3px 0;
+}
+
+.analytics-hamburger-btn span {
+  display: block;
+  height: 2.2px;
+  width: 22px;
+  background-color: #FFFFFF;
+  border-radius: 2px;
+  transition: all 0.25s ease;
+}
+
+.analytics-header-titles {
+  display: flex;
+  flex-direction: column;
+}
+
+.analytics-brand-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--color-gold-bright);
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.analytics-page-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+  margin-top: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   Main Content Area
+   -------------------------------------------------------------------------- */
+.analytics-content {
+  padding: 1rem 1.1rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.95rem;
+  width: 100%;
+}
+
+/* --------------------------------------------------------------------------
+   Hero Maroon Panel + Geometric / Toraja Sunburst Ornaments
+   -------------------------------------------------------------------------- */
+.analytics-hero-card {
+  background: linear-gradient(135deg, #4A0A0E 0%, #360508 60%, #240204 100%);
+  border-radius: var(--radius-lg);
+  padding: 1.35rem 1.25rem 1.25rem;
+  color: #FFFFFF;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  border: 1px solid rgba(229, 179, 42, 0.15);
+}
+
+/* Diagonal / geometric pattern background */
+.analytics-hero-pattern {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0.08;
+  background-image: repeating-linear-gradient(
+    45deg,
+    #FFFFFF,
+    #FFFFFF 2px,
+    transparent 2px,
+    transparent 14px
+  );
+  pointer-events: none;
+}
+
+/* Pa'barre Allo Sunburst circle ornament on right side */
+.analytics-hero-sunburst {
+  position: absolute;
+  right: -24px;
+  top: -24px;
+  width: 130px;
+  height: 130px;
+  opacity: 0.22;
+  pointer-events: none;
+}
+
+.hero-tagline-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(229, 179, 42, 0.15);
+  border: 1px solid rgba(229, 179, 42, 0.3);
+  color: var(--color-gold-bright);
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  margin-bottom: 0.65rem;
+  position: relative;
+  z-index: 2;
+}
+
+.analytics-hero-title {
+  font-size: 1.22rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #FFFFFF;
+  margin-bottom: 0.35rem;
+  position: relative;
+  z-index: 2;
+}
+
+.analytics-hero-subtitle {
+  font-size: 0.76rem;
+  color: #F8D8DC;
+  line-height: 1.45;
+  max-width: 270px;
+  position: relative;
+  z-index: 2;
+}
+
+/* --------------------------------------------------------------------------
+   Segmented Period Selector (Pills)
+   -------------------------------------------------------------------------- */
+.period-selector-wrap {
+  display: flex;
+  background: #EFECE6;
+  padding: 4px;
+  border-radius: 999px;
+  gap: 4px;
+  border: 1px solid var(--color-border);
+}
+
+.period-pill-btn {
+  flex: 1;
+  text-align: center;
+  padding: 0.55rem 0.4rem;
+  font-size: 0.74rem;
+  font-weight: 600;
+  border-radius: 999px;
+  text-decoration: none;
+  color: var(--color-muted);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.period-pill-btn.is-active {
+  background: var(--color-maroon-deep);
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(74, 10, 14, 0.25);
+}
+
+.period-pill-btn:not(.is-active):hover {
+  color: var(--color-charcoal);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+/* --------------------------------------------------------------------------
+   Summary Cards Grid (TOTAL TAP & MINGGU INI)
+   -------------------------------------------------------------------------- */
+.summary-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.summary-card {
+  background: var(--color-white);
+  border-radius: var(--radius-lg);
+  padding: 1rem 0.95rem;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-soft);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 104px;
+  position: relative;
+}
+
+.summary-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.45rem;
+}
+
+.summary-card-label {
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--color-muted);
+  text-transform: uppercase;
+}
+
+.summary-card-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: #FDF9EC;
+  border: 1px solid rgba(229, 179, 42, 0.35);
+  color: var(--color-maroon-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.summary-card-body {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  margin-bottom: 0.35rem;
+}
+
+.summary-card-num {
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: var(--color-charcoal);
+  line-height: 1;
+}
+
+.summary-card-suffix {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+.summary-badge-sub {
+  font-size: 0.66rem;
+  color: var(--color-muted);
+  line-height: 1.25;
+}
+
+.summary-badge-sub.is-up {
+  color: #15803D;
+  font-weight: 600;
+}
+
+.summary-badge-sub.is-down {
+  color: #B91C1C;
+  font-weight: 600;
+}
+
+/* --------------------------------------------------------------------------
+   Daily Tap Activity Card (7-Day Bar Chart)
+   -------------------------------------------------------------------------- */
+.chart-card {
+  background: var(--color-white);
+  border-radius: var(--radius-lg);
+  padding: 1.15rem 1.1rem 1.1rem;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-soft);
+}
+
+.chart-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.15rem;
+}
+
+.chart-card-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--color-charcoal);
+}
+
+.chart-trend-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: #EAF5EC;
+  color: #2E7D32;
+  border: 1px solid #C8E6C9;
+  font-size: 0.66rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+}
+
+.chart-trend-badge.is-flat {
+  background: #F3F1EC;
+  color: #78716C;
+  border-color: #E2DDD5;
+}
+
+.chart-trend-badge.is-negative {
+  background: #FEE2E2;
+  color: #991B1B;
+  border-color: #FECACA;
+}
+
+/* 7-Day Bar Chart Grid */
+.bar-chart-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  height: 140px;
+  padding: 1.8rem 0.4rem 0.2rem;
+  position: relative;
+  border-bottom: 1px dashed var(--color-border);
+  margin-bottom: 0.75rem;
+}
+
+.bar-chart-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  position: relative;
+  gap: 0.4rem;
+}
+
+/* Value Bubble on top of the highest bar */
+.bar-peak-bubble {
+  position: absolute;
+  top: -26px;
+  background: var(--color-maroon-deep);
+  color: #FFFFFF;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.15rem 0.42rem;
+  border-radius: 6px;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(74, 10, 14, 0.25);
+  pointer-events: none;
+}
+
+.bar-peak-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 4px solid var(--color-maroon-deep);
+}
+
+/* Bar Track and Fill */
+.bar-track {
+  width: 14px;
+  height: 100px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.bar-fill {
+  width: 100%;
+  background: var(--color-bar-bg);
+  border-radius: 4px 4px 0 0;
+  min-height: 4px;
+  transition: height 0.3s ease;
+}
+
+.bar-fill.is-highest {
+  background: linear-gradient(180deg, var(--color-gold-bright) 0%, var(--color-gold) 100%);
+  box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+}
+
+.bar-day-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--color-muted);
+  text-transform: uppercase;
+}
+
+.bar-day-label.is-highest {
+  color: var(--color-charcoal);
+  font-weight: 700;
+}
+
+/* Insight Callout */
+.chart-insight-box {
+  background: #FAF8F5;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 0.65rem 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.72rem;
+  color: var(--color-charcoal);
+  line-height: 1.35;
+}
+
+.chart-insight-icon {
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+/* --------------------------------------------------------------------------
+   NFC Mode Distribution Card (Truthful State)
+   -------------------------------------------------------------------------- */
+.mode-card {
+  background: var(--color-white);
+  border-radius: var(--radius-lg);
+  padding: 1.15rem 1.1rem;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-soft);
+}
+
+.mode-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.9rem;
+}
+
+.mode-card-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--color-charcoal);
+}
+
+.mode-active-chip {
+  background: #FDF7EA;
+  color: #8C6D23;
+  border: 1px solid #F6E2B1;
+  font-size: 0.66rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.mode-active-chip .chip-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-gold-bright);
+}
+
+/* Honest empty state / Mode Info layout */
+.mode-distribution-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+@media (min-width: 420px) {
+  .mode-distribution-wrap {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.mode-donut-graphic {
+  width: 100px;
+  height: 100px;
+  flex-shrink: 0;
+  margin: 0 auto;
+}
+
+.mode-details-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.mode-detail-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.74rem;
+  padding: 0.45rem 0.65rem;
+  background: #FAF8F5;
+  border-radius: 8px;
+  border: 1px solid #F0ECE4;
+}
+
+.mode-detail-left {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.mode-bullet {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+
+.mode-detail-name {
+  font-weight: 600;
+  color: var(--color-charcoal);
+}
+
+.mode-detail-val {
+  font-weight: 700;
+  color: var(--color-muted);
+}
+
+.mode-honest-empty-box {
+  background: #FAF8F5;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 0.85rem;
+  text-align: center;
+  font-size: 0.72rem;
+  color: var(--color-muted);
+  line-height: 1.4;
+}
+
+/* --------------------------------------------------------------------------
+   Hardware Teraktif Card (Maroon Theme)
+   -------------------------------------------------------------------------- */
+.hardware-card-maroon {
+  background: linear-gradient(135deg, #4A0A0E 0%, #300508 100%);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.15rem;
+  color: #FFFFFF;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  border: 1px solid rgba(229, 179, 42, 0.2);
+}
+
+/* Background circles watermark */
+.hardware-circles-pattern {
+  position: absolute;
+  right: -20px;
+  bottom: -20px;
+  width: 120px;
+  height: 120px;
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+.hardware-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.85rem;
+  position: relative;
+  z-index: 2;
+}
+
+.hardware-label-gold {
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: var(--color-gold-bright);
+  text-transform: uppercase;
+}
+
+.hardware-dominance-badge {
+  background: rgba(229, 179, 42, 0.2);
+  color: var(--color-gold-bright);
+  border: 1px solid rgba(229, 179, 42, 0.35);
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.18rem 0.5rem;
+  border-radius: 999px;
+}
+
+.hardware-main-info {
+  display: flex;
+  align-items: center;
+  gap: 0.95rem;
+  position: relative;
+  z-index: 2;
+}
+
+/* Visual Hardware Thumbnail (CSS Placeholder or Real Asset) */
+.hardware-visual-thumb {
+  width: 54px;
+  height: 54px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(229, 179, 42, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.hardware-visual-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hardware-visual-icon {
+  color: var(--color-gold-bright);
+  font-size: 1.5rem;
+}
+
+.hardware-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.hardware-name {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  letter-spacing: -0.01em;
+}
+
+.hardware-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.72rem;
+  color: #F8D8DC;
+}
+
+.hardware-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.hardware-meta-item strong {
+  color: var(--color-gold-bright);
+}
+
+/* --------------------------------------------------------------------------
+   Slide-out Drawer Navigation (Shared Mobile Pattern)
+   -------------------------------------------------------------------------- */
+.drawer-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.25s ease;
+}
+
+.drawer-backdrop.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.side-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 280px;
+  max-width: 80%;
+  background: #FFFFFF;
+  z-index: 1001;
+  transform: translateX(-100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+}
+
+.side-drawer.is-open {
+  transform: translateX(0);
+}
+
+.drawer-header {
+  background: linear-gradient(180deg, var(--color-maroon-header) 0%, var(--color-maroon-deep) 100%);
+  padding: 1.25rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #FFFFFF;
+}
+
+.drawer-brand-name {
+  font-size: 0.7rem;
+  color: var(--color-gold-bright);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.drawer-brand-sub {
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.drawer-close-btn {
+  background: transparent;
+  border: none;
+  color: #FFFFFF;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.drawer-nav-menu {
+  padding: 1rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex: 1;
+}
+
+.drawer-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0.95rem;
+  border-radius: 10px;
+  color: var(--color-charcoal);
+  text-decoration: none;
+  font-size: 0.86rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.drawer-menu-item:hover {
+  background: #F8F6F2;
+}
+
+.drawer-menu-item.is-active {
+  background: #F7EBEB;
+  color: var(--color-maroon-deep);
+  font-weight: 700;
+}
+
+.drawer-footer-box {
+  padding: 1rem;
+  border-top: 1px solid var(--color-border);
+  background: #FAF8F5;
+}

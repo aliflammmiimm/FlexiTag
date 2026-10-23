@@ -52,13 +52,13 @@
             $modeBadge = ['label' => 'Mode UMKM', 'icon' => '🏪', 'section_title' => 'Katalog Produk & Usaha'];
         } elseif ($currentMode === 'hilang') {
             $headline = $modeData['nama_barang'] ?? 'Gantungan Kunci Pintar & Kunci Rumah / Motor';
-            $bioText = $modeData['pesan_darurat'] ?? 'Halo orang baik! Gantungan kunci ini sangat berharga bagi saya karena berisi kunci rumah utama dan data penting. Ada imbalan terima kasih bagi siapa pun yang bersedia mengembalikan. Terima kasih banyak atas kejujuran Anda!';
+            $bioText = $modeData['message'] ?? $modeData['pesan_darurat'] ?? 'Halo orang baik! Gantungan kunci ini sangat berharga bagi saya karena berisi kunci rumah utama dan data penting. Ada imbalan terima kasih bagi siapa pun yang bersedia mengembalikan. Terima kasih banyak atas kejujuran Anda!';
             $locationText = $modeData['kemungkinan_tertinggal'] ?? $modeData['instruksi_pengembalian'] ?? 'Area Kampus Unhas Tamalanrea / Sekitar Losari, Makassar';
             $phoneLabel = 'KONTAK DARURAT';
             $emailLabel = 'EMAIL RELAY';
-            $phone = $modeData['kontak_darurat_1'] ?? $user?->no_whatsapp ?? '+62 812-3456-7890';
+            $phone = $modeData['relay_phone'] ?? $modeData['kontak_darurat_1'] ?? $user?->no_whatsapp ?? '+62 812-3456-7890';
             $email = $user?->email ?? '';
-            $modeBadge = ['label' => 'Mode Barang Hilang', 'icon' => '🛡️', 'section_title' => 'Informasi Kontak Darurat'];
+            $modeBadge = ['label' => 'Mode Barang Hilang • Mode Penemu 🔒', 'icon' => '🛡️', 'section_title' => 'Informasi Kontak Darurat'];
         } else {
             // default 'kampus'
             $headline = $modeData['headline'] ?? $profile?->headline ?? 'Teknik Komputer • Universitas Negeri Makassar';
@@ -137,7 +137,7 @@
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8B0000" stroke-width="2.4">
                             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                         </svg>
-                        <span>MODE BARANG HILANG AKTIF</span>
+                        <span>MODE BARANG HILANG AKTIF (Mode Penemu 🔒)</span>
                     </div>
                     <p class="lost-mode-sub">MaccaTag Sulawesi Heritage Edition • Safe Recovery Gateway</p>
                 </div>
@@ -217,12 +217,17 @@
                 {{-- Pesan Personal Pemilik --}}
                 <div class="lost-personal-message-box">
                     <div class="lost-message-title">
-                        <span>❝</span>
-                        <span>Pesan Personal dari Pemilik</span>
+                        <span>🛡️</span>
+                        <span>PESAN DARURAT PEMILIK</span>
                     </div>
                     <p class="lost-message-quote">
-                        "{{ $modeData['pesan_darurat'] ?? 'Halo orang baik! Gantungan kunci ini sangat berharga bagi saya karena berisi kunci rumah utama dan data penting. Ada imbalan terima kasih bagi siapa pun yang bersedia mengembalikan. Terima kasih banyak atas kejujuran Anda!' }}"
+                        "{{ $modeData['message'] ?? $modeData['pesan_darurat'] ?? 'Halo orang baik! Gantungan kunci ini sangat berharga bagi saya karena berisi kunci rumah utama dan data penting. Ada imbalan terima kasih bagi siapa pun yang bersedia mengembalikan. Terima kasih banyak atas kejujuran Anda!' }}"
                     </p>
+                    @if (!empty($modeData['reward']))
+                        <div style="background: #FDF6B2; border: 1px solid #FCE96A; border-radius: 8px; padding: 0.5rem 0.75rem; font-size: 0.76rem; color: #723B13; font-weight: 700; margin-top: 0.75rem;">
+                            🎁 Imbalan bagi penemu: {{ $modeData['reward'] }}
+                        </div>
+                    @endif
                 </div>
 
                 {{-- Jaminan Privasi --}}
@@ -249,7 +254,7 @@
                         </svg>
                     </div>
                     <div>
-                        <span class="btn-lost-title">Hubungi Pemilik (Kontak Aman)</span>
+                        <span class="btn-lost-title">Hubungi Pemilik via Relay Aman</span>
                         <span class="btn-lost-sub">Kirim pesan chat anonim via gateway terenkripsi WhatsApp / Web</span>
                     </div>
                     <span class="btn-lost-arrow">➔</span>
