@@ -10,9 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     @vite([
-        'resources/css/components/user-sidebar.css',
         'resources/css/pages/user-lost-mode.css',
-        'resources/js/user-sidebar.js',
         'resources/js/user-lost-mode.js'
     ])
 </head>
@@ -301,12 +299,6 @@
         </form>
 
     </main>
-
-    {{-- ========================================================================= --}}
-    {{-- UNIFIED USER SIDEBAR / NAVIGATION DRAWER                                  --}}
-    {{-- ========================================================================= --}}
-    @include('partials.user-sidebar')
-
 </div>
 
 </body>

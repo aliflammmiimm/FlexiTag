@@ -63,7 +63,7 @@ body.user-settings-body {
     padding: 1.5rem 1rem 3rem;
   }
   .settings-viewport-wrap {
-    max-width: 520px;
+    max-width: 760px;
     margin: 0 auto;
     border-radius: 24px;
     box-shadow: 0 10px 40px rgba(74, 10, 14, 0.08);
