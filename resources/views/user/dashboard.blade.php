@@ -539,6 +539,10 @@
             window.location.href = "{{ route('user.profile.umkm') }}";
             return;
         }
+        if (currentActiveMode === 'hilang') {
+            window.location.href = "{{ route('user.lost-mode.edit') }}";
+            return;
+        }
         openProfileModal();
     }
 
