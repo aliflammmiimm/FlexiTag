@@ -51,11 +51,27 @@ class User extends Authenticatable
     }
 
     /**
+     * Links relation (1:N).
+     */
+    public function links(): HasMany
+    {
+        return $this->hasMany(Link::class, 'user_id');
+    }
+
+    /**
      * Mode data relation (1:N).
      */
     public function modeData(): HasMany
     {
         return $this->hasMany(ModeData::class, 'user_id');
+    }
+
+    /**
+     * Privacy settings relation (1:1).
+     */
+    public function privacySetting(): HasOne
+    {
+        return $this->hasOne(PrivacySetting::class, 'user_id');
     }
 
     /**

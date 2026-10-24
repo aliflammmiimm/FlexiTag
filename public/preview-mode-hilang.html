@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Menemukan Barang Ini? — Mode Barang Hilang | FlexiTag</title>
+    <meta name="description" content="Safe Recovery Gateway — FlexiTag Smart Merchandise Pa'barre Allo">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/flexitag-profile.css">
+    <style>
+        .preview-helper-bar {
+            position: fixed;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(28, 25, 23, 0.92);
+            backdrop-filter: blur(8px);
+            color: #FFFFFF;
+            padding: 6px 16px;
+            border-radius: 999px;
+            font-size: 11.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+            border: 1px solid rgba(229, 178, 57, 0.4);
+        }
+        .preview-helper-bar a {
+            color: #E5B239;
+            text-decoration: underline;
+            font-weight: 700;
+        }
+        @media (max-width: 640px) {
+            .preview-helper-bar {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<aside class="preview-helper-bar" aria-label="Preview Info">
+    <span>🛡️ <strong>Preview Mode Barang Hilang</strong></span>
+    <span>•</span>
+    <a href="preview-mode-kerja.html">Mode Kerja</a>
+    <span>•</span>
+    <a href="preview-mode-kampus.html">Mode Kampus</a>
+    <span>•</span>
+    <a href="/u/FLX-5T1W8Q?mode=hilang">Buka Route Database Asli (/u/FLX-5T1W8Q)</a>
+</aside>
+
+<div class="profile-viewport-wrapper">
+    <main class="profile-container" id="profileApp">
+
+        <!-- 1. Header Banner Marun dengan Status Tag -->
+        <header class="lost-banner-header">
+            <div class="lost-top-row">
+                <div class="badge-nfc-tap-verified">
+                    <span class="dot-green"></span>
+                    <span>NFC Tap Terverifikasi</span>
+                </div>
+                <div class="badge-tag-id">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+                        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                        <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                    </svg>
+                    <span>#SS-8809</span>
+                </div>
+            </div>
+
+            <div class="lost-mode-pill-wrap">
+                <div class="lost-mode-pill">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8B0000" stroke-width="2.4">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    </svg>
+                    <span>MODE BARANG HILANG AKTIF</span>
+                </div>
+                <p class="lost-mode-sub">MaccaTag Sulawesi Heritage Edition • Safe Recovery Gateway</p>
+            </div>
+        </header>
+
+        <!-- 2. Emblem Siren Hero & Judul -->
+        <section class="lost-hero-section">
+            <div class="lost-emblem-circle">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                </svg>
+                <div class="lost-emblem-sub-badge" title="Pencarian Aktif">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </div>
+            </div>
+
+            <h1 class="lost-hero-title">Menemukan Barang Ini?</h1>
+            <p class="lost-hero-desc">
+                Bantu kembalikan barang ini kepada pemiliknya dengan menghubunginya melalui tombol aman di bawah. Identitas Anda dan pemilik tetap terlindungi secara privat.
+            </p>
+        </section>
+
+        <!-- 3. Card Detail Informasi Barang -->
+        <section class="lost-details-card">
+            <div class="lost-status-header">
+                <div class="pill-status-searching">
+                    <span class="dot-orange"></span>
+                    <span>STATUS: SEDANG DICARI</span>
+                </div>
+                <span class="auto-protected-text">Auto-Protected</span>
+            </div>
+
+            <!-- Detail 1: Jenis Barang -->
+            <div class="lost-info-row">
+                <div class="lost-info-icon">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 2l-2 2m-1.5 1.5L16 7l-1.5-1.5-1.5 1.5 1.5 1.5-3 3a6.5 6.5 0 1 0 4 4l3-3 1.5 1.5 1.5-1.5-1.5-1.5 1.5-1.5 2-2z"></path>
+                        <circle cx="7.5" cy="16.5" r="1.5"></circle>
+                    </svg>
+                </div>
+                <div class="lost-info-body">
+                    <span class="lost-info-label">JENIS BARANG</span>
+                    <span class="lost-info-value">Gantungan Kunci Pintar &amp; Kunci Rumah / Motor</span>
+                </div>
+            </div>
+
+            <!-- Detail 2: Perangkat NFC Tag -->
+            <div class="lost-info-row">
+                <div class="lost-info-icon">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                    </svg>
+                </div>
+                <div class="lost-info-body">
+                    <span class="lost-info-label">PERANGKAT NFC TAG</span>
+                    <span class="lost-info-value">FlexiTag Pa'barre Allo (Sulawesi Heritage Edition)</span>
+                </div>
+            </div>
+
+            <!-- Detail 3: Kemungkinan Tertinggal -->
+            <div class="lost-info-row">
+                <div class="lost-info-icon">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+                    </svg>
+                </div>
+                <div class="lost-info-body">
+                    <span class="lost-info-label">KEMUNGKINAN TERTINGGAL DI</span>
+                    <span class="lost-info-value">Area Kampus Unhas Tamalanrea / Sekitar Losari, Makassar</span>
+                </div>
+            </div>
+
+            <!-- Pesan Personal Pemilik -->
+            <div class="lost-personal-message-box">
+                <div class="lost-message-title">
+                    <span>❝</span>
+                    <span>Pesan Personal dari Pemilik</span>
+                </div>
+                <p class="lost-message-quote">
+                    "Halo orang baik! Gantungan kunci ini sangat berharga bagi saya karena berisi kunci rumah utama dan data penting. Ada imbalan terima kasih bagi siapa pun yang bersedia mengembalikan. Terima kasih banyak atas kejujuran Anda!"
+                </p>
+            </div>
+
+            <!-- Jaminan Privasi -->
+            <div class="lost-privacy-guarantee">
+                <svg class="lock-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+                <div>
+                    <strong>Privasi Terjamin:</strong> Nomor telepon dan identitas kedua belah pihak terlindungi di balik enkripsi MaccaTag.
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. Tombol Aksi Hubungi & Kirim Lokasi -->
+        <section class="lost-actions-section">
+            <!-- Tombol 1: Hubungi Pemilik (Kontak Aman) -->
+            <a href="https://wa.me/6281234567890?text=Halo%2C%20saya%20menemukan%20barang%20FlexiTag%20Anda.%20Saya%20ingin%20membantu%20mengembalikannya%20secara%20aman." 
+               target="_blank" rel="noopener" class="btn-lost-contact-owner" id="btnLostContactOwner">
+                <div class="btn-lost-icon-bubble">
+                    <span class="dot-live"></span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <span class="btn-lost-title">Hubungi Pemilik (Kontak Aman)</span>
+                    <span class="btn-lost-sub">Kirim pesan chat anonim via gateway terenkripsi WhatsApp / Web</span>
+                </div>
+                <span class="btn-lost-arrow">➔</span>
+            </a>
+
+            <!-- Tombol 2: Kirim Titik Lokasi Temuan -->
+            <button type="button" class="btn-lost-share-location" id="btnShareLocation" onclick="shareCurrentLocationMock()">
+                <div class="btn-lost-gps-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <line x1="12" y1="2" x2="12" y2="4"></line>
+                        <line x1="12" y1="20" x2="12" y2="22"></line>
+                        <line x1="2" y1="12" x2="4" y2="12"></line>
+                        <line x1="20" y1="12" x2="22" y2="12"></line>
+                    </svg>
+                </div>
+                <div style="text-align: left;">
+                    <span class="btn-lost-gps-title">Kirim Titik Lokasi Temuan</span>
+                    <span class="btn-lost-gps-sub">Bantu pemilik menjemput dengan koordinat aman GPS</span>
+                </div>
+                <span class="btn-lost-chevron">›</span>
+            </button>
+
+            <!-- Tombol 3: Barang Sudah Berhasil Dikembalikan? -->
+            <button type="button" class="btn-lost-returned" onclick="alert('Terima kasih banyak atas integritas dan kejujuran Anda dalam membantu mengembalikan barang ini kepada pemiliknya!')">
+                <svg class="check-icon-teal" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>Barang Sudah Berhasil Dikembalikan?</span>
+            </button>
+        </section>
+
+        <!-- 5. Footer Khusus Mode Barang Hilang -->
+        <footer style="padding: 10px 20px 28px; text-align: center;">
+            <div class="lost-footer-diamonds">
+                <span>◆</span>
+                <span style="color: #E5B239;">◆</span>
+                <span>◆</span>
+            </div>
+            <h3 class="lost-footer-thanks">Terima kasih telah menjadi orang jujur &amp; membantu sesama.</h3>
+            <p class="lost-footer-sub">Kebaikan kecil Anda sangat berarti bagi pemilik barang ini.</p>
+            <div class="lost-footer-legal">
+                POWERED BY MACCATAG • SMART NFC MERCHANDISE<br>
+                SULAWESI HERITAGE EDITION • ZERO APP REQUIRED
+            </div>
+        </footer>
+
+    </main>
+</div>
+
+<script>
+    function shareCurrentLocationMock() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (position) {
+                var lat = position.coords.latitude;
+                var lng = position.coords.longitude;
+                var mapsUrl = 'https://maps.google.com/?q=' + lat + ',' + lng;
+                var msg = 'Halo, saya menemukan barang FlexiTag Anda (#SS-8809). Ini titik lokasi GPS saat ini: ' + mapsUrl;
+                window.open('https://wa.me/6281234567890?text=' + encodeURIComponent(msg), '_blank');
+            }, function (error) {
+                alert('Tidak dapat mendeteksi lokasi GPS otomatis. Mengalihkan ke WhatsApp...');
+                window.open('https://wa.me/6281234567890?text=' + encodeURIComponent('Halo, saya menemukan barang FlexiTag Anda (#SS-8809).'), '_blank');
+            }, { timeout: 10000 });
+        } else {
+            alert('Browser tidak mendukung deteksi lokasi.');
+        }
+    }
+</script>
+
+</body>
+</html>

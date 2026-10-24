@@ -10,7 +10,9 @@ use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\User\AuthController as UserAuthController;
 use App\Http\Controllers\User\DashboardController as UserDashboardController;
+use App\Http\Controllers\User\LostModeController;
 use App\Http\Controllers\User\PublicController;
+use App\Http\Controllers\User\SettingsController;
 use App\Http\Controllers\User\TagActivationController;
 use Illuminate\Support\Facades\Route;
 
@@ -30,7 +32,6 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::post('/keluar', [UserAuthController::class, 'logout'])->name('logout');
-
     Route::middleware('tag.activated')->group(function () {
         Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('user.dashboard');
         Route::post('/dashboard/switch-mode', [UserDashboardController::class, 'switchMode'])->name('user.dashboard.switchMode');
@@ -48,6 +49,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard/merch', [UserDashboardController::class, 'merch'])->name('user.merch');
         Route::post('/dashboard/merch/tag/{id}/toggle-status', [UserDashboardController::class, 'toggleTagStatus'])->name('user.merch.toggleTagStatus');
     });
+
+    Route::get('/profil-saya', [UserDashboardController::class, 'myProfile'])->name('user.my_profile');
+    Route::get('/analytics', [App\Http\Controllers\User\AnalyticsController::class, 'index'])->name('user.analytics');
+    Route::get('/pengaturan', [SettingsController::class, 'index'])->name('user.settings');
+    Route::post('/pengaturan/password', [SettingsController::class, 'updatePassword'])->name('user.settings.password');
+    Route::post('/pengaturan/privacy', [SettingsController::class, 'updatePrivacy'])->name('user.settings.privacy');
+    Route::get('/mode-hilang', [LostModeController::class, 'edit'])->name('user.lost-mode.edit');
+    Route::post('/mode-hilang', [LostModeController::class, 'update'])->name('user.lost-mode.update');
 });
 
 Route::get('/aktivasi-tag', [TagActivationController::class, 'show'])
@@ -64,6 +73,15 @@ Route::post('/aktivasi-tag/profil', [TagActivationController::class, 'profileSte
 
 Route::get('/u/{tag_code}', [PublicController::class, 'showTagProfile'])
     ->name('public.tag');
+
+Route::get('/u/{tag_code}/vcard', [PublicController::class, 'downloadVCard'])
+    ->name('public.tag.vcard');
+
+Route::get('/u/{tag_code}/cv', [PublicController::class, 'downloadCv'])
+    ->name('public.tag.cv');
+
+Route::get('/u/{tag_code}/l/{link_id}', [PublicController::class, 'clickLink'])
+    ->name('public.tag.link');
 
 /*
 |--------------------------------------------------------------------------

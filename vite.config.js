@@ -6,7 +6,18 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
     plugins: [
         laravel({
-            input: ['resources/css/app.css', 'resources/js/app.js'],
+            input: [
+                'resources/css/app.css',
+                'resources/js/app.js',
+                'resources/css/components/user-sidebar.css',
+                'resources/js/user-sidebar.js',
+                'resources/css/pages/user-analytics.css',
+                'resources/js/user-analytics.js',
+                'resources/css/pages/user-settings.css',
+                'resources/js/user-settings.js',
+                'resources/css/pages/user-lost-mode.css',
+                'resources/js/user-lost-mode.js',
+            ],
             refresh: true,
             fonts: [
                 bunny('Instrument Sans', {

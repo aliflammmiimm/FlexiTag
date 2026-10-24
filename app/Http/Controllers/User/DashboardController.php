@@ -206,12 +206,45 @@ class DashboardController extends Controller
     }
 
     /**
-     * Update preferensi privasi & keamanan tag.
+     * Buka profil digital publik milik pengguna yang sedang login.
      */
-    public function updatePrivacy(Request $request): RedirectResponse
+    public function myProfile(Request $request): View|RedirectResponse
     {
-        return redirect()->route('user.dashboard')
-            ->with('status', 'Pengaturan privasi & akses berhasil disimpan.');
+        $user = $request->user()->load(['tags', 'profile', 'links' => function ($q) {
+            $q->where('is_visible', true)->orderBy('sort_order');
+        }, 'privacySetting', 'modeData']);
+
+        $tag = $user->tags()->where('status', 'aktif')->first() ?? $user->tags()->first();
+
+        if ($tag) {
+            return redirect()->route('public.tag', $tag->tag_code);
+        }
+
+        // Jika user belum punya tag terdaftar, render profil virtual langsung sesuai data user
+        $virtualTag = new Tag([
+            'tag_code' => 'FT-'.Str::upper(Str::random(6)),
+            'status' => 'aktif',
+            'batch_id' => 'EDISI PUSAKA KUNCI PA\'BARRE ALLO',
+        ]);
+        $virtualTag->id = 0;
+        $virtualTag->setRelation('user', $user);
+
+        $profile = $user->profile;
+        $links = $user->links ?? collect();
+        $privacy = $user->privacySetting;
+        $activeMode = $profile?->active_mode ?? 'kerja';
+        $modeData = $user->modeData?->firstWhere('mode', $activeMode)?->data ?? [];
+
+        return view('user.public_profile', [
+            'tag' => $virtualTag,
+            'user' => $user,
+            'profile' => $profile,
+            'links' => $links,
+            'privacy' => $privacy,
+            'activeMode' => $activeMode,
+            'modeData' => $modeData,
+            'isLocked' => false,
+        ]);
     }
 
     /**
