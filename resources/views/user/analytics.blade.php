@@ -21,18 +21,18 @@
 <div class="analytics-viewport-wrap">
 
     {{-- ========================================================================= --}}
-    {{-- 1. HEADER MAROON                                                          --}}
+    {{-- 1. TOP APP BAR (KONSISTEN DENGAN HOME & MERCH)                             --}}
     {{-- ========================================================================= --}}
-    <header class="analytics-header">
-        <button type="button" class="analytics-hamburger-btn" id="openDrawerBtn" aria-label="Buka Menu Navigasi">
+    <header class="user-topbar">
+        <button type="button" class="hamburger-btn" id="openDrawerBtn" aria-label="Buka Menu Navigasi" onclick="toggleUserSidebar(true)">
             <span></span>
             <span></span>
             <span></span>
         </button>
 
-        <div class="analytics-header-titles">
-            <span class="analytics-brand-label">FlexiTag</span>
-            <h1 class="analytics-page-title">Analytics</h1>
+        <div class="topbar-branding">
+            <span class="topbar-subtitle">FLEXITAG</span>
+            <h1 class="topbar-title">Analytics</h1>
         </div>
     </header>
 

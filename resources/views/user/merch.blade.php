@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/flexitag-user-dashboard.css') }}">
     <link rel="stylesheet" href="{{ asset('css/flexitag-user-merch.css') }}">
+    @vite(['resources/css/components/user-sidebar.css', 'resources/js/user-sidebar.js'])
 </head>
 <body class="dashboard-body">
 
@@ -284,119 +285,10 @@
 
     </main>
 
-    {{-- ========================================================================= --}}
-    {{-- SLIDE-OUT NAVIGATION DRAWER (KONSISTEN DENGAN HALAMAN HOME)                --}}
-    {{-- ========================================================================= --}}
-    <div class="drawer-overlay" id="drawerOverlay" onclick="toggleDrawer(false)"></div>
-
-    <aside class="side-drawer" id="sideDrawer" aria-label="Menu Navigasi Pengguna">
-        <div class="drawer-header">
-            <div class="drawer-brand-row">
-                <div class="drawer-logo-badge">FT</div>
-                <div class="drawer-brand-text">
-                    <span class="drawer-brand-name">FlexiTag</span>
-                    <span class="drawer-brand-tagline">MENU NAVIGASI</span>
-                </div>
-            </div>
-
-            <button type="button" class="drawer-close-btn" onclick="toggleDrawer(false)" aria-label="Tutup Menu">
-                ✕
-            </button>
-        </div>
-
-        <div class="drawer-divider"></div>
-
-        {{-- Navigation Menu List --}}
-        <nav class="drawer-nav-list">
-            {{-- Home --}}
-            <a href="{{ route('user.dashboard') }}" class="drawer-nav-item {{ request()->routeIs('user.dashboard') ? 'is-highlighted' : '' }}">
-                <span class="drawer-nav-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                    </svg>
-                </span>
-                <span>Home</span>
-            </a>
-
-            {{-- Merch (Active on this page) --}}
-            <a href="{{ route('user.merch') }}" class="drawer-nav-item {{ request()->routeIs('user.merch') ? 'is-highlighted' : '' }}">
-                <span class="drawer-nav-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M3 9l1 12h16l1-12z"></path>
-                        <path d="M3 9h18"></path>
-                        <path d="M16 5a4 4 0 0 0-8 0"></path>
-                    </svg>
-                </span>
-                <span>Merch</span>
-            </a>
-
-            {{-- Analytics --}}
-            <a href="javascript:void(0)" onclick="openAnalyticsModal(); toggleDrawer(false)" class="drawer-nav-item">
-                <span class="drawer-nav-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                        <line x1="8" y1="17" x2="8" y2="13"></line>
-                        <line x1="12" y1="17" x2="12" y2="9"></line>
-                        <line x1="16" y1="17" x2="16" y2="11"></line>
-                    </svg>
-                </span>
-                <span>Analytics</span>
-            </a>
-
-            {{-- Settings --}}
-            <a href="javascript:void(0)" onclick="openProfileModal(); toggleDrawer(false)" class="drawer-nav-item">
-                <span class="drawer-nav-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="4" y1="21" x2="4" y2="14"></line>
-                        <line x1="4" y1="10" x2="4" y2="3"></line>
-                        <line x1="12" y1="21" x2="12" y2="12"></line>
-                        <line x1="12" y1="8" x2="12" y2="3"></line>
-                        <line x1="20" y1="21" x2="20" y2="16"></line>
-                        <line x1="20" y1="12" x2="20" y2="3"></line>
-                        <line x1="1" y1="14" x2="7" y2="14"></line>
-                        <line x1="9" y1="8" x2="15" y2="8"></line>
-                        <line x1="17" y1="16" x2="23" y2="16"></line>
-                    </svg>
-                </span>
-                <span>Settings</span>
-            </a>
-        </nav>
-
-        {{-- Drawer Bottom Profile & Logout --}}
-        <div class="drawer-footer">
-            <div class="drawer-profile-box">
-                <div class="drawer-avatar-wrap">
-                    @if ($profile?->photo_path)
-                        <img src="{{ asset('storage/' . $profile->photo_path) }}" alt="{{ $displayName }}">
-                    @else
-                        <span>{{ $initials }}</span>
-                    @endif
-                    <span class="avatar-online-dot"></span>
-                </div>
-
-                <div class="drawer-profile-info">
-                    <span class="drawer-user-name">{{ $displayName }}</span>
-                    <span class="drawer-user-job">{{ $headline }}</span>
-                </div>
-            </div>
-
-            <form method="POST" action="{{ route('logout') }}" id="drawerLogoutForm">
-                @csrf
-                <button type="submit" class="drawer-logout-btn">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                        <polyline points="16 17 21 12 16 7"></polyline>
-                        <line x1="21" y1="12" x2="9" y2="12"></line>
-                    </svg>
-                    <span>Log Out</span>
-                </button>
-            </form>
-        </div>
-    </aside>
+    @include('partials.user-sidebar')
 
     {{-- ========================================================================= --}}
-    {{-- MODALS: PRIVACY, RIWAYAT TAP, ANALYTICS, SETTINGS                         --}}
+    {{-- MODALS: PRIVACY & RIWAYAT TAP                                             --}}
     {{-- ========================================================================= --}}
 
     {{-- 1. Modal Pengaturan Privasi Tag --}}
@@ -478,50 +370,6 @@
         </div>
     </div>
 
-    {{-- 3. Modal Analytics & Settings (Drawer Modals) --}}
-    <div class="user-modal-overlay" id="analyticsModal" onclick="handleBackdropClick(event, 'analyticsModal')">
-        <div class="user-modal-dialog">
-            <div class="modal-header-row">
-                <h3 class="modal-title">Statistik & Analytics</h3>
-                <button type="button" class="modal-close-icon" onclick="closeModal('analyticsModal')">✕</button>
-            </div>
-            <p style="font-size: 0.85rem; color: #4B5563; margin-bottom: 1.25rem;">
-                Ringkasan interaksi dan telemetri perangkat FlexiTag Anda:
-            </p>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.5rem;">
-                <div style="background: #F9F8F6; border: 1px solid #ECE7DE; border-radius: 14px; padding: 1rem; text-align: center;">
-                    <div style="font-size: 0.72rem; color: #6B7280; font-weight: 600;">TOTAL TAP</div>
-                    <div style="font-size: 1.4rem; font-weight: 700; color: #44070B;">184</div>
-                </div>
-                <div style="background: #F9F8F6; border: 1px solid #ECE7DE; border-radius: 14px; padding: 1rem; text-align: center;">
-                    <div style="font-size: 0.72rem; color: #6B7280; font-weight: 600;">PERANGKAT AKTIF</div>
-                    <div style="font-size: 1.4rem; font-weight: 700; color: #166534;">{{ $activeTagCount }} / {{ $totalTagCount }}</div>
-                </div>
-            </div>
-            <button type="button" class="btn-tag-action-gray" style="width: 100%;" onclick="closeModal('analyticsModal')">Tutup</button>
-        </div>
-    </div>
-
-    <div class="user-modal-overlay" id="profileModal" onclick="handleBackdropClick(event, 'profileModal')">
-        <div class="user-modal-dialog">
-            <div class="modal-header-row">
-                <h3 class="modal-title">Pengaturan Akun</h3>
-                <button type="button" class="modal-close-icon" onclick="closeModal('profileModal')">✕</button>
-            </div>
-            <p style="font-size: 0.84rem; color: #6B7280; margin-bottom: 1.25rem;">
-                Pengguna: <strong>{{ $displayName }}</strong> ({{ $user->email }})
-            </p>
-            <div style="display: flex; flex-direction: column; gap: 0.65rem;">
-                <a href="{{ route('user.dashboard') }}" class="btn-scan-tag" style="background: #44070B; color: #FFFFFF; box-shadow: none;">
-                    Buka Dashboard Profil
-                </a>
-                <button type="button" class="btn-tag-action-gray" style="width: 100%;" onclick="closeModal('profileModal')">
-                    Tutup
-                </button>
-            </div>
-        </div>
-    </div>
-
     {{-- Toast Floating Notification --}}
     <div id="merchToast" style="position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%) translateY(100px); background: #1F2937; color: #FFFFFF; padding: 0.75rem 1.25rem; border-radius: 30px; font-size: 0.82rem; font-weight: 500; display: flex; align-items: center; gap: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.25); z-index: 3000; opacity: 0; transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease; pointer-events: none;">
         <span id="toastIcon">✓</span>
@@ -536,18 +384,24 @@
 <script>
     // 1. Navigation Drawer Toggle
     function toggleDrawer(open) {
+        if (typeof window.toggleUserSidebar === 'function') {
+            window.toggleUserSidebar(open);
+            return;
+        }
         const drawer = document.getElementById('sideDrawer');
-        const overlay = document.getElementById('drawerOverlay');
+        const overlay = document.getElementById('drawerBackdrop') || document.getElementById('drawerOverlay');
+        if (!drawer || !overlay) return;
         if (open) {
             drawer.classList.add('is-open');
-            overlay.classList.add('is-visible');
+            overlay.classList.add('is-open');
             document.body.style.overflow = 'hidden';
         } else {
             drawer.classList.remove('is-open');
-            overlay.classList.remove('is-visible');
+            overlay.classList.remove('is-open');
             document.body.style.overflow = '';
         }
     }
+    window.toggleUserSidebar = toggleDrawer;
 
     // 2. Modals Control
     function openModal(modalId) {
@@ -570,14 +424,6 @@
         if (e.target && e.target.id === modalId) {
             closeModal(modalId);
         }
-    }
-
-    function openAnalyticsModal() {
-        openModal('analyticsModal');
-    }
-
-    function openProfileModal() {
-        openModal('profileModal');
     }
 
     function openPrivacyModal(tagCode) {

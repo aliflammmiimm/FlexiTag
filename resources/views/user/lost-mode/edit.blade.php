@@ -21,41 +21,24 @@
 <div class="lost-mode-viewport-wrap">
 
     {{-- ========================================================================= --}}
-    {{-- 1. HEADER MAROON                                                          --}}
+    {{-- 1. TOP APP BAR (KONSISTEN DENGAN EDIT PROFIL UMKM)                         --}}
     {{-- ========================================================================= --}}
-    <header class="lost-mode-header">
-        <div class="lost-mode-header-pattern" aria-hidden="true"></div>
+    <header class="umkm-topbar">
+        <a href="{{ route('user.dashboard') }}" class="topbar-back-btn" aria-label="Kembali ke Dashboard">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+        </a>
 
-        <div class="lost-mode-topbar-row">
-            {{-- Tombol Back ke Dashboard --}}
-            <a href="{{ route('user.dashboard') }}" class="lost-mode-back-btn" aria-label="Kembali ke Dashboard" title="Kembali ke Dashboard">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="19" y1="12" x2="5" y2="12"></line>
-                    <polyline points="12 19 5 12 12 5"></polyline>
-                </svg>
-            </a>
-
-            {{-- Top Mode Pill --}}
-            <div class="lost-mode-top-pill">
-                <span>• MODE HILANG •</span>
-                <span>{{ $primaryTag?->tag_code ?? 'TAG' }}</span>
-            </div>
-
-            {{-- Tombol Buka Menu Navigasi Samping --}}
-            <button type="button" class="lost-mode-hamburger-btn" id="openDrawerBtn" aria-label="Buka Menu Navigasi" title="Buka Menu Navigasi" onclick="toggleUserSidebar(true)">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
+        <div class="topbar-center-heading">
+            <h1 class="topbar-center-title">Edit Profil (Mode Hilang)</h1>
+            <span class="topbar-center-sub">• PROTEKSI PRIVASI AKTIF • {{ $primaryTag?->tag_code ?? 'TAG' }}</span>
         </div>
 
-        <h1 class="lost-mode-title">Edit Profil (Mode Hilang)</h1>
-
-        <span class="lost-mode-status-badge-gold">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-            </svg>
-            <span>PROTEKSI PRIVASI AKTIF</span>
+        <span class="topbar-mode-badge" style="background: rgba(229, 179, 42, 0.2); border: 1px solid rgba(229, 179, 42, 0.4); color: #F5BA41;">
+            <span>🛡️</span>
+            <span>HILANG</span>
         </span>
     </header>
 

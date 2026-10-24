@@ -73,151 +73,92 @@ body.lost-mode-body {
   }
 }
 
-/* --------------------------------------------------------------------------
-   Header Maroon Area (~185px) with Geometric/Diamond Pattern
-   -------------------------------------------------------------------------- */
-.lost-mode-header {
-  background: radial-gradient(circle at 50% 20%, #7A0C11 0%, #4A0A0E 65%, #2B0407 100%);
-  min-height: 185px;
-  padding: 1.25rem 1.15rem 2.8rem;
-  position: relative;
-  overflow: hidden;
+/* ==========================================================================
+   TOP APP BAR (KONSISTEN DENGAN EDIT PROFIL UMKM)
+   ========================================================================== */
+.umkm-topbar {
+  background: linear-gradient(180deg, #3B0508 0%, #44070B 100%);
+  padding: 0.85rem 1.15rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+}
+
+.topbar-back-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.topbar-back-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateX(-2px);
+}
+
+.topbar-center-heading {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  color: #FFFFFF;
 }
 
-.lost-mode-header-pattern {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  opacity: 0.08;
-  background-image: repeating-linear-gradient(
-    45deg,
-    #FFFFFF,
-    #FFFFFF 2px,
-    transparent 2px,
-    transparent 14px
-  );
-  pointer-events: none;
-}
-
-.lost-mode-topbar-row {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.65rem;
-  position: relative;
-  z-index: 2;
-}
-
-.lost-mode-back-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.18);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  color: #FFFFFF;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  transition: all 0.2s;
-  backdrop-filter: blur(4px);
-}
-
-.lost-mode-back-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-.lost-mode-hamburger-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.18);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  cursor: pointer;
-  padding: 0;
-  transition: all 0.2s ease;
-  backdrop-filter: blur(4px);
-}
-
-.lost-mode-hamburger-btn span {
-  display: block;
-  width: 16px;
-  height: 2px;
-  background-color: #FFFFFF;
-  border-radius: 2px;
-  transition: transform 0.2s, opacity 0.2s;
-}
-
-.lost-mode-hamburger-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-.lost-mode-top-pill {
-  background: rgba(0, 0, 0, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #FFFFFF;
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  padding: 0.25rem 0.65rem;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  text-transform: uppercase;
-}
-
-.lost-mode-title {
+.topbar-center-title {
+  font-family: inherit;
   font-size: 1.15rem;
-  font-weight: 800;
+  font-weight: 700;
   color: #FFFFFF;
+  line-height: 1.15;
   letter-spacing: -0.01em;
-  margin-bottom: 0.45rem;
-  position: relative;
-  z-index: 2;
 }
 
-.lost-mode-status-badge-gold {
+.topbar-center-sub {
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--color-gold-bright);
+  text-transform: uppercase;
+  margin-top: 3px;
+  line-height: 1;
+}
+
+.topbar-mode-badge {
   background: var(--color-gold-bright);
   color: var(--color-maroon-dark);
-  font-size: 0.64rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  padding: 0.22rem 0.6rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 4px 10px;
   border-radius: 999px;
-  text-transform: uppercase;
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
-  position: relative;
-  z-index: 2;
-  box-shadow: 0 2px 8px rgba(229, 179, 42, 0.35);
+  gap: 4px;
+  letter-spacing: 0.04em;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  flex-shrink: 0;
 }
 
 /* --------------------------------------------------------------------------
-   Content Flow (Cards with Overlap)
+   Content Flow
    -------------------------------------------------------------------------- */
 .lost-mode-content {
-  padding: 0 1.15rem 3rem;
+  padding: 1.15rem 1.15rem 3rem;
   display: flex;
   flex-direction: column;
   gap: 0.95rem;
   position: relative;
   z-index: 5;
-  margin-top: -1.75rem; /* Overlap into header */
+  margin-top: 0;
 }
 
 /* Card 1: Privasi Terlindungi (Overlap) */

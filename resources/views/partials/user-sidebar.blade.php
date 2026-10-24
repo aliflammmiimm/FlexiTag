@@ -111,17 +111,6 @@
             <span>Analytics</span>
         </a>
 
-        {{-- Mode Hilang --}}
-        <a href="{{ route('user.lost-mode.edit') }}" 
-           class="drawer-nav-item {{ request()->routeIs('user.lost-mode.*') ? 'is-highlighted is-active' : '' }}"
-           @if(request()->routeIs('user.lost-mode.*')) aria-current="page" @endif>
-            <span class="drawer-nav-icon" aria-hidden="true">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                </svg>
-            </span>
-            <span>Mode Hilang</span>
-        </a>
 
         {{-- Settings --}}
         <a href="{{ route('user.settings') }}" 
