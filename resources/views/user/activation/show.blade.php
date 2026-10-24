@@ -151,6 +151,20 @@
         </div>
     @endif
 
+    @if (session('warning'))
+        <div style="width: 100%; background: #FFFBEB; border: 1px solid #FDE68A; color: #92400E; padding: 0.75rem 1rem; border-radius: 12px; font-size: 0.8rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+            <span>⚠️</span>
+            <span>{{ session('warning') }}</span>
+        </div>
+    @endif
+
+    @if (session('info'))
+        <div style="width: 100%; background: #EFF6FF; border: 1px solid #BFDBFE; color: #1E40AF; padding: 0.75rem 1rem; border-radius: 12px; font-size: 0.8rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+            <span>ℹ️</span>
+            <span>{{ session('info') }}</span>
+        </div>
+    @endif
+
     @if ($errors->any())
         <div style="width: 100%; background: #FEF2F2; border: 1px solid #FECACA; color: #991B1B; padding: 0.75rem 1rem; border-radius: 12px; font-size: 0.8rem; margin-bottom: 1rem;">
             <p style="font-weight: 700; margin-bottom: 0.2rem;">Periksa kembali:</p>
@@ -412,8 +426,8 @@
                                id="activation_code"
                                name="activation_code"
                                class="form-input activation-code-input"
-                               placeholder="KD-8821-XQ"
-                               value="{{ old('activation_code', 'KD-8821-XQ') }}"
+                               placeholder="Contoh: KD-8821-XQ"
+                               value="{{ old('activation_code') }}"
                                maxlength="30"
                                autocomplete="off"
                                spellcheck="false"

@@ -2,10 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Models\ModeData;
 use App\Models\Profile;
 use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class UserDashboardTest extends TestCase
@@ -84,9 +86,23 @@ class UserDashboardTest extends TestCase
         $response->assertSee('Halo, Super Administrator');
     }
 
+    private function createActiveTagFor(User $user): Tag
+    {
+        return Tag::create([
+            'tag_code' => 'FT-'.strtoupper(Str::random(6)),
+            'activation_code' => 'KD-'.strtoupper(Str::random(6)),
+            'status' => 'aktif',
+            'user_id' => $user->id,
+            'produced_at' => now(),
+            'activated_at' => now(),
+        ]);
+    }
+
     public function test_user_can_switch_mode_via_json_request(): void
     {
         $user = User::factory()->create(['role' => 'user']);
+        $this->createActiveTagFor($user);
+
         Profile::create([
             'user_id' => $user->id,
             'display_name' => $user->name,
@@ -110,6 +126,8 @@ class UserDashboardTest extends TestCase
     public function test_user_can_update_profile_from_dashboard(): void
     {
         $user = User::factory()->create(['role' => 'user']);
+        $this->createActiveTagFor($user);
+
         Profile::create([
             'user_id' => $user->id,
             'display_name' => 'Nama Lama',
@@ -145,6 +163,7 @@ class UserDashboardTest extends TestCase
             'password' => 'secret123',
             'is_active' => true,
         ]);
+        $this->createActiveTagFor($user);
 
         $response = $this->post(route('login.submit'), [
             'email' => 'andi@flexitag.id',
@@ -153,5 +172,424 @@ class UserDashboardTest extends TestCase
 
         $response->assertRedirect(route('user.dashboard'));
         $this->assertAuthenticatedAs($user);
+    }
+
+    public function test_user_without_active_tag_cannot_access_dashboard_and_is_redirected_to_activation_step_2(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'no_tag@flexitag.id',
+            'role' => 'user',
+        ]);
+
+        $response = $this->actingAs($user)->get(route('user.dashboard'));
+
+        $response->assertRedirect(route('user.activation.show', ['step' => 2]));
+        $response->assertSessionHas('warning');
+    }
+
+    public function test_user_without_active_tag_logging_in_is_redirected_to_activation_step_2(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'belum_aktif@flexitag.id',
+            'password' => 'secret123',
+            'role' => 'user',
+            'is_active' => true,
+        ]);
+
+        $response = $this->post(route('login.submit'), [
+            'email' => 'belum_aktif@flexitag.id',
+            'password' => 'secret123',
+        ]);
+
+        $response->assertRedirect(route('user.activation.show', ['step' => 2]));
+        $response->assertSessionHas('warning');
+        $this->assertAuthenticatedAs($user);
+    }
+
+    public function test_authenticated_user_without_active_tag_visiting_login_is_redirected_to_activation_step_2(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'guest_check@flexitag.id',
+            'role' => 'user',
+        ]);
+
+        $response = $this->actingAs($user)->get(route('login'));
+
+        $response->assertRedirect(route('user.activation.show', ['step' => 2]));
+    }
+
+    public function test_user_can_view_umkm_profile_edit_page(): void
+    {
+        $user = User::factory()->create(['role' => 'user']);
+        $this->createActiveTagFor($user);
+
+        Profile::create([
+            'user_id' => $user->id,
+            'display_name' => 'Kedai Bu Sari',
+            'active_mode' => 'umkm',
+        ]);
+
+        $response = $this->actingAs($user)->get(route('user.profile.umkm'));
+
+        $response->assertStatus(200);
+        $response->assertSee('Edit Profil');
+        $response->assertSee('KATALOG KULINER');
+        $response->assertSee('Ubah Logo Usaha / Toko');
+        $response->assertSee('Sinkronisasi Tag UMKM');
+        $response->assertSee('Informasi Pokok');
+        $response->assertSee('Nama Usaha / Toko');
+        $response->assertSee('Katalog Produk Menu');
+        $response->assertSee('Simpan Profil UMKM');
+    }
+
+    public function test_user_can_update_umkm_profile_and_catalog(): void
+    {
+        $user = User::factory()->create(['role' => 'user']);
+        $this->createActiveTagFor($user);
+
+        Profile::create([
+            'user_id' => $user->id,
+            'display_name' => 'Nama Awal',
+            'active_mode' => 'umkm',
+        ]);
+
+        $katalogSample = [
+            [
+                'id' => 101,
+                'nama' => 'Bandeng Pallumara',
+                'harga' => 40000,
+                'satuan' => 'porsi',
+                'label' => 'Menu Baru',
+                'badge_icon' => '✨',
+                'badge_class' => 'badge-gold',
+                'is_ready' => true,
+            ],
+        ];
+
+        $response = $this->actingAs($user)->post(route('user.profile.umkm.update'), [
+            'nama_usaha' => 'Warung Pangkep Sentosa',
+            'deskripsi' => 'Kuliner olahan bandeng tanpa duri khas Sulawesi Selatan dengan bumbu rempah pilihan.',
+            'alamat_toko' => 'Jl. Poros Makassar - Pangkep No. 88',
+            'whatsapp_order' => '081234567899',
+            'katalog_json' => json_encode($katalogSample),
+        ]);
+
+        $response->assertRedirect(route('user.dashboard'));
+        $response->assertSessionHas('status');
+
+        $this->assertEquals('Warung Pangkep Sentosa', $user->fresh()->profile->display_name);
+        $this->assertEquals('6281234567899', $user->fresh()->no_whatsapp);
+
+        $this->assertDatabaseHas('mode_data', [
+            'user_id' => $user->id,
+            'mode' => 'umkm',
+        ]);
+    }
+
+    public function test_guest_cannot_access_umkm_edit_page(): void
+    {
+        $response = $this->get(route('user.profile.umkm'));
+        $response->assertRedirect(route('login'));
+    }
+
+    public function test_user_can_view_tambah_produk_page(): void
+    {
+        $user = User::factory()->create(['role' => 'user']);
+        $this->createActiveTagFor($user);
+
+        $response = $this->actingAs($user)->get(route('user.profile.umkm.product.create'));
+
+        $response->assertStatus(200);
+        $response->assertSee('Tambah Produk Baru');
+        $response->assertSee('Foto Produk Utama');
+        $response->assertSee('Unggah Foto Produk');
+        $response->assertSee('Nama Produk');
+        $response->assertSee('Contoh: Coto Makassar Instan Premium');
+        $response->assertSee('Harga (Rp)');
+        $response->assertSee('Satuan Takaran');
+        $response->assertSee('Rekomendasi:');
+        $response->assertSee('Deskripsi Produk (Opsional)');
+        $response->assertSee('Label Promosi');
+        $response->assertSee('Tanpa Label');
+        $response->assertSee('Unggulan');
+        $response->assertSee('Paling Laris');
+        $response->assertSee('Sinkronisasi Otomatis');
+        $response->assertSee('NFC READY');
+        $response->assertSee('Simpan Produk');
+    }
+
+    public function test_user_can_store_new_product_and_redirect_to_umkm_profile(): void
+    {
+        $user = User::factory()->create(['role' => 'user']);
+        $this->createActiveTagFor($user);
+
+        $response = $this->actingAs($user)->post(route('user.profile.umkm.product.store'), [
+            'nama' => 'Coto Makassar Instan Premium',
+            'harga' => '35.000',
+            'satuan' => '/porsi',
+            'deskripsi' => 'Daging sapi pilihan berkuah rempah khas Makassar dengan sambal tauco.',
+            'label_promosi' => 'unggulan',
+        ]);
+
+        $response->assertRedirect(route('user.profile.umkm'));
+        $response->assertSessionHas('status');
+
+        $modeRecord = ModeData::where('user_id', $user->id)->where('mode', 'umkm')->first();
+        $this->assertNotNull($modeRecord);
+        $products = $modeRecord->data['katalog_produk'] ?? [];
+        $this->assertCount(1, $products);
+        $this->assertEquals('Coto Makassar Instan Premium', $products[0]['nama']);
+        $this->assertEquals(35000, $products[0]['harga']);
+        $this->assertEquals('porsi', $products[0]['satuan']);
+        $this->assertEquals('Unggulan', $products[0]['label']);
+    }
+
+    public function test_user_can_edit_and_update_product(): void
+    {
+        $user = User::factory()->create(['role' => 'user']);
+        $this->createActiveTagFor($user);
+
+        $initialProduct = [
+            'id' => 999,
+            'nama' => 'Konro Bakar',
+            'harga' => 50000,
+            'satuan' => 'porsi',
+            'deskripsi' => 'Iga sapi bakar',
+            'label' => 'Paling Laris',
+            'badge_icon' => '🔥',
+            'badge_class' => 'badge-red',
+        ];
+
+        ModeData::create([
+            'user_id' => $user->id,
+            'mode' => 'umkm',
+            'data' => [
+                'katalog_produk' => [$initialProduct],
+            ],
+        ]);
+
+        $responseView = $this->actingAs($user)->get(route('user.profile.umkm.product.edit', ['id' => 999]));
+        $responseView->assertStatus(200);
+        $responseView->assertSee('Edit Produk');
+        $responseView->assertSee('Konro Bakar');
+
+        $responseUpdate = $this->actingAs($user)->post(route('user.profile.umkm.product.update', ['id' => 999]), [
+            'nama' => 'Konro Bakar Karebosi Spesial',
+            'harga' => '55.000',
+            'satuan' => '/porsi',
+            'deskripsi' => 'Iga sapi bakar bumbu kacang spesial',
+            'label_promosi' => 'unggulan',
+        ]);
+
+        $responseUpdate->assertRedirect(route('user.profile.umkm'));
+
+        $modeRecord = ModeData::where('user_id', $user->id)->where('mode', 'umkm')->first();
+        $products = $modeRecord->data['katalog_produk'] ?? [];
+        $this->assertEquals('Konro Bakar Karebosi Spesial', $products[0]['nama']);
+        $this->assertEquals(55000, $products[0]['harga']);
+        $this->assertEquals('Unggulan', $products[0]['label']);
+    }
+
+    public function test_user_can_delete_product(): void
+    {
+        $user = User::factory()->create(['role' => 'user']);
+        $this->createActiveTagFor($user);
+
+        $productToDelete = [
+            'id' => 888,
+            'nama' => 'Es Pisang Ijo',
+            'harga' => 15000,
+            'satuan' => 'porsi',
+        ];
+
+        ModeData::create([
+            'user_id' => $user->id,
+            'mode' => 'umkm',
+            'data' => [
+                'katalog_produk' => [$productToDelete],
+            ],
+        ]);
+
+        $response = $this->actingAs($user)->post(route('user.profile.umkm.product.destroy', ['id' => 888]));
+        $response->assertRedirect(route('user.profile.umkm'));
+
+        $modeRecord = ModeData::where('user_id', $user->id)->where('mode', 'umkm')->first();
+        $products = $modeRecord->data['katalog_produk'] ?? [];
+        $this->assertCount(0, $products);
+    }
+
+    public function test_public_profile_displays_umkm_view_when_active_mode_is_umkm(): void
+    {
+        $user = User::factory()->create([
+            'name' => 'Pemilik Kedai',
+            'no_whatsapp' => '6281299998888',
+        ]);
+        $tag = $this->createActiveTagFor($user);
+
+        Profile::create([
+            'user_id' => $user->id,
+            'display_name' => 'Kedai Kopi Bugis',
+            'headline' => 'Kopi Arabika Toraja Asli',
+            'active_mode' => 'umkm',
+        ]);
+
+        ModeData::create([
+            'user_id' => $user->id,
+            'mode' => 'umkm',
+            'data' => [
+                'nama_usaha' => 'Kedai Kopi Bugis Makassar',
+                'deskripsi' => 'Kopi khas Sulawesi dengan racikan rempah istimewa.',
+                'alamat_toko' => 'Jl. Sam Ratulangi No. 45, Makassar',
+                'whatsapp_order' => '6281299998888',
+                'katalog_produk' => [
+                    [
+                        'id' => 1,
+                        'nama' => 'Kopi Tarik Bugis',
+                        'harga' => 20000,
+                        'satuan' => 'cangkir',
+                        'deskripsi' => 'Kopi seduh tradisional',
+                        'label' => 'Unggulan',
+                        'badge_icon' => '⭐',
+                        'badge_class' => 'badge-gold',
+                    ],
+                ],
+            ],
+        ]);
+
+        $response = $this->get(route('public.tag', ['tag_code' => $tag->tag_code]));
+
+        $response->assertStatus(200);
+        $response->assertSee('MODE UMKM AKTIF');
+        $response->assertSee('Kedai Kopi Bugis Makassar');
+        $response->assertSee('Kopi khas Sulawesi dengan racikan rempah istimewa.');
+        $response->assertSee('Jl. Sam Ratulangi No. 45, Makassar');
+        $response->assertSee('Kopi Tarik Bugis');
+        $response->assertSee('Rp 20.000');
+        $response->assertSee('Hubungi &amp; Pesan via WhatsApp', false);
+        $response->assertSee('Katalog Produk Pilihan');
+        $response->assertSee('Informasi Toko &amp; Jam Buka', false);
+    }
+
+    public function test_public_profile_displays_standard_view_when_active_mode_is_not_umkm(): void
+    {
+        $user = User::factory()->create(['name' => 'Mahasiswa Teknik']);
+        $tag = $this->createActiveTagFor($user);
+
+        Profile::create([
+            'user_id' => $user->id,
+            'display_name' => 'Andi Mahasiswa',
+            'headline' => 'Teknik Informatika Unhas',
+            'active_mode' => 'kampus',
+        ]);
+
+        $response = $this->get(route('public.tag', ['tag_code' => $tag->tag_code]));
+
+        $response->assertStatus(200);
+        $response->assertSee('Mode Kampus');
+        $response->assertSee('Andi Mahasiswa');
+        $response->assertDontSee('MODE UMKM AKTIF');
+    }
+
+    public function test_user_can_view_merch_page_with_consistent_header(): void
+    {
+        $user = User::factory()->create(['name' => 'Pemilik Merch']);
+        $tag = $this->createActiveTagFor($user);
+
+        Profile::create([
+            'user_id' => $user->id,
+            'display_name' => 'Pemilik Merch',
+            'headline' => 'Member FlexiTag',
+            'active_mode' => 'kampus',
+        ]);
+
+        $response = $this->actingAs($user)->get(route('user.merch'));
+
+        $response->assertStatus(200);
+        // Memastikan konsistensi topbar header dengan halaman home
+        $response->assertSee('user-topbar', false);
+        $response->assertSee('FLEXITAG');
+        $response->assertSee('Merch');
+        $response->assertSee('hamburger-btn', false);
+        // Memastikan konten vault dan merch card
+        $response->assertSee('Manajemen Tag & Merch', false);
+        $response->assertSee('NFC HERITAGE VAULT');
+        $response->assertSee('+ Tambah Produk FlexiTag');
+        $response->assertSee('Pindai Tag Sekarang');
+        $response->assertSee('Kunci Tag Sementara (Kill Switch)');
+        $response->assertSee($tag->tag_code);
+    }
+
+    public function test_user_can_toggle_kill_switch_to_lock_and_unlock_tag(): void
+    {
+        $user = User::factory()->create(['name' => 'Owner Killswitch']);
+        $tag = $this->createActiveTagFor($user);
+
+        $this->assertEquals('aktif', $tag->status);
+
+        // Kunci tag melalui kill switch
+        $response = $this->actingAs($user)->post(route('user.merch.toggleTagStatus', $tag->id));
+        $response->assertRedirect();
+        $response->assertSessionHas('status');
+
+        $tag->refresh();
+        $this->assertEquals('nonaktif', $tag->status);
+        $this->assertEquals('owner', $tag->disabled_by);
+
+        // Pengguna masih dapat membuka halaman merch untuk membuka kunci kembali
+        $merchResponse = $this->actingAs($user)->get(route('user.merch'));
+        $merchResponse->assertStatus(200);
+        $merchResponse->assertSee('Buka Kunci Tag');
+        $merchResponse->assertSee('Tag terkunci oleh proteksi Kill Switch');
+
+        // Buka kunci tag kembali
+        $unlockResponse = $this->actingAs($user)->post(route('user.merch.toggleTagStatus', $tag->id));
+        $unlockResponse->assertRedirect();
+
+        $tag->refresh();
+        $this->assertEquals('aktif', $tag->status);
+        $this->assertNull($tag->disabled_by);
+    }
+
+    public function test_public_profile_is_locked_when_kill_switch_is_active(): void
+    {
+        $user = User::factory()->create();
+        $tag = $this->createActiveTagFor($user);
+
+        // Kunci tag dengan kill switch (owner)
+        $tag->update(['status' => 'nonaktif', 'disabled_by' => 'owner']);
+
+        $response = $this->get(route('public.tag', ['tag_code' => $tag->tag_code]));
+
+        $response->assertStatus(200);
+        $response->assertSee('Proteksi Kill Switch Aktif');
+        $response->assertSee('Kunci Sementara oleh Pemilik');
+        $response->assertDontSee($user->name);
+    }
+
+    public function test_user_dashboard_and_public_profile_when_tag_is_blocked_by_admin(): void
+    {
+        $user = User::factory()->create(['name' => 'User Blokir']);
+        $tag = $this->createActiveTagFor($user);
+
+        // Admin memblokir tag
+        $tag->update(['status' => 'nonaktif', 'disabled_by' => 'admin']);
+
+        // Sisi User Dashboard
+        $dashResponse = $this->actingAs($user)->get(route('user.dashboard'));
+        $dashResponse->assertStatus(200);
+        $dashResponse->assertSee('Diblokir Admin');
+        $dashResponse->assertSee('sedang dinonaktifkan oleh Administrator');
+
+        // Sisi User Merch
+        $merchResponse = $this->actingAs($user)->get(route('user.merch'));
+        $merchResponse->assertStatus(200);
+        $merchResponse->assertSee('Diblokir Admin');
+        $merchResponse->assertSee('Hubungi Admin');
+
+        // Sisi Publik
+        $publicResponse = $this->get(route('public.tag', ['tag_code' => $tag->tag_code]));
+        $publicResponse->assertStatus(200);
+        $publicResponse->assertSee('Perangkat Dinonaktifkan');
+        $publicResponse->assertSee('Penangguhan oleh Administrator');
     }
 }

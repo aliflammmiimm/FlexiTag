@@ -72,8 +72,8 @@ class AuthController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
 
-        return redirect()->route('user.dashboard')
-            ->with('status', 'Akun berhasil dibuat. Selamat datang di '.config('flexitag.brand').'!');
+        return redirect()->route('user.activation.show', ['step' => 2])
+            ->with('status', 'Akun berhasil dibuat. Silakan masukkan kode aktivasi untuk mengaktifkan gantungan kunci Anda.');
     }
 
     public function login(Request $request): RedirectResponse
@@ -127,6 +127,14 @@ class AuthController extends Controller
 
         RateLimiter::clear($throttleKey);
         $request->session()->regenerate();
+
+        $user = Auth::user();
+
+        // Jika akun belum memiliki tag aktif, arahkan ke aktivasi
+        if ($user && $user->role === 'user' && ! $user->tags()->where('status', 'aktif')->exists()) {
+            return redirect()->route('user.activation.show', ['step' => 2])
+                ->with('warning', 'Akun Anda belum memiliki gantungan kunci yang diaktivasi. Silakan masukkan kode aktivasi terlebih dahulu.');
+        }
 
         return redirect()->intended(route('user.dashboard'));
     }

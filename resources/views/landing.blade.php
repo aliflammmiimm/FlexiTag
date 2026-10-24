@@ -101,7 +101,11 @@
 
             <div class="header-actions">
                 @auth
-                    <a href="{{ route('user.dashboard') }}" class="btn btn-gold">Buka Dashboard</a>
+                    @if (auth()->user()->tags()->where('status', 'aktif')->exists() || in_array(auth()->user()->role, ['admin', 'staff'], true))
+                        <a href="{{ route('user.dashboard') }}" class="btn btn-gold">Buka Dashboard</a>
+                    @else
+                        <a href="{{ route('user.activation.show', ['step' => 2]) }}" class="btn btn-gold">Aktivasi Tag</a>
+                    @endif
                     <form method="POST" action="{{ route('logout') }}" style="display:inline;">
                         @csrf
                         <button type="submit" class="btn btn-outline" style="padding: .5rem .9rem;">Keluar</button>
@@ -357,7 +361,15 @@
                 <p class="section-sub">Pesan gantungan custom atau masuk untuk mengelola profil Anda.</p>
                 <div class="hero-actions">
                     <a href="{{ route('register') }}" class="btn btn-gold btn-lg">Pesan Sekarang</a>
-                    <a href="{{ route('login') }}" class="btn btn-outline btn-lg">Masuk</a>
+                    @auth
+                        @if (auth()->user()->tags()->where('status', 'aktif')->exists() || in_array(auth()->user()->role, ['admin', 'staff'], true))
+                            <a href="{{ route('user.dashboard') }}" class="btn btn-outline btn-lg">Buka Dashboard</a>
+                        @else
+                            <a href="{{ route('user.activation.show', ['step' => 2]) }}" class="btn btn-outline btn-lg">Aktivasi Tag</a>
+                        @endif
+                    @else
+                        <a href="{{ route('login') }}" class="btn btn-outline btn-lg">Masuk</a>
+                    @endauth
                 </div>
             </div>
         </div>
@@ -385,8 +397,16 @@
             <div>
                 <h4>BANTUAN & AKUN</h4>
                 <ul>
-                    <li><a href="{{ route('login') }}">Masuk</a></li>
-                    <li><a href="{{ route('register') }}">Daftar</a></li>
+                    @auth
+                        @if (auth()->user()->tags()->where('status', 'aktif')->exists() || in_array(auth()->user()->role, ['admin', 'staff'], true))
+                            <li><a href="{{ route('user.dashboard') }}">Dashboard</a></li>
+                        @else
+                            <li><a href="{{ route('user.activation.show', ['step' => 2]) }}">Aktivasi Tag</a></li>
+                        @endif
+                    @else
+                        <li><a href="{{ route('login') }}">Masuk</a></li>
+                        <li><a href="{{ route('register') }}">Daftar</a></li>
+                    @endauth
                 </ul>
             </div>
             <div>

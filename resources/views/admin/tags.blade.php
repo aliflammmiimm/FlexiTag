@@ -401,7 +401,7 @@
                                         >
                                             Tautkan
                                         </button>
-                                    @else
+                                    @elseif ($tag->disabled_by === 'admin')
                                         <form action="{{ route('admin.tags.unblock', $tag->id) }}" method="POST" class="inline">
                                             @csrf
                                             <button 
@@ -411,6 +411,16 @@
                                                 Buka Blokir
                                             </button>
                                         </form>
+                                    @else
+                                        {{-- Tag dikunci mandiri oleh pemilik (Kill Switch) --}}
+                                        <button 
+                                            type="button" 
+                                            onclick="openTagDetailModal('{{ $tag->tag_code }}', '{{ $tag->activation_code }}', '{{ $owner->name ?? '' }}', '{{ $tag->batch_id ?? '' }}', '{{ $activeMode }}', '{{ $tag->public_url }}')"
+                                            class="bg-[#FEF3C7] hover:bg-[#FDE68A] text-[#92400E] font-semibold text-xs px-3.5 py-1.5 rounded-full transition cursor-pointer"
+                                            title="Tag dikunci sementara oleh pemilik melalui Kill Switch"
+                                        >
+                                            Kill Switch
+                                        </button>
                                     @endif
 
                                     <!-- Three Dots Menu Toggle Button -->
@@ -483,12 +493,20 @@
                                                         <span>Blokir Tag (Admin)</span>
                                                     </button>
                                                 </form>
-                                            @else
+                                            @elseif ($tag->disabled_by === 'admin')
                                                 <form action="{{ route('admin.tags.unblock', $tag->id) }}" method="POST">
                                                     @csrf
                                                     <button type="submit" class="w-full flex items-center gap-2.5 px-4 py-2 hover:bg-[#EAF5EC] text-[#2E7D32] font-semibold transition text-left cursor-pointer">
                                                         <span class="text-base">🔓</span>
                                                         <span>Buka Blokir Tag</span>
+                                                    </button>
+                                                </form>
+                                            @else
+                                                <form action="{{ route('admin.tags.unblock', $tag->id) }}" method="POST" onsubmit="return confirm('Tag {{ $tag->tag_code }} saat ini dikunci mandiri oleh pemilik via Kill Switch. Anda yakin ingin membuka kuncinya sebagai pengelola?')">
+                                                    @csrf
+                                                    <button type="submit" class="w-full flex items-center gap-2.5 px-4 py-2 hover:bg-[#FEF3C7] text-[#92400E] font-semibold transition text-left cursor-pointer">
+                                                        <span class="text-base">🔓</span>
+                                                        <span>Buka Kunci Kill Switch (Override)</span>
                                                     </button>
                                                 </form>
                                             @endif

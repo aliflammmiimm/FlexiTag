@@ -30,10 +30,24 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::post('/keluar', [UserAuthController::class, 'logout'])->name('logout');
-    Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('user.dashboard');
-    Route::post('/dashboard/switch-mode', [UserDashboardController::class, 'switchMode'])->name('user.dashboard.switchMode');
-    Route::post('/dashboard/profile', [UserDashboardController::class, 'updateProfile'])->name('user.dashboard.updateProfile');
-    Route::post('/dashboard/privacy', [UserDashboardController::class, 'updatePrivacy'])->name('user.dashboard.updatePrivacy');
+
+    Route::middleware('tag.activated')->group(function () {
+        Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('user.dashboard');
+        Route::post('/dashboard/switch-mode', [UserDashboardController::class, 'switchMode'])->name('user.dashboard.switchMode');
+        Route::post('/dashboard/profile', [UserDashboardController::class, 'updateProfile'])->name('user.dashboard.updateProfile');
+        Route::post('/dashboard/privacy', [UserDashboardController::class, 'updatePrivacy'])->name('user.dashboard.updatePrivacy');
+        Route::get('/dashboard/mode/umkm', [UserDashboardController::class, 'editUmkm'])->name('user.profile.umkm');
+        Route::post('/dashboard/mode/umkm', [UserDashboardController::class, 'updateUmkm'])->name('user.profile.umkm.update');
+
+        Route::get('/dashboard/mode/umkm/produk/tambah', [UserDashboardController::class, 'createProduct'])->name('user.profile.umkm.product.create');
+        Route::post('/dashboard/mode/umkm/produk/tambah', [UserDashboardController::class, 'storeProduct'])->name('user.profile.umkm.product.store');
+        Route::get('/dashboard/mode/umkm/produk/{id}/edit', [UserDashboardController::class, 'editProduct'])->name('user.profile.umkm.product.edit');
+        Route::post('/dashboard/mode/umkm/produk/{id}/edit', [UserDashboardController::class, 'updateProduct'])->name('user.profile.umkm.product.update');
+        Route::post('/dashboard/mode/umkm/produk/{id}/hapus', [UserDashboardController::class, 'deleteProduct'])->name('user.profile.umkm.product.destroy');
+
+        Route::get('/dashboard/merch', [UserDashboardController::class, 'merch'])->name('user.merch');
+        Route::post('/dashboard/merch/tag/{id}/toggle-status', [UserDashboardController::class, 'toggleTagStatus'])->name('user.merch.toggleTagStatus');
+    });
 });
 
 Route::get('/aktivasi-tag', [TagActivationController::class, 'show'])

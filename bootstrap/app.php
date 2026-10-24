@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureTagIsActivated;
 use App\Http\Middleware\EnsureUserRole;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -15,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'role' => EnsureUserRole::class,
+            'tag.activated' => EnsureTagIsActivated::class,
         ]);
 
         // Tamu yang membuka area Admin diarahkan ke login Admin;
@@ -24,13 +26,20 @@ return Application::configure(basePath: dirname(__DIR__))
             : route('login'));
 
         // Pengguna yang sudah login dan membuka halaman khusus tamu
-        // (login/daftar) diarahkan sesuai role-nya.
+        // (login/daftar) diarahkan sesuai role dan status aktivasi tag.
         $middleware->redirectUsersTo(function (Request $request) {
-            $role = $request->user()?->role;
+            $user = $request->user();
+            $role = $user?->role;
 
-            return in_array($role, ['admin', 'staff'], true)
-                ? route('admin.dashboard')
-                : route('user.dashboard');
+            if (in_array($role, ['admin', 'staff'], true)) {
+                return route('admin.dashboard');
+            }
+
+            if ($user && ! $user->tags()->where('status', 'aktif')->exists()) {
+                return route('user.activation.show', ['step' => 2]);
+            }
+
+            return route('user.dashboard');
         });
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -51,6 +51,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Mode data relation (1:N).
+     */
+    public function modeData(): HasMany
+    {
+        return $this->hasMany(ModeData::class, 'user_id');
+    }
+
+    /**
      * Role badge metadata.
      */
     public function getRoleBadgeAttribute(): array

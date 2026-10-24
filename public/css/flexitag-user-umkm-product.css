@@ -1,0 +1,594 @@
+/* FlexiTag UMKM - Halaman Tambah / Edit Produk Baru
+   Consistent with Toraja Maroon (#4A0A0E) & Sulapa Eppa' Gold (#F5BA41)
+   Typography: Poppins
+*/
+
+:root {
+  --prod-maroon-dark: #2B0407;
+  --prod-maroon: #4A0A0E;
+  --prod-maroon-badge: #5A0E13;
+  --prod-gold: #F4BE41;
+  --prod-gold-hover: #E8B337;
+  --prod-sand-bg: #FAF7F2;
+  --prod-card-bg: #FFFFFF;
+  --prod-upload-bg: #EFECE5;
+  --prod-upload-border: #DFD9CD;
+  --prod-input-border: #E5DFD4;
+  --prod-text-dark: #2D2726;
+  --prod-text-muted: #78716C;
+  --prod-text-subtle: #A8A29E;
+  --prod-line: #ECE7DF;
+  --prod-radius-lg: 18px;
+  --prod-radius-md: 12px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body.umkm-product-page-body {
+  background-color: #EDE8DE;
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--prod-text-dark);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 0;
+}
+
+/* Canvas Wrapper (Centered Mobile Experience on Desktop, Fluid on Mobile) */
+.umkm-product-canvas {
+  width: 100%;
+  max-width: 480px;
+  min-height: 100vh;
+  background-color: var(--prod-sand-bg);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* ========================================================================= */
+/* 1. TOPBAR HEADER                                                          */
+/* ========================================================================= */
+.umkm-product-topbar {
+  background-color: var(--prod-maroon);
+  background-image: 
+    linear-gradient(45deg, rgba(255, 255, 255, 0.035) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(255, 255, 255, 0.035) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(255, 255, 255, 0.035) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(255, 255, 255, 0.035) 75%);
+  background-size: 20px 20px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+}
+
+.btn-product-back {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.16);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.btn-product-back:hover {
+  background: rgba(255, 255, 255, 0.26);
+  transform: translateX(-2px);
+}
+
+.umkm-product-topbar-title {
+  color: #FFFFFF;
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0;
+  padding-left: 0.85rem;
+  letter-spacing: -0.2px;
+  font-family: inherit;
+}
+
+/* ========================================================================= */
+/* 2. FORM BODY                                                              */
+/* ========================================================================= */
+.umkm-product-main {
+  flex: 1;
+  padding: 1.15rem 1.15rem 6.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Field Group Base */
+.prod-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.prod-field-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.prod-field-label {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--prod-text-dark);
+}
+
+.prod-req-star {
+  color: #DC2626;
+  font-weight: 700;
+}
+
+.prod-label-aside {
+  font-size: 0.76rem;
+  color: var(--prod-text-subtle);
+  font-weight: 500;
+}
+
+/* ========================================================================= */
+/* 3. FOTO PRODUK UTAMA UPLOAD CARD                                          */
+/* ========================================================================= */
+.prod-upload-card {
+  background-color: var(--prod-upload-bg);
+  border: 1.5px solid var(--prod-upload-border);
+  border-radius: var(--prod-radius-lg);
+  padding: 1.6rem 1rem 1.4rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Corner Toraja Architectural Arches Decoration */
+.prod-arch-ornament-left,
+.prod-arch-ornament-right {
+  position: absolute;
+  top: 10px;
+  width: 28px;
+  height: 28px;
+  pointer-events: none;
+  opacity: 0.28;
+}
+
+.prod-arch-ornament-left {
+  left: 12px;
+}
+
+.prod-arch-ornament-right {
+  right: 12px;
+}
+
+.prod-camera-circle {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--prod-maroon-badge);
+  color: #FFFFFF;
+  margin: 0 auto 0.65rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(74, 10, 14, 0.22);
+}
+
+.prod-upload-heading {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--prod-maroon);
+  margin-bottom: 0.25rem;
+}
+
+.prod-upload-subtext {
+  font-size: 0.76rem;
+  color: var(--prod-text-muted);
+  line-height: 1.42;
+  max-width: 290px;
+  margin: 0 auto 0.85rem;
+}
+
+.btn-choose-gallery {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: #FFFFFF;
+  border: 1.5px solid var(--prod-maroon);
+  color: var(--prod-maroon);
+  padding: 0.45rem 1.15rem;
+  border-radius: 9999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.btn-choose-gallery:hover {
+  background: #FDF4F4;
+  transform: translateY(-1px);
+}
+
+/* Upload Preview State */
+.prod-preview-box {
+  position: relative;
+  border-radius: var(--prod-radius-md);
+  overflow: hidden;
+  max-height: 200px;
+  border: 1.5px solid var(--prod-upload-border);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+}
+
+.prod-preview-box img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  display: block;
+}
+
+.btn-change-photo {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(43, 4, 7, 0.88);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  padding: 0.35rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+}
+
+/* ========================================================================= */
+/* 4. FORM INPUTS & SHOP ICON                                                */
+/* ========================================================================= */
+.prod-input-icon-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.prod-input-store-icon {
+  position: absolute;
+  left: 14px;
+  color: var(--prod-text-muted);
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+.prod-input-text {
+  width: 100%;
+  height: 48px;
+  background: #FFFFFF;
+  border: 1.5px solid var(--prod-input-border);
+  border-radius: var(--prod-radius-md);
+  padding: 0 0.85rem 0 2.85rem;
+  font-size: 0.88rem;
+  color: var(--prod-text-dark);
+  font-family: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.prod-input-text:focus {
+  outline: none;
+  border-color: var(--prod-maroon);
+  box-shadow: 0 0 0 3px rgba(74, 10, 14, 0.1);
+}
+
+.prod-input-text::placeholder {
+  color: #9CA3AF;
+  font-size: 0.86rem;
+}
+
+/* Two Column Row (Harga & Satuan) */
+.prod-row-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.prod-input-prefix-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.prod-prefix-rp {
+  position: absolute;
+  left: 14px;
+  font-weight: 700;
+  color: var(--prod-maroon);
+  font-size: 0.95rem;
+  pointer-events: none;
+}
+
+.prod-input-price {
+  width: 100%;
+  height: 48px;
+  background: #FFFFFF;
+  border: 1.5px solid var(--prod-input-border);
+  border-radius: var(--prod-radius-md);
+  padding: 0 0.85rem 0 2.85rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--prod-text-dark);
+  font-family: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.prod-input-price:focus {
+  outline: none;
+  border-color: var(--prod-maroon);
+  box-shadow: 0 0 0 3px rgba(74, 10, 14, 0.1);
+}
+
+.prod-input-price::placeholder {
+  color: #9CA3AF;
+  font-weight: 400;
+}
+
+.prod-input-plain {
+  width: 100%;
+  height: 48px;
+  background: #FFFFFF;
+  border: 1.5px solid var(--prod-input-border);
+  border-radius: var(--prod-radius-md);
+  padding: 0 0.85rem;
+  font-size: 0.88rem;
+  color: var(--prod-text-dark);
+  font-family: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.prod-input-plain:focus {
+  outline: none;
+  border-color: var(--prod-maroon);
+  box-shadow: 0 0 0 3px rgba(74, 10, 14, 0.1);
+}
+
+.prod-input-plain::placeholder {
+  color: #9CA3AF;
+}
+
+/* Recommendations Chips */
+.prod-recom-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  margin-top: 0.2rem;
+}
+
+.prod-recom-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #57534E;
+}
+
+.btn-chip-recom {
+  background: #E8E3D8;
+  border: none;
+  color: #44403C;
+  font-size: 0.76rem;
+  font-weight: 600;
+  padding: 0.2rem 0.65rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.btn-chip-recom:hover {
+  background: #DDD5C6;
+  color: var(--prod-maroon);
+}
+
+/* Textarea Deskripsi */
+.prod-textarea {
+  width: 100%;
+  background: #FFFFFF;
+  border: 1.5px solid var(--prod-input-border);
+  border-radius: var(--prod-radius-md);
+  padding: 0.75rem 0.85rem;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: var(--prod-text-dark);
+  font-family: inherit;
+  resize: vertical;
+  min-height: 84px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.prod-textarea:focus {
+  outline: none;
+  border-color: var(--prod-maroon);
+  box-shadow: 0 0 0 3px rgba(74, 10, 14, 0.1);
+}
+
+.prod-textarea::placeholder {
+  color: #9CA3AF;
+  line-height: 1.45;
+}
+
+/* ========================================================================= */
+/* 5. LABEL PROMOSI (PILLS RADIO)                                            */
+/* ========================================================================= */
+.prod-promo-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.prod-promo-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--prod-text-dark);
+}
+
+.prod-promo-subtext {
+  font-size: 0.76rem;
+  color: var(--prod-text-muted);
+  line-height: 1.4;
+  margin-bottom: 0.4rem;
+}
+
+.prod-pills-radio-wrap {
+  display: flex;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
+.pill-promo-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.95rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid #DFD9CD;
+  background: #F5F2EB;
+  color: #44403C;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.pill-promo-btn:hover {
+  background: #EBE5D8;
+}
+
+/* Active Selected Pill State (matches screenshot dark maroon) */
+.pill-promo-btn.is-active {
+  background: var(--prod-maroon);
+  color: #FFFFFF;
+  border-color: var(--prod-maroon);
+  box-shadow: 0 2px 8px rgba(74, 10, 14, 0.2);
+}
+
+/* ========================================================================= */
+/* 6. INFO CARD "SINKRONISASI OTOMATIS"                                      */
+/* ========================================================================= */
+.prod-sync-info-card {
+  background: linear-gradient(135deg, #EBE7DC 0%, #F5F2EB 100%);
+  border: 1px solid #DFD9CD;
+  border-radius: var(--prod-radius-lg);
+  padding: 1rem;
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+}
+
+.prod-sync-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--prod-maroon-badge);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 3px 8px rgba(74, 10, 14, 0.18);
+}
+
+.prod-sync-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.prod-sync-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.prod-sync-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--prod-text-dark);
+}
+
+.badge-nfc-ready {
+  background: var(--prod-gold);
+  color: var(--prod-maroon);
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.prod-sync-desc {
+  font-size: 0.77rem;
+  color: #57534E;
+  line-height: 1.45;
+  margin-top: 0.25rem;
+}
+
+/* ========================================================================= */
+/* 7. STICKY BOTTOM BAR                                                      */
+/* ========================================================================= */
+.prod-bottom-bar {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #FFFFFF;
+  border-top: 1px solid var(--prod-line);
+  padding: 0.85rem 1.15rem;
+  box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.06);
+  z-index: 40;
+}
+
+.btn-save-product {
+  width: 100%;
+  height: 50px;
+  background: var(--prod-gold);
+  color: #2D2726;
+  border: none;
+  border-radius: var(--prod-radius-md);
+  font-size: 0.98rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(244, 190, 65, 0.35);
+  font-family: inherit;
+}
+
+.btn-save-product:hover {
+  background: var(--prod-gold-hover);
+  transform: translateY(-1px);
+}
+
+.btn-save-product:active {
+  transform: translateY(1px);
+}

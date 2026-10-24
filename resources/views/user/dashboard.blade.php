@@ -35,6 +35,21 @@
     {{-- ========================================================================= --}}
     <main class="user-main-content">
 
+        {{-- Flash Status Alert --}}
+        @if (session('status'))
+            <div style="background: #EFFDF5; border: 1.5px solid #BBF7D0; color: #166534; padding: 0.85rem 1.1rem; border-radius: 14px; font-size: 0.84rem; display: flex; align-items: center; gap: 0.6rem; box-shadow: 0 4px 12px rgba(22, 101, 52, 0.08); margin-bottom: 0.35rem;">
+                <span style="font-size: 1.1rem; line-height: 1;">✓</span>
+                <span style="font-weight: 600;">{{ session('status') }}</span>
+            </div>
+        @endif
+
+        @if ($primaryTag && $primaryTag->status === 'nonaktif' && $primaryTag->disabled_by === 'admin')
+            <div style="background: #FEF2F2; border: 1.5px solid #FECACA; color: #991B1B; padding: 0.85rem 1.1rem; border-radius: 14px; font-size: 0.82rem; display: flex; align-items: center; gap: 0.6rem; box-shadow: 0 4px 12px rgba(153, 27, 27, 0.08); margin-bottom: 0.65rem;">
+                <span style="font-size: 1.1rem; line-height: 1;">⛔</span>
+                <span><strong>Pemberitahuan:</strong> Perangkat FlexiTag Anda ({{ $primaryTag->tag_code }}) sedang dinonaktifkan oleh Administrator. Hubungi pengelola untuk pemulihan.</span>
+            </div>
+        @endif
+
         {{-- 1. Halo Greeting Card --}}
         <section class="greeting-card">
             {{-- Pa'barre Allo Sunburst Watermark --}}
@@ -69,7 +84,13 @@
             </div>
 
             <div class="hardware-right">
-                <span class="status-pill-active">Aktif</span>
+                @if ($primaryTag?->status === 'aktif')
+                    <span class="status-pill-active">Aktif</span>
+                @elseif ($primaryTag?->disabled_by === 'admin')
+                    <span style="background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; padding: 3px 9px; border-radius: 20px; font-size: 0.72rem; font-weight: 700;">Diblokir Admin</span>
+                @else
+                    <span style="background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; padding: 3px 9px; border-radius: 20px; font-size: 0.72rem; font-weight: 700;">Terkunci</span>
+                @endif
                 <a href="{{ $publicUrl }}" target="_blank" class="btn-external-icon" title="Buka profil publik tap">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="7" y1="17" x2="17" y2="7"></line>
@@ -293,7 +314,7 @@
         {{-- 6. Bottom Action Buttons --}}
         <section class="bottom-actions">
             {{-- Edit Profile Button --}}
-            <button type="button" class="btn-gold-action" onclick="openProfileModal()">
+            <button type="button" class="btn-gold-action" onclick="handleEditProfileClick()" id="btnEditActiveProfile">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M12 20h9"></path>
                     <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
@@ -365,7 +386,7 @@
             </a>
 
             {{-- Merch --}}
-            <a href="javascript:void(0)" onclick="openMerchModal(); toggleDrawer(false)" class="drawer-nav-item">
+            <a href="{{ route('user.merch') }}" class="drawer-nav-item {{ request()->routeIs('user.merch') ? 'is-highlighted' : '' }}">
                 <span class="drawer-nav-icon">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M3 9l1 12h16l1-12z"></path>
@@ -463,7 +484,7 @@
 
             <div class="modal-form-group">
                 <label for="headline">Pekerjaan / Subtitle</label>
-                <input type="text" id="headline" name="headline" class="modal-input" placeholder="contoh: Pegawai Kopdes / Toraja" value="{{ old('headline', $headline) }}">
+                <input type="text" id="headline" name="headline" class="modal-input" placeholder="contoh: Pegawai Kopdes / Toraja" value="{{ old('headline', $profile?->headline) }}">
             </div>
 
             <div class="modal-form-group">
@@ -622,8 +643,20 @@
         }
     }
 
+    // Track current active mode to route Edit Profile button properly
+    let currentActiveMode = '{{ $activeMode }}';
+
+    function handleEditProfileClick() {
+        if (currentActiveMode === 'umkm') {
+            window.location.href = "{{ route('user.profile.umkm') }}";
+            return;
+        }
+        openProfileModal();
+    }
+
     // 2. Interactive Mode Switcher
     function switchUserMode(modeKey, modeTitle) {
+        currentActiveMode = modeKey;
         const modeKeys = ['kampus', 'kerja', 'umkm', 'hilang'];
 
         // Optimistically update the UI
