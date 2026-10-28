@@ -35,6 +35,14 @@
             background-color: #F0C75E;
         }
 
+        .bg-maroon {
+            background-color: #8B0000;
+        }
+
+        .bg-maroon-dark {
+            background-color: #6e0202;
+        }
+
         .text-maroon {
             color: #8B0000;
         }
@@ -64,6 +72,26 @@
         .scrollbar-none {
             -ms-overflow-style: none;
             scrollbar-width: none;
+        }
+
+        /* Unified Heritage-Themed Select Dropdown Styling for Admin Console */
+        select:not(.has-manual-chevron):not([multiple]) {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%238A8A85' stroke-width='2.2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.85rem center;
+            background-size: 1rem;
+            padding-right: 2.5rem !important;
+            cursor: pointer;
+            line-height: 1.35;
+        }
+
+        select option {
+            background-color: #FFFFFF;
+            color: #1A1A1A;
+            padding: 8px 12px;
         }
     </style>
     @stack('styles')
@@ -361,29 +389,57 @@
             </div>
         </div>
 
-        <!-- Filter Tabs: 1. Semua, 2. Laporan Abuse, 3. Pesan Kontak -->
-        <div class="p-3 border-b border-[#ECE8E1] bg-white flex gap-1.5 text-xs font-semibold">
-            <button type="button" onclick="filterDrawerTab('all')" id="tab-btn-all" class="drawer-tab-btn flex-1 py-1.5 px-3 rounded-full text-center transition bg-[#380208] text-white">
+        <!-- Filter Tabs -->
+        <div class="p-3 border-b border-[#ECE8E1] bg-white flex overflow-x-auto no-scrollbar gap-1.5 text-xs font-semibold">
+            <button type="button" onclick="filterDrawerTab('all')" id="tab-btn-all" class="drawer-tab-btn whitespace-nowrap py-1.5 px-3 rounded-full text-center transition bg-[#380208] text-white">
                 Semua
             </button>
-            <button type="button" onclick="filterDrawerTab('abuse_report')" id="tab-btn-abuse_report" class="drawer-tab-btn flex-1 py-1.5 px-3 rounded-full text-center transition bg-[#F6F5F2] text-[#737373] hover:text-[#1A1A1A]">
-                Laporan Abuse
+            <button type="button" onclick="filterDrawerTab('new_order')" id="tab-btn-new_order" class="drawer-tab-btn whitespace-nowrap py-1.5 px-3 rounded-full text-center transition bg-[#F6F5F2] text-[#737373] hover:text-[#1A1A1A]">
+                📦 Pesanan
             </button>
-            <button type="button" onclick="filterDrawerTab('contact')" id="tab-btn-contact" class="drawer-tab-btn flex-1 py-1.5 px-3 rounded-full text-center transition bg-[#F6F5F2] text-[#737373] hover:text-[#1A1A1A]">
-                Pesan Kontak
+            <button type="button" onclick="filterDrawerTab('user_feedback')" id="tab-btn-user_feedback" class="drawer-tab-btn whitespace-nowrap py-1.5 px-3 rounded-full text-center transition bg-[#F6F5F2] text-[#737373] hover:text-[#1A1A1A]">
+                💡 Saran User
+            </button>
+            <button type="button" onclick="filterDrawerTab('abuse_report')" id="tab-btn-abuse_report" class="drawer-tab-btn whitespace-nowrap py-1.5 px-3 rounded-full text-center transition bg-[#F6F5F2] text-[#737373] hover:text-[#1A1A1A]">
+                🚨 Laporan Abuse
+            </button>
+            <button type="button" onclick="filterDrawerTab('low_stock')" id="tab-btn-low_stock" class="drawer-tab-btn whitespace-nowrap py-1.5 px-3 rounded-full text-center transition bg-[#F6F5F2] text-[#737373] hover:text-[#1A1A1A]">
+                ⚠️ Stok Kritis
+            </button>
+            <button type="button" onclick="filterDrawerTab('contact')" id="tab-btn-contact" class="drawer-tab-btn whitespace-nowrap py-1.5 px-3 rounded-full text-center transition bg-[#F6F5F2] text-[#737373] hover:text-[#1A1A1A]">
+                ✉️ Kontak
             </button>
         </div>
 
         <!-- Messages List Container -->
         <div class="flex-1 overflow-y-auto p-4 space-y-3" id="drawer-messages-list">
             @forelse (($adminNotifications ?? []) as $msg)
-                <div class="drawer-msg-item p-4 rounded-2xl border transition-all {{ is_null($msg->read_at) ? 'bg-[#FCFBF8] border-[#E8DFC9] shadow-xs' : 'bg-white border-[#ECE8E1]' }}" data-type="{{ $msg->type }}">
+                <div class="drawer-msg-item p-4 rounded-2xl border transition-all {{ is_null($msg->read_at) ? 'bg-[#FCFBF8] border-[#E8DFC9] shadow-xs ring-1 ring-[#8B0000]/10' : 'bg-white border-[#ECE8E1]' }}" data-type="{{ $msg->type }}">
                     
                     <!-- Header card -->
                     <div class="flex items-center justify-between gap-2 mb-2">
-                        <span class="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider {{ $msg->type === 'abuse_report' ? 'bg-[#FEE2E2] text-[#991B1B] border border-[#FECACA]' : 'bg-[#E0F2FE] text-[#0369A1] border border-[#BAE6FD]' }}">
-                            {{ $msg->type === 'abuse_report' ? '🚨 Laporan Abuse' : '✉️ Pesan Kontak' }}
-                        </span>
+                        @if ($msg->type === 'new_order')
+                            <span class="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider bg-[#DCFCE7] text-[#166534] border border-[#BBF7D0]">
+                                📦 Pesanan Baru
+                            </span>
+                        @elseif ($msg->type === 'user_feedback')
+                            <span class="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A]">
+                                💡 Saran &amp; Laporan User
+                            </span>
+                        @elseif ($msg->type === 'low_stock')
+                            <span class="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider bg-[#FEE2E2] text-[#991B1B] border border-[#FECACA] animate-pulse">
+                                ⚠️ Stok Tag Kritis (&lt; 10)
+                            </span>
+                        @elseif ($msg->type === 'abuse_report')
+                            <span class="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider bg-[#FEE2E2] text-[#991B1B] border border-[#FECACA]">
+                                🚨 Laporan Abuse
+                            </span>
+                        @else
+                            <span class="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider bg-[#E0F2FE] text-[#0369A1] border border-[#BAE6FD]">
+                                ✉️ Pesan Kontak
+                            </span>
+                        @endif
+
                         <span class="text-[10px] text-[#8A8A85] font-normal">
                             {{ \Carbon\Carbon::parse($msg->created_at)->diffForHumans() }}
                         </span>
@@ -404,15 +460,23 @@
 
                     @if ($msg->contact)
                         <div class="text-[11px] text-[#737373] mb-3 flex items-center gap-1.5">
-                            <span class="font-semibold text-[#1A1A1A]">Kontak Balik:</span>
+                            <span class="font-semibold text-[#1A1A1A]">Kontak:</span>
                             <span class="font-mono text-maroon font-bold">{{ $msg->contact }}</span>
                         </div>
                     @endif
 
                     <!-- Quick Actions -->
                     <div class="flex items-center justify-between pt-2.5 border-t border-[#F2EEE9] text-xs">
-                        <div class="flex items-center gap-2">
-                            @if ($msg->type === 'abuse_report')
+                        <div class="flex items-center flex-wrap gap-2">
+                            @if ($msg->type === 'new_order' && $msg->action_url)
+                                <a href="{{ $msg->action_url }}" class="bg-[#2E7D32] hover:bg-[#236327] text-white font-bold text-[10.5px] px-3 py-1 rounded-full transition inline-flex items-center gap-1 shadow-2xs">
+                                    Lihat Pesanan ↗
+                                </a>
+                            @elseif ($msg->type === 'low_stock' && $msg->action_url)
+                                <a href="{{ $msg->action_url }}" class="bg-[#8B0000] hover:bg-[#680000] text-[#D4AF37] font-bold text-[10.5px] px-3 py-1 rounded-full transition inline-flex items-center gap-1 shadow-2xs">
+                                    + Generate Batch Baru ↗
+                                </a>
+                            @elseif ($msg->type === 'abuse_report')
                                 <form action="{{ route('admin.messages.deactivateTag', $msg->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menonaktifkan chip NFC terkait laporan ini demi keamanan?')">
                                     @csrf
                                     <button type="submit" class="bg-[#8B0000] hover:bg-[#680000] text-[#D4AF37] font-bold text-[10.5px] px-3 py-1 rounded-full transition cursor-pointer shadow-2xs">
@@ -450,7 +514,7 @@
                                     </button>
                                 </form>
                             @else
-                                <span class="text-[10px] text-[#2E7D32] font-semibold">✓ Telah Dibaca</span>
+                                <span class="text-[10px] text-[#2E7D32] font-semibold">✓ Dibaca</span>
                             @endif
                         </div>
                     </div>
@@ -463,7 +527,7 @@
                         </svg>
                     </div>
                     <p class="font-bold text-[#1A1A1A]">Semua Bersih</p>
-                    <p class="mt-0.5">Tidak ada laporan abuse atau pesan masuk yang tertunda.</p>
+                    <p class="mt-0.5">Tidak ada notifikasi atau pesan masuk yang tertunda.</p>
                 </div>
             @endforelse
         </div>

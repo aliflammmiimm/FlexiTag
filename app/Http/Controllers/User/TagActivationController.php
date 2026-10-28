@@ -243,6 +243,7 @@ class TagActivationController extends Controller
 
             $tag->user_id = $user->id;
             $tag->status = 'aktif';
+            $tag->mode = $user->profile?->active_mode ?? 'kampus';
             $tag->activated_at = now();
             $tag->save();
 
@@ -257,6 +258,20 @@ class TagActivationController extends Controller
 
         RateLimiter::clear($key);
         Log::info('Tag diaktifkan', ['user_id' => $user->id, 'tag_id' => $tag->id]);
+
+        $hasExistingProfile = $user->profile && ! empty($user->profile->display_name);
+
+        if ($hasExistingProfile) {
+            session([
+                'activation_tag_id' => $tag->id,
+                'activation_tag_code' => $tag->tag_code,
+                'activation_step' => 4,
+                'activated' => true,
+            ]);
+
+            return redirect()->route('user.activation.show', ['step' => 4])
+                ->with('status', "Tag baru ({$tag->tag_code}) berhasil ditautkan ke profil aktif Anda!");
+        }
 
         session([
             'activation_tag_id' => $tag->id,
@@ -315,6 +330,13 @@ class TagActivationController extends Controller
             ['user_id' => $user->id],
             $profileData
         );
+
+        // Sinkronkan mode awal ke tag yang baru saja diaktifkan dalam alur onboarding ini
+        if (session('activation_tag_id')) {
+            Tag::where('id', session('activation_tag_id'))->where('user_id', $user->id)->update([
+                'mode' => $request->active_mode,
+            ]);
+        }
 
         // Update kontak WhatsApp
         if ($request->filled('no_whatsapp')) {

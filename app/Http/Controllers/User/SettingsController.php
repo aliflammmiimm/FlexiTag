@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\Message;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -29,8 +30,21 @@ class SettingsController extends Controller
         // Data privasi akun dari tabel privacy_settings
         $privacy = DB::table('privacy_settings')->where('user_id', $user->id)->first();
 
-        // Inisial avatar
-        $displayName = $user->profile?->display_name ?? $user->name ?? 'Pengguna FlexiTag';
+        // Inisial avatar (prioritaskan nama asli user agar tidak tertukar nama toko UMKM)
+        $displayName = $user->name;
+        if (empty($displayName)) {
+            $displayName = $user->profile?->display_name ?? 'Pengguna FlexiTag';
+        }
+
+        $umkmRecord = DB::table('mode_data')->where('user_id', $user->id)->where('mode', 'umkm')->first();
+        if ($umkmRecord && $umkmRecord->data) {
+            $umkmData = json_decode($umkmRecord->data, true);
+            if (! empty($umkmData['nama_usaha']) && $user->profile?->display_name === $umkmData['nama_usaha'] && ! empty($user->name)) {
+                DB::table('profiles')->where('user_id', $user->id)->update(['display_name' => $user->name]);
+                $displayName = $user->name;
+            }
+        }
+
         $words = preg_split('/\s+/', trim($displayName));
         $initials = '';
         foreach (array_slice($words, 0, 2) as $w) {
@@ -111,5 +125,35 @@ class SettingsController extends Controller
 
         return redirect()->route('user.settings')
             ->with('status', 'Pengaturan privasi tag berhasil diperbarui.');
+    }
+
+    /**
+     * Kirim saran, masukan, kritik, atau laporan kendala dari user ke Notifikasi Admin.
+     */
+    public function submitFeedback(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'category' => ['required', 'string', 'in:saran,kendala,pertanyaan'],
+            'message' => ['required', 'string', 'min:5', 'max:2000'],
+            'contact' => ['nullable', 'string', 'max:100'],
+        ], [
+            'category.required' => 'Kategori pesan wajib dipilih.',
+            'category.in' => 'Kategori tidak valid.',
+            'message.required' => 'Pesan, saran, atau laporan wajib diisi.',
+            'message.min' => 'Pesan minimal 5 karakter.',
+            'message.max' => 'Pesan maksimal 2000 karakter.',
+        ]);
+
+        $user = $request->user();
+
+        Message::recordUserFeedback(
+            user: $user,
+            category: $validated['category'],
+            content: strip_tags(trim($validated['message'])),
+            contact: ! empty($validated['contact']) ? strip_tags(trim($validated['contact'])) : null
+        );
+
+        return redirect()->route('user.settings')
+            ->with('status', 'Terima kasih! Saran atau laporan Anda telah berhasil dikirim ke notifikasi administrator FlexiTag.');
     }
 }

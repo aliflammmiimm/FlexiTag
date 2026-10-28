@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\CheckMaintenanceMode;
 use App\Http\Middleware\EnsureTagIsActivated;
 use App\Http\Middleware\EnsureUserRole;
 use Illuminate\Foundation\Application;
@@ -14,6 +15,17 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->trustProxies(at: '*');
+
+        $middleware->validateCsrfTokens(except: [
+            'midtrans/callback',
+            'api/midtrans/callback',
+        ]);
+
+        $middleware->web(append: [
+            CheckMaintenanceMode::class,
+        ]);
+
         $middleware->alias([
             'role' => EnsureUserRole::class,
             'tag.activated' => EnsureTagIsActivated::class,

@@ -64,8 +64,55 @@ class Design extends Model
         ];
     }
 
+    public function getImageUrlAttribute(): string
+    {
+        if ($this->image_path) {
+            return asset('storage/'.$this->image_path);
+        }
+
+        return asset('images/keychain.jpg');
+    }
+
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
+    }
+
+    /**
+     * Hitung perkiraan unit terjual dari data pesanan aktif.
+     */
+    public function getUnitsSoldAttribute(): int
+    {
+        $keywords = [];
+        $lowerName = strtolower((string) $this->name);
+        if (str_contains($lowerName, 'toraja')) {
+            $keywords[] = 'toraja';
+        }
+        if (str_contains($lowerName, 'bugis')) {
+            $keywords[] = 'bugis';
+        }
+        if (str_contains($lowerName, 'bulat')) {
+            $keywords[] = 'bulat';
+        }
+        if (str_contains($lowerName, 'persegi') || str_contains($lowerName, 'umkm')) {
+            $keywords[] = 'persegi';
+            $keywords[] = 'umkm';
+        }
+
+        if (empty($keywords)) {
+            return (int) Order::where('status', '!=', Order::STATUS_DIBATALKAN)
+                ->where('notes', 'like', '%'.$this->name.'%')
+                ->sum('quantity');
+        }
+
+        return (int) Order::where('status', '!=', Order::STATUS_DIBATALKAN)
+            ->where(function ($q) use ($keywords) {
+                foreach ($keywords as $kw) {
+                    $q->orWhere('shape', 'like', '%'.$kw.'%')
+                        ->orWhere('color', 'like', '%'.$kw.'%')
+                        ->orWhere('notes', 'like', '%'.$kw.'%');
+                }
+            })
+            ->sum('quantity');
     }
 }

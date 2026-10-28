@@ -20,15 +20,17 @@
     {{-- TOP APP BAR (KONSISTEN DENGAN HALAMAN HOME)                                --}}
     {{-- ========================================================================= --}}
     <header class="user-topbar">
-        <button type="button" class="hamburger-btn" id="openDrawerBtn" aria-label="Buka Menu Navigasi" onclick="toggleDrawer(true)">
-            <span></span>
-            <span></span>
-            <span></span>
-        </button>
+        <div class="topbar-left-group">
+            <button type="button" class="hamburger-btn" id="openDrawerBtn" aria-label="Buka Menu Navigasi" onclick="toggleDrawer(true)">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
 
-        <div class="topbar-branding">
-            <span class="topbar-subtitle">FLEXITAG</span>
-            <h1 class="topbar-title">Merch</h1>
+            <div class="topbar-branding">
+                <span class="topbar-subtitle">FLEXITAG</span>
+                <h1 class="topbar-title">Merch</h1>
+            </div>
         </div>
     </header>
 
@@ -94,17 +96,23 @@
                 </div>
                 <div class="merch-add-text">
                     <h3 class="merch-add-title">+ Tambah Produk FlexiTag</h3>
-                    <p class="merch-add-desc">Pindai QR fisik atau dekatkan chip NFC ke punggung gawai Anda.</p>
+                    <p class="merch-add-desc">Hubungkan gantungan kunci fisik baru langsung ke akun &amp; profil aktif Anda.</p>
                 </div>
             </div>
 
-            <a href="{{ route('user.activation.show') }}" class="btn-scan-tag" id="btnScanTag">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="2"></circle>
-                    <path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49"></path>
-                </svg>
-                <span>Pindai Tag Sekarang</span>
-            </a>
+            <div class="merch-add-actions">
+                <button type="button" class="btn-scan-tag" id="btnOpenClaimModal" onclick="openClaimTagModal()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    <span>Klaim &amp; Pindai Tag Sekarang</span>
+                </button>
+                <a href="{{ route('user.activation.show') }}" class="merch-add-wizard-link">
+                    <span>Atau buka wizard aktivasi lengkap</span>
+                    <span>→</span>
+                </a>
+            </div>
         </section>
 
         {{-- 3. Section Header: Merchandise Terhubung --}}
@@ -147,8 +155,124 @@
                             @endif
                         </div>
 
-                        <p class="tag-id-mode">ID: {{ $tag['tag_code'] }} • Mode: {{ $tag['mode_short'] }}</p>
+                        <p class="tag-id-mode">ID: {{ $tag['tag_code'] }} • Mode: <span id="tag-mode-text-{{ $tag['id'] }}">{{ $tag['mode_short'] }}</span></p>
                         <p class="tag-last-active" id="last-activity-{{ $tag['id'] }}">{{ $tag['activity_text'] }}</p>
+                    </div>
+                </div>
+
+                {{-- Mode Khusus Ganci (Mode Mandiri per Tag) --}}
+                <div class="tag-mode-box">
+                    <div class="tag-mode-header">
+                        <div class="tag-mode-title-wrap">
+                            <span class="tag-mode-icon" aria-hidden="true">🎭</span>
+                            <div>
+                                <h5 class="tag-mode-heading">Mode Tampilan Ganci Ini</h5>
+                                <p class="tag-mode-caption">Profil yang muncul saat orang lain tap ganci ini</p>
+                            </div>
+                        </div>
+                        <span class="tag-mode-badge tag-mode-badge-{{ $tag['mode'] }}" id="tag-badge-{{ $tag['id'] }}">
+                            {{ $tag['mode_label'] }}
+                        </span>
+                    </div>
+
+                    <div class="custom-mode-dropdown" id="custom-dropdown-{{ $tag['id'] }}">
+                        <button type="button" 
+                                class="custom-mode-trigger" 
+                                id="mode-trigger-{{ $tag['id'] }}"
+                                onclick="toggleCustomModeDropdown({{ $tag['id'] }})"
+                                @if(!$tag['is_active']) disabled @endif
+                                aria-haspopup="listbox" 
+                                aria-expanded="false">
+                            <div class="custom-mode-trigger-content">
+                                <span class="custom-mode-trigger-icon" id="trigger-icon-{{ $tag['id'] }}">
+                                    @if ($tag['mode'] === 'kampus') 🎓
+                                    @elseif ($tag['mode'] === 'kerja') 💼
+                                    @elseif ($tag['mode'] === 'umkm') 🏪
+                                    @else 🔒
+                                    @endif
+                                </span>
+                                <div class="custom-mode-trigger-text">
+                                    <span class="custom-mode-trigger-title" id="trigger-title-{{ $tag['id'] }}">
+                                        {{ $tag['mode_label'] }}
+                                    </span>
+                                    <span class="custom-mode-trigger-sub" id="trigger-sub-{{ $tag['id'] }}">
+                                        @if ($tag['mode'] === 'kampus') Profil Akademik &amp; Mahasiswa
+                                        @elseif ($tag['mode'] === 'kerja') Portofolio Profesional &amp; CV
+                                        @elseif ($tag['mode'] === 'umkm') Katalog Produk &amp; Kasir WA
+                                        @else Kontak Darurat Pemilik
+                                        @endif
+                                    </span>
+                                </div>
+                            </div>
+                            <span class="custom-mode-trigger-chevron" aria-hidden="true">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </span>
+                        </button>
+
+                        {{-- Floating Custom Options Menu --}}
+                        <div class="custom-mode-menu" id="mode-menu-{{ $tag['id'] }}" role="listbox">
+                            <div class="custom-mode-option {{ $tag['mode'] === 'kampus' ? 'is-selected' : '' }}" 
+                                 role="option" 
+                                 aria-selected="{{ $tag['mode'] === 'kampus' ? 'true' : 'false' }}"
+                                 onclick="selectCustomTagMode('kampus', {{ $tag['id'] }})">
+                                <div class="option-icon-box option-icon-kampus">🎓</div>
+                                <div class="option-meta">
+                                    <div class="option-title-row">
+                                        <strong class="option-title">Mode Kampus</strong>
+                                        <span class="option-tag-badge badge-kampus">Akademik</span>
+                                    </div>
+                                    <span class="option-desc">Profil mahasiswa, prodi &amp; organisasi kampus</span>
+                                </div>
+                                <span class="option-check" aria-hidden="true">✓</span>
+                            </div>
+
+                            <div class="custom-mode-option {{ $tag['mode'] === 'kerja' ? 'is-selected' : '' }}" 
+                                 role="option" 
+                                 aria-selected="{{ $tag['mode'] === 'kerja' ? 'true' : 'false' }}"
+                                 onclick="selectCustomTagMode('kerja', {{ $tag['id'] }})">
+                                <div class="option-icon-box option-icon-kerja">💼</div>
+                                <div class="option-meta">
+                                    <div class="option-title-row">
+                                        <strong class="option-title">Mode Kerja</strong>
+                                        <span class="option-tag-badge badge-kerja">Karir &amp; CV</span>
+                                    </div>
+                                    <span class="option-desc">Portofolio profesional, resume &amp; kontak karir</span>
+                                </div>
+                                <span class="option-check" aria-hidden="true">✓</span>
+                            </div>
+
+                            <div class="custom-mode-option {{ $tag['mode'] === 'umkm' ? 'is-selected' : '' }}" 
+                                 role="option" 
+                                 aria-selected="{{ $tag['mode'] === 'umkm' ? 'true' : 'false' }}"
+                                 onclick="selectCustomTagMode('umkm', {{ $tag['id'] }})">
+                                <div class="option-icon-box option-icon-umkm">🏪</div>
+                                <div class="option-meta">
+                                    <div class="option-title-row">
+                                        <strong class="option-title">Mode UMKM</strong>
+                                        <span class="option-tag-badge badge-umkm">Bisnis</span>
+                                    </div>
+                                    <span class="option-desc">Katalog produk, jam toko &amp; kasir WhatsApp</span>
+                                </div>
+                                <span class="option-check" aria-hidden="true">✓</span>
+                            </div>
+
+                            <div class="custom-mode-option {{ $tag['mode'] === 'hilang' ? 'is-selected' : '' }}" 
+                                 role="option" 
+                                 aria-selected="{{ $tag['mode'] === 'hilang' ? 'true' : 'false' }}"
+                                 onclick="selectCustomTagMode('hilang', {{ $tag['id'] }})">
+                                <div class="option-icon-box option-icon-hilang">🔒</div>
+                                <div class="option-meta">
+                                    <div class="option-title-row">
+                                        <strong class="option-title">Mode Barang Hilang</strong>
+                                        <span class="option-tag-badge badge-hilang">Darurat</span>
+                                    </div>
+                                    <span class="option-desc">Kontak penemu, pesan darurat &amp; imbalan aman</span>
+                                </div>
+                                <span class="option-check" aria-hidden="true">✓</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -171,11 +295,48 @@
 
                     {{-- Action Buttons Row: Active State --}}
                     <div class="tag-action-row" id="action-row-{{ $tag['id'] }}">
-                        @if ($activeMode === 'umkm')
-                            <a href="{{ route('user.profile.umkm') }}" class="btn-tag-action-gray">Edit Profil Tag</a>
+                        @if ($tag['mode'] === 'umkm')
+                            <a href="{{ route('user.profile.umkm') }}" class="btn-tag-action-gray" id="btn-edit-profile-{{ $tag['id'] }}">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 20h9"></path>
+                                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                                </svg>
+                                <span>Edit Profil UMKM</span>
+                            </a>
+                        @elseif ($tag['mode'] === 'kerja')
+                            <a href="{{ route('user.profile.kerja') }}" class="btn-tag-action-gray" id="btn-edit-profile-{{ $tag['id'] }}">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 20h9"></path>
+                                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                                </svg>
+                                <span>Edit Profil Kerja</span>
+                            </a>
+                        @elseif ($tag['mode'] === 'hilang')
+                            <a href="{{ route('user.lost-mode.edit') }}" class="btn-tag-action-gray" id="btn-edit-profile-{{ $tag['id'] }}">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 20h9"></path>
+                                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                                </svg>
+                                <span>Edit Pesan Hilang</span>
+                            </a>
                         @else
-                            <a href="{{ route('user.dashboard') }}" class="btn-tag-action-gray">Edit Profil Tag</a>
+                            <a href="{{ route('user.profile.kampus') }}" class="btn-tag-action-gray" id="btn-edit-profile-{{ $tag['id'] }}">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 20h9"></path>
+                                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                                </svg>
+                                <span>Edit Profil Kampus</span>
+                            </a>
                         @endif
+
+                        <a href="{{ route('public.tag', $tag['tag_code']) }}" target="_blank" class="btn-tag-action-preview" title="Buka profil publik ganci ini di tab baru">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                <polyline points="15 3 21 3 21 9"></polyline>
+                                <line x1="10" y1="14" x2="21" y2="3"></line>
+                            </svg>
+                            <span>Uji Tap</span>
+                        </a>
 
                         <button type="button" class="btn-tag-action-gray" onclick="openPrivacyModal('{{ $tag['tag_code'] }}')">
                             Privasi
@@ -258,9 +419,9 @@
             <div style="background: #FFFFFF; border: 1px dashed #D1D5DB; border-radius: 16px; padding: 2rem 1.5rem; text-align: center; color: #6B7280; margin-bottom: 1.5rem;">
                 <p style="font-weight: 600; color: #374151; margin-bottom: 0.35rem;">Belum ada perangkat FlexiTag yang terhubung</p>
                 <p style="font-size: 0.82rem; margin-bottom: 1.25rem;">Gunakan tombol "Pindai Tag Sekarang" di atas untuk menambahkan merchandise FlexiTag Anda.</p>
-                <a href="{{ route('user.activation.show') }}" class="btn-scan-tag" style="max-width: 260px; margin: 0 auto;">
+                <button type="button" class="btn-scan-tag" style="max-width: 260px; margin: 0 auto;" onclick="openClaimTagModal()">
                     + Hubungkan Tag
-                </a>
+                </button>
             </div>
         @endforelse
 
@@ -506,7 +667,269 @@
             form.submit();
         });
     }
+
+    // 6. Interactive Per-Tag Mode Change (Custom Dropdown Component)
+    const MODE_METADATA = {
+        'kampus': {
+            icon: '🎓',
+            title: 'Mode Kampus',
+            sub: 'Profil Akademik & Mahasiswa',
+            badgeClass: 'tag-mode-badge-kampus',
+            routeUrl: '{{ route('user.profile.kampus') }}',
+            editLabel: 'Edit Profil Kampus'
+        },
+        'kerja': {
+            icon: '💼',
+            title: 'Mode Kerja',
+            sub: 'Portofolio Profesional & CV',
+            badgeClass: 'tag-mode-badge-kerja',
+            routeUrl: '{{ route('user.profile.kerja') }}',
+            editLabel: 'Edit Profil Kerja'
+        },
+        'umkm': {
+            icon: '🏪',
+            title: 'Mode UMKM',
+            sub: 'Katalog Produk & Kasir WA',
+            badgeClass: 'tag-mode-badge-umkm',
+            routeUrl: '{{ route('user.profile.umkm') }}',
+            editLabel: 'Edit Profil UMKM'
+        },
+        'hilang': {
+            icon: '🔒',
+            title: 'Mode Barang Hilang',
+            sub: 'Kontak Darurat Pemilik',
+            badgeClass: 'tag-mode-badge-hilang',
+            routeUrl: '{{ route('user.lost-mode.edit') }}',
+            editLabel: 'Edit Pesan Hilang'
+        }
+    };
+
+    function toggleCustomModeDropdown(tagId) {
+        const menu = document.getElementById('mode-menu-' + tagId);
+        const trigger = document.getElementById('mode-trigger-' + tagId);
+        if (!menu || !trigger || trigger.disabled) return;
+
+        const isOpen = menu.classList.contains('is-open');
+
+        // Tutup menu dropdown ganci lain terlebih dahulu
+        document.querySelectorAll('.custom-mode-menu.is-open').forEach(el => {
+            el.classList.remove('is-open');
+        });
+        document.querySelectorAll('.custom-mode-trigger[aria-expanded="true"]').forEach(el => {
+            el.setAttribute('aria-expanded', 'false');
+        });
+
+        if (!isOpen) {
+            menu.classList.add('is-open');
+            trigger.setAttribute('aria-expanded', 'true');
+        }
+    }
+
+    function selectCustomTagMode(newMode, tagId) {
+        const meta = MODE_METADATA[newMode];
+        if (!meta) return;
+
+        const menu = document.getElementById('mode-menu-' + tagId);
+        const trigger = document.getElementById('mode-trigger-' + tagId);
+        if (menu) menu.classList.remove('is-open');
+        if (trigger) {
+            trigger.setAttribute('aria-expanded', 'false');
+            trigger.disabled = true;
+        }
+
+        // Update trigger UI immediately (optimistic UI update)
+        const iconEl = document.getElementById('trigger-icon-' + tagId);
+        const titleEl = document.getElementById('trigger-title-' + tagId);
+        const subEl = document.getElementById('trigger-sub-' + tagId);
+        const badgeEl = document.getElementById('tag-badge-' + tagId);
+        const modeTextEl = document.getElementById('tag-mode-text-' + tagId);
+        const editLink = document.getElementById('btn-edit-profile-' + tagId);
+
+        if (iconEl) iconEl.textContent = meta.icon;
+        if (titleEl) titleEl.textContent = meta.title;
+        if (subEl) subEl.textContent = meta.sub;
+        if (badgeEl) {
+            badgeEl.textContent = 'Menyimpan...';
+            badgeEl.style.opacity = '0.7';
+        }
+
+        // Highlight selected option di dalam menu
+        if (menu) {
+            menu.querySelectorAll('.custom-mode-option').forEach(opt => {
+                opt.classList.remove('is-selected');
+                opt.setAttribute('aria-selected', 'false');
+            });
+            const currentOpt = menu.querySelector(`[onclick*="'${newMode}'"]`);
+            if (currentOpt) {
+                currentOpt.classList.add('is-selected');
+                currentOpt.setAttribute('aria-selected', 'true');
+            }
+        }
+
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+        fetch(`{{ url('/dashboard/merch/tag') }}/${tagId}/mode`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ mode: newMode })
+        })
+        .then(async response => {
+            const data = await response.json();
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || 'Gagal mengubah mode tag');
+            }
+            return data;
+        })
+        .then(data => {
+            if (trigger) trigger.disabled = false;
+
+            if (badgeEl) {
+                badgeEl.textContent = data.mode_label;
+                badgeEl.className = 'tag-mode-badge ' + meta.badgeClass;
+                badgeEl.style.opacity = '1';
+            }
+
+            if (modeTextEl) {
+                modeTextEl.textContent = data.mode_label.replace('Mode ', '');
+            }
+
+            if (editLink) {
+                editLink.href = meta.routeUrl;
+                const span = editLink.querySelector('span');
+                if (span) span.textContent = meta.editLabel;
+            }
+
+            showToast(data.message || `Mode ganci berhasil diubah ke ${data.mode_label}`, '✓');
+        })
+        .catch(err => {
+            console.error('Mode change error:', err);
+            if (trigger) trigger.disabled = false;
+            if (badgeEl) badgeEl.style.opacity = '1';
+            showToast(err.message || 'Gagal mengubah mode ganci', '⚠️');
+        });
+    }
+
+    // Menutup menu jika klik di luar dropdown atau tekan tombol Escape
+    window.addEventListener('click', function(e) {
+        if (!e.target.closest('.custom-mode-dropdown')) {
+            document.querySelectorAll('.custom-mode-menu.is-open').forEach(el => el.classList.remove('is-open'));
+            document.querySelectorAll('.custom-mode-trigger[aria-expanded="true"]').forEach(el => el.setAttribute('aria-expanded', 'false'));
+        }
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.custom-mode-menu.is-open').forEach(el => el.classList.remove('is-open'));
+            document.querySelectorAll('.custom-mode-trigger[aria-expanded="true"]').forEach(el => el.setAttribute('aria-expanded', 'false'));
+        }
+    });
+
+    // 7. Quick Claim Tag Modal Interactions
+    function openClaimTagModal() {
+        const modal = document.getElementById('claimTagModal');
+        if (modal) {
+            modal.classList.add('is-active');
+            document.body.style.overflow = 'hidden';
+            setTimeout(() => {
+                const input = document.getElementById('activation_code_input');
+                if (input) input.focus();
+            }, 80);
+        }
+    }
+
+    function closeClaimTagModal() {
+        const modal = document.getElementById('claimTagModal');
+        if (modal) {
+            modal.classList.remove('is-active');
+            document.body.style.overflow = '';
+        }
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeClaimTagModal();
+        }
+    });
 </script>
+
+{{-- Modal Pop-Up Klaim Tag Cepat Langsung di Merch --}}
+<div class="claim-modal-overlay" id="claimTagModal" onclick="if(event.target === this) closeClaimTagModal()">
+    <div class="claim-modal-dialog">
+        <div class="claim-modal-head">
+            <div class="claim-modal-title-row">
+                <div class="claim-icon-emblem" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F5BA41" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="4"></rect>
+                        <rect x="7" y="7" width="10" height="10" rx="1.5"></rect>
+                        <path d="M12 7v10"></path>
+                        <path d="M7 12h10"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="claim-modal-title">Klaim Tag / Merchandise Baru</h3>
+                    <p class="claim-modal-subtitle">Hubungkan gantungan kunci ke profil digital Anda</p>
+                </div>
+            </div>
+            <button type="button" class="claim-close-btn" onclick="closeClaimTagModal()" aria-label="Tutup Modal">✕</button>
+        </div>
+
+        <form method="POST" action="{{ route('user.merch.claimTag') }}" id="claimTagForm">
+            @csrf
+            <div class="claim-input-group">
+                <label for="activation_code_input">Kode Aktivasi Merchandise</label>
+                <div class="claim-input-wrap">
+                    <span class="claim-input-icon" aria-hidden="true">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                    </span>
+                    <input type="text" 
+                           id="activation_code_input" 
+                           name="activation_code" 
+                           class="claim-text-input" 
+                           placeholder="Contoh: KD-8821-XQ atau FT-KMP-001" 
+                           required 
+                           autocomplete="off"
+                           autocapitalize="characters"
+                           oninput="this.value = this.value.toUpperCase()">
+                </div>
+                <span class="claim-input-hint">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                    </svg>
+                    <span>Kode unik tertera di bagian belakang kartu kemasan FlexiTag.</span>
+                </span>
+            </div>
+
+            <div class="claim-info-box">
+                <span class="claim-info-icon">⚡</span>
+                <p class="claim-info-text">
+                    Tag baru otomatis mewarisi profil aktif Anda (<strong>{{ ucfirst($activeMode) }}</strong>) tanpa perlu mengatur ulang nama atau foto.
+                </p>
+            </div>
+
+            <div class="claim-modal-actions">
+                <button type="submit" class="btn-claim-submit">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    <span>Hubungkan Tag Sekarang</span>
+                </button>
+                <button type="button" class="btn-claim-cancel" onclick="closeClaimTagModal()">
+                    Batal
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 
 </body>
 </html>

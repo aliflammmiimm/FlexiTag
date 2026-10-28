@@ -132,8 +132,9 @@ section.band { background: var(--band); }
 .code-card span { display: block; font-size: .62rem; color: var(--ink); }
 
 /* Katalog & paket */
-.model { display: flex; flex-direction: column; }
-.model .shot { height: 150px; border-radius: 10px; margin: .8rem 0; display: grid; place-items: center; font-size: 2.6rem; background: linear-gradient(135deg, var(--gold-soft), #ecd998); color: var(--maroon); }
+.model .shot { height: 185px; border-radius: 12px; margin: .8rem 0; overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center; background: #FAF8F5; border: 1px solid var(--line); font-size: 2.6rem; color: var(--maroon); }
+.model .shot img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.35s ease; }
+.model:hover .shot img { transform: scale(1.05); }
 .price { font-size: 1.4rem; color: var(--maroon); font-weight: 700; margin: .2rem 0; }
 .ticks { list-style: none; padding: 0; margin: .6rem 0 1rem; font-size: .82rem; color: var(--muted); }
 .ticks li::before { content: "✓ "; color: var(--gold-deep); font-weight: 700; }
@@ -212,9 +213,18 @@ table.tbl th, table.tbl td { text-align: left; padding: .65rem .5rem; border-bot
 table.tbl th { color: var(--maroon); font-size: .72rem; letter-spacing: .04em; text-transform: uppercase; }
 .empty { text-align: center; color: var(--muted); padding: 1.6rem 1rem; }
 
+/* Formulir Interaktif & Kontak */
+.form-group { margin-bottom: 1rem; text-align: left; }
+.form-label { display: block; font-size: .8rem; font-weight: 600; color: var(--ink); margin-bottom: .3rem; }
+.form-label .req { color: #dc2626; margin-left: 2px; }
+.form-control { width: 100%; border: 1.5px solid var(--line); border-radius: 8px; padding: .65rem .85rem; font-size: .88rem; font-family: inherit; background: #fff; color: var(--ink); outline: none; transition: border-color .15s, box-shadow .15s; box-sizing: border-box; }
+.form-control:focus { border-color: var(--maroon); box-shadow: 0 0 0 3px rgba(139, 0, 0, .08); }
+textarea.form-control { resize: vertical; min-height: 85px; }
+
 @media (max-width: 1000px) {
   .f-grid { grid-template-columns: 1fr 1fr; }
-  .hero .grid, .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .hero .grid, .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
   .grid-3.keep2, .grid-4.keep2 { grid-template-columns: repeat(2, 1fr); }
   .menu-btn { display: block; }
   .menu { display: none; position: absolute; top: 100%; left: 0; right: 0; background: #fff; border-bottom: 1px solid var(--line); flex-direction: column; align-items: stretch; padding: 1rem 1.25rem 1.25rem; gap: 1rem; }
@@ -230,6 +240,18 @@ table.tbl th { color: var(--maroon); font-size: .72rem; letter-spacing: .04em; t
   .topbar form button { padding: .45rem .8rem; }
   .app-main { padding: 1.1rem; }
 }
+@media (max-width: 680px) {
+  .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
+  .grid-3.keep2, .grid-4.keep2 { grid-template-columns: 1fr; }
+  .card.model { max-width: 440px; margin-inline: auto; width: 100%; box-sizing: border-box; }
+  .model .shot { height: 210px; }
+  .model h3 { font-size: 1.12rem; line-height: 1.35; margin-top: 0.5rem; }
+  .model p.txt { font-size: 0.86rem; line-height: 1.5; }
+  .model .price { font-size: 1.45rem; margin: 0.4rem 0; }
+  .model .ticks { font-size: 0.85rem; margin: 0.6rem 0 1.1rem; }
+  .model .ticks li { margin-bottom: 0.35rem; }
+  .model .btn { min-height: 46px; font-size: 0.92rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+}
 @media (max-width: 560px) {
   .f-grid { grid-template-columns: 1fr; }
   section.block { padding: 2.8rem 0; }
@@ -237,5 +259,4 @@ table.tbl th { color: var(--maroon); font-size: .72rem; letter-spacing: .04em; t
   .mock { grid-template-columns: 1fr; }
   .phone { max-width: 260px; margin-inline: auto; }
   .hero-actions .btn { width: 100%; }
-  .grid-3.keep2, .grid-4.keep2 { grid-template-columns: 1fr; }
 }

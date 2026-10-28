@@ -1,0 +1,927 @@
+/* ==========================================================================
+   FlexiTag — Edit Profil Mode Kerja (Portofolio & Karir Profesional)
+   Sulawesi Heritage Aesthetic: Toraja Maroon (#4A0A0E, #380508), Sulapa Eppa' Gold (#E5B32A, #F5BA41), Sand/Cream (#FAF8F5, #F8F6F2)
+   ========================================================================== */
+
+:root {
+  --ft-maroon-dark: #2B0407;
+  --ft-maroon: #4A0A0E;
+  --ft-maroon-header: #380508;
+  --ft-maroon-pill: #4A0A0E;
+  --ft-gold: #E5B32A;
+  --ft-gold-bright: #F5BA41;
+  --ft-gold-soft: #FEF3C7;
+  --ft-gold-deep: #92400E;
+  --ft-gold-btn: #785600;
+  --ft-gold-btn-hover: #634700;
+  --ft-sand-bg: #F8F6F2;
+  --ft-card-bg: #FFFFFF;
+  --ft-input-bg: #F6F4EE;
+  --ft-input-border: #E5DFD4;
+  --ft-input-focus: #D6CEBE;
+  --ft-text-dark: #1F1915;
+  --ft-text-muted: #78716C;
+  --ft-text-subtle: #A8A29E;
+  --ft-line: #ECE7DF;
+  --ft-radius-xl: 20px;
+  --ft-radius-lg: 16px;
+  --ft-radius-md: 12px;
+  --ft-radius-sm: 8px;
+  --ft-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body.kerja-edit-body {
+  background-color: var(--ft-sand-bg);
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--ft-text-dark);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow-x: hidden;
+}
+
+/* App Container (Responsive) */
+.kerja-app-container {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100vh;
+  background-color: var(--ft-sand-bg);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 680px) {
+  body.kerja-edit-body {
+    background-color: #EDE8DF;
+    padding: 1.5rem 1rem 3rem;
+  }
+  .kerja-app-container {
+    max-width: 780px;
+    margin: 0 auto;
+    border-radius: 24px;
+    box-shadow: 0 10px 40px rgba(74, 10, 14, 0.08);
+    border: 1px solid var(--ft-line);
+    overflow: hidden;
+  }
+}
+
+@media (min-width: 1024px) {
+  .kerja-app-container {
+    max-width: 860px;
+  }
+}
+
+/* ==========================================================================
+   TOP APP BAR
+   ========================================================================== */
+.kerja-topbar {
+  background: linear-gradient(180deg, var(--ft-maroon-header) 0%, #44070B 100%);
+  padding: 0.85rem 1.15rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+}
+
+.topbar-back-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.topbar-back-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateX(-2px);
+}
+
+.topbar-center-heading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.topbar-center-title {
+  font-family: inherit;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #FFFFFF;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+.topbar-center-sub {
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--ft-gold-bright);
+  text-transform: uppercase;
+  margin-top: 3px;
+  line-height: 1;
+}
+
+.topbar-mode-badge {
+  background: var(--ft-gold-bright);
+  color: var(--ft-maroon-dark);
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  letter-spacing: 0.04em;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   MAIN CONTENT
+   ========================================================================== */
+.kerja-main-content {
+  padding: 1rem 1rem 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  flex: 1;
+}
+
+@media (min-width: 680px) {
+  .kerja-main-content {
+    padding: 1.5rem 1.85rem 3.5rem;
+    gap: 1.25rem;
+  }
+}
+
+/* Flash Status Banner */
+.status-toast-bar {
+  background: #EAF5EC;
+  border: 1px solid #C8E6C9;
+  color: #2E7D32;
+  padding: 0.75rem 1rem;
+  border-radius: var(--ft-radius-md);
+  font-size: 0.82rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  box-shadow: 0 2px 8px rgba(46, 125, 50, 0.08);
+}
+
+/* ==========================================================================
+   ACTION CARD: SALIN DARI MODE KAMPUS (1-CLICK SYNC)
+   ========================================================================== */
+.copy-kampus-card {
+  background: linear-gradient(135deg, #FFFDF8 0%, #FEF9EE 100%);
+  border: 1.5px solid #F0E3C8;
+  border-radius: var(--ft-radius-lg);
+  padding: 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  box-shadow: 0 4px 16px rgba(229, 179, 42, 0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+.copy-kampus-card::after {
+  content: '';
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  width: 90px;
+  height: 90px;
+  background: radial-gradient(circle, rgba(229, 179, 42, 0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.copy-kampus-header-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+}
+
+.copy-kampus-icon-box {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: #FAF0D6;
+  border: 1px solid #EADAB2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  color: var(--ft-gold-deep);
+}
+
+.copy-kampus-title-wrap {
+  flex: 1;
+}
+
+.copy-kampus-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #380508;
+  line-height: 1.25;
+  margin-bottom: 3px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.copy-kampus-badge {
+  background: #E5B32A;
+  color: #2B0407;
+  font-size: 0.62rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 999px;
+  text-transform: uppercase;
+}
+
+.copy-kampus-desc {
+  font-size: 0.76rem;
+  color: #6B655E;
+  line-height: 1.45;
+}
+
+.btn-trigger-copy {
+  background: #4A0A0E;
+  color: #FAF8F5;
+  border: 1px solid rgba(229, 179, 42, 0.4);
+  border-radius: var(--ft-radius-md);
+  padding: 0.65rem 1.15rem;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  box-shadow: 0 3px 10px rgba(74, 10, 14, 0.18);
+  align-self: flex-start;
+}
+
+.btn-trigger-copy:hover {
+  background: #380508;
+  border-color: var(--ft-gold-bright);
+  transform: translateY(-1px);
+}
+
+.btn-trigger-copy:active {
+  transform: translateY(0);
+}
+
+/* ==========================================================================
+   1. AVATAR UPLOAD CARD
+   ========================================================================== */
+.avatar-upload-card {
+  background: var(--ft-card-bg);
+  border: 1px solid var(--ft-line);
+  border-radius: var(--ft-radius-lg);
+  padding: 1.35rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: var(--ft-shadow);
+}
+
+.pro-avatar-wrap {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  position: relative;
+  cursor: pointer;
+  margin-bottom: 0.85rem;
+}
+
+.pro-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3.5px solid var(--ft-gold-bright);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  display: block;
+}
+
+.pro-avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--ft-maroon);
+  color: #FFFFFF;
+  border: 3.5px solid var(--ft-gold-bright);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+}
+
+.avatar-camera-btn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--ft-gold);
+  border: 2px solid #FFFFFF;
+  color: #2B0407;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.pro-avatar-wrap:hover .avatar-camera-btn {
+  transform: scale(1.1);
+  background: var(--ft-gold-bright);
+}
+
+.avatar-card-title {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--ft-text-dark);
+  margin-bottom: 2px;
+}
+
+.avatar-card-sub {
+  font-size: 0.74rem;
+  color: var(--ft-text-muted);
+}
+
+/* ==========================================================================
+   2. SINKRONISASI TAG CALLOUT
+   ========================================================================== */
+.sync-callout-card {
+  background: #FFFFFF;
+  border: 1px solid var(--ft-line);
+  border-radius: var(--ft-radius-lg);
+  padding: 1rem 1.15rem;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  box-shadow: var(--ft-shadow);
+}
+
+.sync-icon-box {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--ft-radius-md);
+  background: #FAF0F0;
+  color: var(--ft-maroon);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.sync-text-wrap {
+  flex: 1;
+}
+
+.sync-title {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--ft-text-dark);
+  margin-bottom: 2px;
+}
+
+.sync-desc {
+  font-size: 0.74rem;
+  color: var(--ft-text-muted);
+  line-height: 1.45;
+}
+
+/* ==========================================================================
+   3. LIVE PREVIEW CARD (Pratinjau Kartu Tap Mode Kerja)
+   ========================================================================== */
+.live-preview-card {
+  background: #FFFFFF;
+  border: 1.5px solid #EAE4D8;
+  border-radius: var(--ft-radius-lg);
+  padding: 1.35rem 1.25rem;
+  position: relative;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.preview-badge-top {
+  position: absolute;
+  top: -11px;
+  background: var(--ft-maroon);
+  color: #FFFFFF;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 3px 12px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  border: 1px solid rgba(229, 179, 42, 0.35);
+}
+
+.preview-name-row {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.preview-full-name {
+  font-size: 1.18rem;
+  font-weight: 800;
+  color: var(--ft-text-dark);
+}
+
+.preview-edition-pill {
+  display: inline-block;
+  background: #F9F5EC;
+  border: 1px solid #EAE0C8;
+  color: var(--ft-maroon);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 12px;
+  border-radius: 999px;
+  margin: 6px auto 4px;
+}
+
+.preview-headline {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #2D2727;
+  margin: 2px 0 4px;
+}
+
+.preview-bio-text {
+  font-size: 0.74rem;
+  color: var(--ft-text-muted);
+  line-height: 1.45;
+  max-width: 360px;
+  margin: 2px auto 6px;
+}
+
+.preview-location-cohort {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 0.74rem;
+  color: var(--ft-text-muted);
+  margin-bottom: 0.85rem;
+}
+
+.preview-cv-pill-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #FAF0F0;
+  border: 1px solid #F2D2D2;
+  color: var(--ft-maroon);
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   4. FORM SECTIONS & INPUTS
+   ========================================================================== */
+.section-header-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  padding: 0 4px;
+}
+
+.section-serif-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--ft-text-dark);
+  letter-spacing: -0.01em;
+}
+
+.section-gold-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--ft-gold-deep);
+  text-transform: uppercase;
+}
+
+.kerja-form-card {
+  background: var(--ft-card-bg);
+  border: 1px solid var(--ft-line);
+  border-radius: var(--ft-radius-lg);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  box-shadow: var(--ft-shadow);
+}
+
+.form-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.field-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.field-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ft-text-dark);
+}
+
+.field-label-req {
+  color: #B91C1C;
+}
+
+.field-badge-public {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--ft-maroon);
+  background: #FAF0F0;
+  padding: 2px 8px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.kerja-input,
+.kerja-textarea {
+  width: 100%;
+  background: var(--ft-input-bg);
+  border: 1.5px solid var(--ft-input-border);
+  border-radius: var(--ft-radius-md);
+  padding: 0.75rem 0.95rem;
+  font-family: inherit;
+  font-size: 0.86rem;
+  color: var(--ft-text-dark);
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.kerja-textarea {
+  min-height: 80px;
+  resize: vertical;
+  line-height: 1.45;
+}
+
+.kerja-input:focus,
+.kerja-textarea:focus {
+  border-color: var(--ft-gold);
+  background: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(229, 179, 42, 0.16);
+}
+
+.input-with-end-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-with-end-icon .kerja-input {
+  padding-right: 42px;
+}
+
+.input-end-icon {
+  position: absolute;
+  right: 12px;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+}
+
+.field-subtext {
+  font-size: 0.7rem;
+  color: var(--ft-text-muted);
+  line-height: 1.35;
+}
+
+.form-two-col {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.15rem;
+}
+
+@media (min-width: 600px) {
+  .form-two-col {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* WhatsApp prefix input */
+.wa-input-group {
+  display: flex;
+  align-items: center;
+  background: var(--ft-input-bg);
+  border: 1.5px solid var(--ft-input-border);
+  border-radius: var(--ft-radius-md);
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.wa-input-group:focus-within {
+  border-color: var(--ft-gold);
+  background: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(229, 179, 42, 0.16);
+}
+
+.wa-prefix-box {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 0.85rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #1F1915;
+  background: #ECE7DF;
+  height: 44px;
+  border-right: 1px solid var(--ft-input-border);
+  flex-shrink: 0;
+}
+
+.wa-number-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 0.75rem 0.95rem;
+  font-family: inherit;
+  font-size: 0.86rem;
+  color: var(--ft-text-dark);
+  outline: none;
+}
+
+/* ==========================================================================
+   5. CV UPLOAD CARD
+   ========================================================================== */
+.cv-upload-box {
+  border: 2px dashed #D6CEBE;
+  background: #FAF8F5;
+  border-radius: var(--ft-radius-md);
+  padding: 1.25rem 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.cv-upload-box:hover {
+  border-color: var(--ft-maroon);
+  background: #FDF4F4;
+}
+
+.cv-upload-icon-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #FAF0F0;
+  color: var(--ft-maroon);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 0.6rem;
+}
+
+.cv-upload-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--ft-text-dark);
+  margin-bottom: 2px;
+}
+
+.cv-upload-sub {
+  font-size: 0.72rem;
+  color: var(--ft-text-muted);
+}
+
+.current-cv-badge-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #F0FDF4;
+  border: 1px solid #BBF7D0;
+  border-radius: var(--ft-radius-md);
+  padding: 0.75rem 1rem;
+  margin-top: 0.5rem;
+}
+
+.current-cv-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #166534;
+}
+
+.btn-remove-cv {
+  background: none;
+  border: none;
+  color: #B91C1C;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* ==========================================================================
+   6. LINK BUILDER SECTION
+   ========================================================================== */
+.kerja-links-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.link-builder-card {
+  background: #FFFFFF;
+  border: 1px solid var(--ft-line);
+  border-radius: var(--ft-radius-lg);
+  padding: 1rem 1.15rem;
+  box-shadow: var(--ft-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.link-builder-card:hover {
+  border-color: #D6CEBE;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+}
+
+.link-builder-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.link-builder-type-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.type-pill-portfolio {
+  background: #FEF3C7;
+  color: #92400E;
+}
+
+.type-pill-linkedin {
+  background: #FDF7E7;
+  color: #C59418;
+}
+
+.type-pill-code {
+  background: #2B2525;
+  color: #FFFFFF;
+}
+
+.type-pill-behance {
+  background: #E8F1FC;
+  color: #1769FF;
+}
+
+.link-builder-badge-active {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #166534;
+}
+
+.link-mini-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.link-mini-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.55rem;
+}
+
+@media (min-width: 580px) {
+  .link-mini-row {
+    grid-template-columns: 1.2fr 1.8fr;
+  }
+}
+
+.link-input-sub {
+  background: var(--ft-input-bg);
+  border: 1.5px solid var(--ft-input-border);
+  border-radius: var(--ft-radius-sm);
+  padding: 0.55rem 0.8rem;
+  font-family: inherit;
+  font-size: 0.8rem;
+  color: var(--ft-text-dark);
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.link-input-sub:focus {
+  border-color: var(--ft-gold);
+  background: #FFFFFF;
+}
+
+/* ==========================================================================
+   STICKY BOTTOM SAVE BAR
+   ========================================================================== */
+.kerja-bottom-bar {
+  position: sticky;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--ft-line);
+  padding: 0.9rem 1.15rem 1.15rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.06);
+  z-index: 90;
+}
+
+.btn-save-kerja {
+  width: 100%;
+  background: linear-gradient(135deg, #4A0A0E 0%, #350508 100%);
+  color: #FFFFFF;
+  border: 1px solid rgba(229, 179, 42, 0.4);
+  border-radius: var(--ft-radius-md);
+  padding: 0.85rem 1.5rem;
+  font-family: inherit;
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 16px rgba(74, 10, 14, 0.3);
+  transition: all 0.2s ease;
+}
+
+.btn-save-kerja:hover {
+  background: linear-gradient(135deg, #5A0E13 0%, #44070B 100%);
+  border-color: var(--ft-gold-bright);
+  transform: translateY(-1px);
+}
+
+.btn-save-kerja:active {
+  transform: translateY(0);
+}
+
+.bottom-sync-subtext {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.68rem;
+  color: var(--ft-text-muted);
+}

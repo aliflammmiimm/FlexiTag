@@ -64,11 +64,18 @@ body.umkm-edit-body {
     padding: 1.5rem 1rem 3rem;
   }
   .umkm-app-container {
-    max-width: 720px;
+    max-width: 780px;
+    margin: 0 auto;
     border-radius: 24px;
     box-shadow: 0 10px 40px rgba(74, 10, 14, 0.08);
     border: 1px solid var(--ft-line);
     overflow: hidden;
+  }
+}
+
+@media (min-width: 1024px) {
+  .umkm-app-container {
+    max-width: 860px;
   }
 }
 
@@ -442,6 +449,27 @@ body.umkm-edit-body {
   color: var(--ft-text-dark);
   outline: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+select.umkm-input,
+.umkm-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%234A0A0E' stroke-width='2.2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.85rem center;
+  background-size: 1rem;
+  padding-right: 2.5rem;
+  cursor: pointer;
+  line-height: 1.3;
+}
+
+select.umkm-input option {
+  background: #FFFFFF;
+  color: #1F1915;
+  font-family: 'Poppins', sans-serif;
+  padding: 8px 10px;
 }
 
 .umkm-input:focus {

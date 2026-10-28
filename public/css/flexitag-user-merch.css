@@ -425,8 +425,33 @@
 /* Action Buttons */
 .tag-action-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(105px, 1fr));
   gap: 0.65rem;
+}
+
+.btn-tag-action-preview {
+  background: #FEF9EE;
+  border: 1px solid #F8DE97;
+  color: #8C6207;
+  font-weight: 600;
+  font-size: 0.82rem;
+  border-radius: 12px;
+  padding: 0.68rem 0.5rem;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.btn-tag-action-preview:hover {
+  background: #FDF2D4;
+  border-color: #F5C647;
+  color: #5F4202;
+  transform: translateY(-1px);
 }
 
 .btn-tag-action-gray {
@@ -530,3 +555,630 @@
   color: #9CA3AF;
   line-height: 1.5;
 }
+
+/* ==========================================================================
+   Quick Claim Modal & Card Action Enhancements
+   ========================================================================== */
+.merch-add-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  width: 100%;
+}
+
+.merch-add-wizard-link {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #78716C;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: color 0.15s ease;
+  padding: 0.2rem 0;
+}
+
+.merch-add-wizard-link:hover {
+  color: #4A0A0E;
+}
+
+.claim-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.15rem;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.claim-modal-overlay.is-active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.claim-modal-dialog {
+  background: #FFFFFF;
+  border-radius: 20px;
+  padding: 1.4rem 1.35rem 1.25rem;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.22);
+  border: 1px solid #ECE7DF;
+  position: relative;
+  max-height: 88vh;
+  overflow-y: auto;
+  transform: translateY(10px) scale(0.98);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.claim-modal-overlay.is-active .claim-modal-dialog {
+  transform: translateY(0) scale(1);
+}
+
+.claim-modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid #F0ECE4;
+}
+
+.claim-modal-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.claim-icon-emblem {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: #4A0A0E;
+  border: 1.5px solid #F5BA41;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(74, 10, 14, 0.2);
+}
+
+.claim-modal-title {
+  font-size: 0.96rem;
+  font-weight: 700;
+  color: #4A0A0E;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.claim-modal-subtitle {
+  font-size: 0.72rem;
+  color: #78716C;
+  margin-top: 2px;
+}
+
+.claim-close-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #FAF8F5;
+  border: 1px solid #ECE7DF;
+  color: #78716C;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.claim-close-btn:hover {
+  background: #F7EBEB;
+  border-color: #F0D5D5;
+  color: #4A0A0E;
+}
+
+.claim-input-group {
+  margin-bottom: 1rem;
+}
+
+.claim-input-group label {
+  display: block;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #1F1915;
+  margin-bottom: 0.4rem;
+}
+
+.claim-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.claim-input-icon {
+  position: absolute;
+  left: 0.85rem;
+  color: #A8A29E;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+}
+
+.claim-text-input {
+  width: 100%;
+  padding: 0.72rem 0.85rem 0.72rem 2.5rem;
+  border-radius: 11px;
+  border: 1.5px solid #ECE7DF;
+  font-size: 0.86rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  background: #FAF8F5;
+  color: #1F1915;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.claim-text-input:focus {
+  border-color: #4A0A0E;
+  background: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(74, 10, 14, 0.08);
+}
+
+.claim-input-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.68rem;
+  color: #78716C;
+  margin-top: 0.45rem;
+}
+
+.claim-input-hint svg {
+  color: #E5B32A;
+  flex-shrink: 0;
+}
+
+.claim-info-box {
+  background: #EFFDF5;
+  border: 1px solid #BBF7D0;
+  border-radius: 12px;
+  padding: 0.75rem 0.9rem;
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  margin-bottom: 1.25rem;
+}
+
+.claim-info-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.claim-info-text {
+  font-size: 0.72rem;
+  color: #166534;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.claim-modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.btn-claim-submit {
+  width: 100%;
+  padding: 0.78rem;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #4A0A0E 0%, #360508 100%);
+  color: #FFFFFF;
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 3px 12px rgba(74, 10, 14, 0.22);
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.btn-claim-submit:hover {
+  background: linear-gradient(135deg, #5B0C12 0%, #3F060A 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 5px 16px rgba(74, 10, 14, 0.28);
+}
+
+.btn-claim-cancel {
+  width: 100%;
+  padding: 0.72rem;
+  border-radius: 12px;
+  background: #FAF8F5;
+  color: #1F1915;
+  border: 1px solid #ECE7DF;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+}
+
+.btn-claim-cancel:hover {
+  background: #EFECE6;
+  border-color: #E2DDD5;
+}
+
+/* ==========================================================================
+   Mode Mandiri per Tag (Keychain Independent Mode)
+   ========================================================================== */
+.tag-mode-box {
+  background: #FAF8F5;
+  border: 1px solid #ECE7DE;
+  border-radius: 14px;
+  padding: 0.85rem 1rem;
+  margin-top: 0.85rem;
+  margin-bottom: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tag-mode-box:hover {
+  border-color: #DDD6C8;
+}
+
+.tag-mode-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.tag-mode-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tag-mode-icon {
+  font-size: 1.05rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: #F0EDE6;
+  color: #4A0A0E;
+}
+
+.tag-mode-heading {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #1F1915;
+  margin: 0;
+  line-height: 1.25;
+}
+
+.tag-mode-caption {
+  font-size: 0.72rem;
+  color: #7A7268;
+  margin: 1px 0 0 0;
+  line-height: 1.25;
+}
+
+.tag-mode-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.25s ease;
+}
+
+.tag-mode-badge-kampus {
+  background: #EEF2FF;
+  border: 1px solid #C7D2FE;
+  color: #3730A3;
+}
+
+.tag-mode-badge-kerja {
+  background: #FEF3C7;
+  border: 1px solid #FDE68A;
+  color: #92400E;
+}
+
+.tag-mode-badge-umkm {
+  background: #ECFDF5;
+  border: 1px solid #A7F3D0;
+  color: #065F46;
+}
+
+.tag-mode-badge-hilang {
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  color: #991B1B;
+}
+
+/* ==========================================================================
+   Custom Dropdown Component for Mode Mandiri (No Raw OS Popup)
+   ========================================================================== */
+.custom-mode-dropdown {
+  position: relative;
+  width: 100%;
+}
+
+.custom-mode-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: #FFFFFF;
+  border: 1.5px solid #E4DFD5;
+  border-radius: 14px;
+  padding: 0.65rem 0.85rem;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.custom-mode-trigger:hover:not(:disabled) {
+  border-color: #CFC7B9;
+  background: #FAF9F7;
+  transform: translateY(-0.5px);
+}
+
+.custom-mode-trigger[aria-expanded="true"] {
+  border-color: #4A0A0E;
+  background: #FAF8F5;
+  box-shadow: 0 0 0 3px rgba(74, 10, 14, 0.08);
+}
+
+.custom-mode-trigger:disabled {
+  background: #F3F1ED;
+  color: #9CA3AF;
+  cursor: not-allowed;
+  border-color: #E5E2DA;
+}
+
+.custom-mode-trigger-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+
+.custom-mode-trigger-icon {
+  font-size: 1.15rem;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: #F3EFEA;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid #E7E2D8;
+}
+
+.custom-mode-trigger-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.custom-mode-trigger-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #1F1915;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.custom-mode-trigger-sub {
+  font-size: 0.72rem;
+  color: #7A7268;
+  line-height: 1.25;
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.custom-mode-trigger-chevron {
+  color: #6B7280;
+  display: flex;
+  align-items: center;
+  margin-left: 6px;
+  flex-shrink: 0;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.custom-mode-trigger[aria-expanded="true"] .custom-mode-trigger-chevron {
+  transform: rotate(180deg);
+  color: #4A0A0E;
+}
+
+/* Floating Custom Options Menu */
+.custom-mode-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  width: 100%;
+  background: #FFFFFF;
+  border: 1.5px solid #ECE7DE;
+  border-radius: 16px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(74, 10, 14, 0.04);
+  padding: 6px;
+  z-index: 50;
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  box-sizing: border-box;
+}
+
+.custom-mode-menu.is-open {
+  display: flex;
+  animation: modeDropdownFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes modeDropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.custom-mode-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0.65rem 0.75rem;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+}
+
+.custom-mode-option:hover {
+  background: #FAF8F5;
+  border-color: #EFEBE4;
+  transform: translateX(2px);
+}
+
+.custom-mode-option.is-selected {
+  background: #FAF4EB;
+  border-color: #F5DCA3;
+}
+
+.option-icon-box {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.05rem;
+  flex-shrink: 0;
+}
+
+.option-icon-kampus {
+  background: #EEF2FF;
+  border: 1px solid #C7D2FE;
+}
+
+.option-icon-kerja {
+  background: #FEF3C7;
+  border: 1px solid #FDE68A;
+}
+
+.option-icon-umkm {
+  background: #ECFDF5;
+  border: 1px solid #A7F3D0;
+}
+
+.option-icon-hilang {
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+}
+
+.option-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.option-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.option-title {
+  font-size: 0.83rem;
+  font-weight: 700;
+  color: #1F1915;
+}
+
+.option-tag-badge {
+  font-size: 0.66rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+
+.badge-kampus {
+  background: #E0E7FF;
+  color: #3730A3;
+}
+
+.badge-kerja {
+  background: #FEF08A;
+  color: #854D0E;
+}
+
+.badge-umkm {
+  background: #D1FAE5;
+  color: #065F46;
+}
+
+.badge-hilang {
+  background: #FEE2E2;
+  color: #991B1B;
+}
+
+.option-desc {
+  font-size: 0.71rem;
+  color: #7A7268;
+  display: block;
+  margin-top: 1px;
+  line-height: 1.25;
+}
+
+.option-check {
+  color: #4A0A0E;
+  font-weight: 800;
+  font-size: 0.9rem;
+  margin-left: auto;
+  display: none;
+}
+
+.custom-mode-option.is-selected .option-check {
+  display: block;
+}
+
+

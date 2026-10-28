@@ -14,6 +14,27 @@
         </div>
     @endif
 
+    <!-- Low Tag Stock Alert Banner (< 10) -->
+    @if ($metrics['is_low_stock'] ?? false)
+        <div class="mb-5 p-4 sm:p-5 rounded-2xl bg-[#FEF2F2] border-2 border-[#FCA5A5] text-xs text-[#991B1B] flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs animate-in fade-in duration-200">
+            <div class="flex items-start sm:items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-[#FEE2E2] flex items-center justify-center shrink-0 text-xl font-bold">
+                    ⚠️
+                </div>
+                <div>
+                    <strong class="font-bold text-sm block text-[#7F1D1D]">Peringatan Sistem: Stok Kode Aktivasi Tag Menipis (&lt; 10 Unit)!</strong>
+                    <span class="text-[#991B1B] text-xs">
+                        Tersisa hanya <strong>{{ $metrics['stok_tag_tersedia'] ?? 0 }} unit</strong> tag belum aktif yang siap dialokasikan. Segera generate batch tag baru agar sistem tidak kehabisan kode aktivasi ketika pesanan siap dikirim/diambil.
+                    </span>
+                </div>
+            </div>
+            <a href="{{ route('admin.generate') }}" class="bg-[#8B0000] hover:bg-[#6e0202] text-[#D4AF37] font-bold text-xs px-5 py-2.5 rounded-full whitespace-nowrap shrink-0 shadow-xs transition flex items-center gap-1.5 self-start sm:self-auto">
+                <span>+ Generate Batch Tag Baru</span>
+                <span>→</span>
+            </a>
+        </div>
+    @endif
+
     <!-- Top System Badges Row -->
     <div class="flex flex-wrap items-center justify-between sm:justify-end gap-2 mb-3">
         <!-- Chip Info -->
@@ -35,7 +56,7 @@
 
         <!-- Sync Live Indicator -->
         <div class="inline-flex items-center gap-2 bg-[#FCE8E8] text-maroon font-bold text-[11px] sm:text-xs px-3 sm:px-3.5 py-1.5 rounded-full border border-[#F5C2C2]">
-            <span class="w-2 h-2 rounded-full bg-maroon animate-pulse"></span>
+            <span class="w-2 h-2 rounded-full bg-[#8B0000] animate-pulse"></span>
             <span>Database Sync: Online</span>
         </div>
     </div>
@@ -56,6 +77,7 @@
             <!-- Search Form -->
             <form action="{{ route('admin.tags') }}" method="GET" class="relative flex-1 sm:flex-initial w-full sm:w-auto">
                 <input type="hidden" name="status" value="{{ $statusFilter }}">
+                <input type="hidden" name="mode" value="{{ $modeFilter ?? 'all' }}">
                 <svg class="w-4 h-4 text-[#8A8A85] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <circle cx="11" cy="11" r="8"/>
                     <line x1="21" y1="21" x2="16.65" y2="16.65"/>
@@ -199,9 +221,14 @@
                 </div>
             </div>
 
-            <div class="mt-4 pt-3 border-t border-[#F2EEE9] flex items-center gap-1.5 text-xs text-[#737373]">
-                <span class="w-2 h-2 rounded-full bg-[#16A34A]"></span>
-                <span>Siap di-pair atau diklaim pelanggan baru</span>
+            <div class="mt-4 pt-3 border-t border-[#F2EEE9] flex items-center justify-between text-xs text-[#737373]">
+                <div class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full {{ ($metrics['is_low_stock'] ?? false) ? 'bg-[#DC2626] animate-pulse' : 'bg-[#16A34A]' }}"></span>
+                    <span><strong>{{ $metrics['stok_tag_tersedia'] ?? 0 }}</strong> siap alokasi acak ke pemesan</span>
+                </div>
+                @if ($metrics['is_low_stock'] ?? false)
+                    <span class="text-[10px] font-bold text-[#DC2626] bg-[#FEE2E2] px-2 py-0.5 rounded-full animate-pulse">Kritis &lt; 10</span>
+                @endif
             </div>
         </div>
 
@@ -218,25 +245,25 @@
             <!-- Filter Pills -->
             <div class="flex overflow-x-auto no-scrollbar sm:flex-wrap items-center gap-1.5 text-xs font-semibold bg-[#F6F5F2] p-1.5 rounded-2xl sm:rounded-full border border-[#ECE8E1] w-full sm:w-auto max-w-full">
                 <a 
-                    href="{{ route('admin.tags', ['status' => 'all', 'search' => $search]) }}" 
+                    href="{{ route('admin.tags', ['status' => 'all', 'mode' => $modeFilter ?? 'all', 'search' => $search]) }}" 
                     class="whitespace-nowrap px-4 py-2 rounded-full transition {{ $statusFilter === 'all' ? 'bg-[#380208] text-white shadow-xs font-bold' : 'text-[#737373] hover:text-[#1A1A1A]' }}"
                 >
                     Semua ({{ $metrics['total_diproduksi'] }})
                 </a>
                 <a 
-                    href="{{ route('admin.tags', ['status' => 'aktif', 'search' => $search]) }}" 
+                    href="{{ route('admin.tags', ['status' => 'aktif', 'mode' => $modeFilter ?? 'all', 'search' => $search]) }}" 
                     class="whitespace-nowrap px-4 py-2 rounded-full transition {{ $statusFilter === 'aktif' ? 'bg-[#380208] text-white shadow-xs font-bold' : 'text-[#737373] hover:text-[#1A1A1A]' }}"
                 >
                     Aktif ({{ $metrics['tag_terhubung'] }})
                 </a>
                 <a 
-                    href="{{ route('admin.tags', ['status' => 'belum_aktif', 'search' => $search]) }}" 
+                    href="{{ route('admin.tags', ['status' => 'belum_aktif', 'mode' => $modeFilter ?? 'all', 'search' => $search]) }}" 
                     class="whitespace-nowrap px-4 py-2 rounded-full transition {{ $statusFilter === 'belum_aktif' ? 'bg-[#380208] text-white shadow-xs font-bold' : 'text-[#737373] hover:text-[#1A1A1A]' }}"
                 >
                     Belum Aktif ({{ $metrics['tag_stok'] }})
                 </a>
                 <a 
-                    href="{{ route('admin.tags', ['status' => 'diblokir', 'search' => $search]) }}" 
+                    href="{{ route('admin.tags', ['status' => 'diblokir', 'mode' => $modeFilter ?? 'all', 'search' => $search]) }}" 
                     class="whitespace-nowrap px-4 py-2 rounded-full transition {{ in_array($statusFilter, ['diblokir', 'nonaktif']) ? 'bg-[#380208] text-white shadow-xs font-bold' : 'text-[#737373] hover:text-[#1A1A1A]' }}"
                 >
                     Nonaktif / Blokir ({{ $metrics['tag_diblokir'] }})
@@ -259,8 +286,17 @@
             </div>
         </div>
 
+        @if (($modeFilter ?? 'all') !== 'all')
+            <div class="mb-4 flex items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 bg-[#FAF4EB] border border-[#E5B32A]/40 text-[#8C6D23] px-3.5 py-1 rounded-full text-xs font-semibold">
+                    <span>Filter Mode: <strong>Mode {{ ucfirst($modeFilter) }}</strong></span>
+                    <a href="{{ route('admin.tags', ['status' => $statusFilter, 'search' => $search]) }}" class="hover:text-maroon ml-1 font-bold text-sm" title="Hapus filter mode">✕</a>
+                </span>
+            </div>
+        @endif
+
         <!-- Inventory Table -->
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto pb-16">
             <table class="w-full text-left text-xs">
                 <thead>
                     <tr class="text-[10px] font-bold uppercase tracking-wider text-[#8A8A85] border-b border-[#ECE8E1]">
@@ -278,7 +314,7 @@
                             $badge = $tag->status_badge;
                             $owner = $tag->user;
                             $profile = $owner?->profile;
-                            $activeMode = $profile?->active_mode ?? 'kampus';
+                            $tagMode = $tag->mode ?: ($profile?->active_mode ?? 'kampus');
                         @endphp
                         <tr class="hover:bg-[#FAF9F6] transition-colors">
                             
@@ -298,11 +334,17 @@
                                         <span class="text-[10.5px] text-[#737373] block mt-0.5">
                                             Batch: <strong class="text-[#1A1A1A]">{{ $tag->batch_id ?? '#B-883' }}</strong>
                                         </span>
-                                        <div class="mt-1">
+                                        <div class="mt-1 flex flex-wrap items-center gap-1">
                                             <span class="inline-flex items-center gap-1 text-[10px] bg-[#FCF5E3] text-[#8C6D23] px-1.5 py-0.5 rounded font-mono font-bold border border-[#E5B32A]/35" title="Kode Aktivasi Pengguna (di kartu panduan)">
                                                 <span>Akt:</span>
                                                 <span>{{ $tag->activation_code }}</span>
                                             </span>
+                                            @if ($tag->order)
+                                                <a href="{{ route('admin.orders', ['search' => $tag->order->order_no]) }}" class="inline-flex items-center gap-1 text-[9.5px] bg-[#EEF2FF] text-[#3730A3] hover:underline px-1.5 py-0.5 rounded font-medium border border-[#C7D2FE]" title="Tag dialokasikan ke pesanan #{{ $tag->order->order_no }}">
+                                                    <span>📦 Order:</span>
+                                                    <span class="font-mono font-bold">{{ $tag->order->order_no }}</span>
+                                                </a>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -349,22 +391,26 @@
 
                             <!-- 4. Mode Publik Aktif -->
                             <td class="py-4 px-3 whitespace-nowrap">
-                                @if ($owner && $profile)
-                                    @if ($activeMode === 'kampus')
+                                @if ($owner)
+                                    @if ($tagMode === 'kampus')
                                         <span class="inline-flex items-center gap-1.5 bg-[#F3EEFA] text-[#6A40A0] font-semibold text-[11px] px-3 py-1 rounded-full">
                                             🎓 Mode Kampus
                                         </span>
-                                    @elseif ($activeMode === 'umkm')
+                                    @elseif ($tagMode === 'umkm')
                                         <span class="inline-flex items-center gap-1.5 bg-[#FFF3E6] text-[#B85D19] font-semibold text-[11px] px-3 py-1 rounded-full">
                                             🏪 Mode UMKM
                                         </span>
-                                    @elseif ($activeMode === 'kerja')
+                                    @elseif ($tagMode === 'kerja')
                                         <span class="inline-flex items-center gap-1.5 bg-[#EBF0F5] text-[#2C4863] font-semibold text-[11px] px-3 py-1 rounded-full">
                                             💼 Mode Kerja
                                         </span>
-                                    @elseif ($activeMode === 'hilang')
+                                    @elseif ($tagMode === 'hilang')
                                         <span class="inline-flex items-center gap-1.5 bg-[#FCE8E8] text-[#8B0000] font-bold text-[11px] px-3 py-1 rounded-full animate-pulse">
                                             🚨 Mode Hilang
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1.5 bg-[#F3EEFA] text-[#6A40A0] font-semibold text-[11px] px-3 py-1 rounded-full">
+                                            🎓 Mode Kampus
                                         </span>
                                     @endif
                                 @else
@@ -388,7 +434,7 @@
                                     @if ($tag->status === 'aktif')
                                         <button 
                                             type="button" 
-                                            onclick="openTagDetailModal('{{ $tag->tag_code }}', '{{ $tag->activation_code }}', '{{ $owner->name ?? '' }}', '{{ $tag->batch_id ?? '' }}', '{{ $activeMode }}', '{{ $tag->public_url }}')"
+                                            onclick="openTagDetailModal('{{ $tag->tag_code }}', '{{ $tag->activation_code }}', '{{ $owner->name ?? '' }}', '{{ $tag->batch_id ?? '' }}', '{{ $tagMode }}', '{{ $tag->public_url }}')"
                                             class="bg-gold-accent hover:bg-[#E5BC50] text-[#1A1A1A] font-semibold text-xs px-3.5 py-1.5 rounded-full shadow-xs transition cursor-pointer"
                                         >
                                             Detail Tag
@@ -415,7 +461,7 @@
                                         {{-- Tag dikunci mandiri oleh pemilik (Kill Switch) --}}
                                         <button 
                                             type="button" 
-                                            onclick="openTagDetailModal('{{ $tag->tag_code }}', '{{ $tag->activation_code }}', '{{ $owner->name ?? '' }}', '{{ $tag->batch_id ?? '' }}', '{{ $activeMode }}', '{{ $tag->public_url }}')"
+                                            onclick="openTagDetailModal('{{ $tag->tag_code }}', '{{ $tag->activation_code }}', '{{ $owner->name ?? '' }}', '{{ $tag->batch_id ?? '' }}', '{{ $tagMode }}', '{{ $tag->public_url }}')"
                                             class="bg-[#FEF3C7] hover:bg-[#FDE68A] text-[#92400E] font-semibold text-xs px-3.5 py-1.5 rounded-full transition cursor-pointer"
                                             title="Tag dikunci sementara oleh pemilik melalui Kill Switch"
                                         >
@@ -470,6 +516,18 @@
                                                 <span class="text-base">👤</span>
                                                 <span>{{ $tag->user_id ? 'Ganti Pemilik' : 'Tautkan ke Pengguna' }}</span>
                                             </a>
+
+                                            <!-- Option 3b: Ubah Mode Tag (if paired) -->
+                                            @if ($tag->user_id)
+                                                <a 
+                                                    href="javascript:void(0)" 
+                                                    onclick="openChangeModeModal({{ $tag->id }}, '{{ $tag->tag_code }}', '{{ $tagMode }}')" 
+                                                    class="flex items-center gap-2.5 px-4 py-2 hover:bg-[#FAF9F6] text-[#1A1A1A] font-medium transition cursor-pointer"
+                                                >
+                                                    <span class="text-base">🎭</span>
+                                                    <span>Ubah Mode Tag</span>
+                                                </a>
+                                            @endif
 
                                             <div class="h-px bg-[#F2EEE9] my-1"></div>
 
@@ -578,7 +636,7 @@
                     <button 
                         type="button" 
                         onclick="testScanTag()" 
-                        class="bg-maroon hover:bg-[#6B0000] text-gold-accent px-4 py-2 rounded-xl text-xs font-bold transition shrink-0 cursor-pointer"
+                        class="bg-[#8B0000] hover:bg-[#6B0000] text-gold-accent px-4 py-2 rounded-xl text-xs font-bold transition shrink-0 cursor-pointer"
                     >
                         Scan ⚡
                     </button>
@@ -642,7 +700,7 @@
                 <button type="button" onclick="closeTagDetailModal()" class="bg-[#F6F5F2] hover:bg-[#EAE8E3] text-[#1A1A1A] text-xs font-semibold px-4 py-2 rounded-full transition cursor-pointer">
                     Tutup
                 </button>
-                <a id="modal-tag-visit-btn" href="#" target="_blank" class="bg-maroon hover:bg-[#6B0000] text-gold-accent text-xs font-bold px-4 py-2 rounded-full transition flex items-center gap-1 cursor-pointer">
+                <a id="modal-tag-visit-btn" href="#" target="_blank" class="bg-[#8B0000] hover:bg-[#6B0000] text-gold-accent text-xs font-bold px-4 py-2 rounded-full transition flex items-center gap-1 cursor-pointer">
                     <span>Kunjungi Profil</span>
                     <span>→</span>
                 </a>
@@ -701,6 +759,55 @@
             </form>
         </div>
     </div>
+
+    <!-- ========================================================= -->
+    <!-- INTERACTIVE MODAL 4: UBAH MODE TAG (ADMIN)                -->
+    <!-- ========================================================= -->
+    <div id="change-mode-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/45 backdrop-blur-xs p-4">
+        <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl border border-[#ECE8E1]">
+            <div class="flex items-center justify-between pb-3 border-b border-[#ECE8E1]">
+                <div>
+                    <h3 class="text-base font-bold text-[#1A1A1A]">Ubah Mode Tag</h3>
+                    <p class="text-[11px] text-[#737373]">Setel mode mandiri untuk keping tag ini</p>
+                </div>
+                <button type="button" onclick="closeChangeModeModal()" class="text-[#8A8A85] hover:text-[#1A1A1A] p-1 cursor-pointer">✕</button>
+            </div>
+
+            <form id="change-mode-form" method="POST" action="" class="mt-4 space-y-4">
+                @csrf
+                <div class="bg-[#F8F7F4] p-3 rounded-2xl border border-[#ECE8E1] text-xs flex justify-between items-center">
+                    <span class="text-[#737373]">Kode Tag:</span>
+                    <strong id="change-mode-modal-code" class="text-maroon font-mono font-bold text-sm">FLX-XXXXXX</strong>
+                </div>
+
+                <div>
+                    <label for="admin-mode-select" class="block text-xs font-bold text-[#1A1A1A] mb-1.5">
+                        Pilih Mode Tampilan <span class="text-maroon">*</span>
+                    </label>
+                    <select 
+                        name="mode" 
+                        id="admin-mode-select" 
+                        required 
+                        class="w-full bg-[#F6F5F2] hover:bg-[#F2F1ED] focus:bg-white text-xs font-semibold text-[#1A1A1A] py-2.5 px-3.5 rounded-2xl border border-[#ECE8E1] focus:outline-none focus:ring-2 focus:ring-[#8B0000]/10 focus:border-[#8B0000] transition cursor-pointer"
+                    >
+                        <option value="kampus">🎓 Mode Kampus (Akademik)</option>
+                        <option value="kerja">💼 Mode Kerja (Portofolio & CV)</option>
+                        <option value="umkm">🏪 Mode UMKM (Katalog Produk & Toko)</option>
+                        <option value="hilang">🚨 Mode Barang Hilang (Kontak Darurat)</option>
+                    </select>
+                </div>
+
+                <div class="pt-2 flex justify-end gap-2 border-t border-[#ECE8E1]">
+                    <button type="button" onclick="closeChangeModeModal()" class="bg-[#F6F5F2] hover:bg-[#EAE8E3] text-[#1A1A1A] text-xs font-semibold px-4 py-2 rounded-full transition cursor-pointer">
+                        Batal
+                    </button>
+                    <button type="submit" class="bg-[#8B0000] hover:bg-[#6B0000] text-gold-accent text-xs font-bold px-5 py-2 rounded-full shadow-xs transition cursor-pointer">
+                        Simpan Mode
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
@@ -725,6 +832,17 @@
     // Close open menus when clicking anywhere outside
     window.addEventListener('click', function(e) {
         document.querySelectorAll('.action-menu').forEach(el => el.classList.add('hidden'));
+    });
+
+    // Close open menus and modals on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.action-menu').forEach(el => el.classList.add('hidden'));
+            closeTagDetailModal();
+            closePairingModal();
+            closeChangeModeModal();
+            closeNfcModal();
+        }
     });
 
     // Copy to clipboard helper
@@ -776,6 +894,21 @@
     }
     function closePairingModal() {
         document.getElementById('tag-pairing-modal').classList.add('hidden');
+    }
+
+    // Change Mode Modal Controls
+    function openChangeModeModal(tagId, tagCode, currentMode) {
+        document.getElementById('change-mode-modal-code').textContent = tagCode;
+        const select = document.getElementById('admin-mode-select');
+        if (select && currentMode) {
+            select.value = currentMode;
+        }
+        const form = document.getElementById('change-mode-form');
+        form.action = '{{ url("/admin/tags") }}/' + tagId + '/mode';
+        document.getElementById('change-mode-modal').classList.remove('hidden');
+    }
+    function closeChangeModeModal() {
+        document.getElementById('change-mode-modal').classList.add('hidden');
     }
 </script>
 @endpush

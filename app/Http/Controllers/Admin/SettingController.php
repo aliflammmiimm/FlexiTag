@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\Design;
 use App\Models\FinancialEntry;
+use App\Models\Order;
 use App\Models\Profile;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SettingController extends Controller
 {
@@ -65,8 +67,23 @@ class SettingController extends Controller
         $totalPengeluaran = (float) FinancialEntry::where('type', 'pengeluaran')->sum('amount');
         $saldoKas = $totalPemasukan - $totalPengeluaran;
 
-        $financialEntries = FinancialEntry::latest('entry_date')
-            ->latest('id')
+        $searchFinance = trim((string) $request->query('search_finance', ''));
+        $financeType = (string) $request->query('finance_type', 'all');
+
+        $financialQuery = FinancialEntry::latest('entry_date')->latest('id');
+
+        if ($searchFinance !== '') {
+            $financialQuery->where(function ($q) use ($searchFinance) {
+                $q->where('category', 'like', "%{$searchFinance}%")
+                    ->orWhere('note', 'like', "%{$searchFinance}%");
+            });
+        }
+
+        if ($financeType !== 'all' && in_array($financeType, ['pemasukan', 'pengeluaran'], true)) {
+            $financialQuery->where('type', $financeType);
+        }
+
+        $financialEntries = $financialQuery
             ->paginate(10, ['*'], 'finance_page')
             ->withQueryString();
 
@@ -82,7 +99,9 @@ class SettingController extends Controller
             'totalPemasukan',
             'totalPengeluaran',
             'saldoKas',
-            'financialEntries'
+            'financialEntries',
+            'searchFinance',
+            'financeType'
         ));
     }
 
@@ -374,5 +393,131 @@ class SettingController extends Controller
         AuditLog::record('delete_financial', "Entri pembukuan [{$desc}] dihapus");
 
         return redirect()->route('admin.settings', ['tab' => 'financial'])->with('success', "Entri transaksi '{$desc}' berhasil dihapus.");
+    }
+
+    /**
+     * Update an existing financial transaction entry.
+     */
+    public function updateFinancial(Request $request, FinancialEntry $entry): RedirectResponse
+    {
+        $validated = $request->validate([
+            'type' => ['required', 'in:pemasukan,pengeluaran'],
+            'amount' => ['required', 'numeric', 'min:1000'],
+            'category' => ['required', 'string', 'max:100'],
+            'entry_date' => ['required', 'date'],
+            'note' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        $entry->update($validated);
+
+        $formattedAmount = 'Rp '.number_format((float) $entry->amount, 0, ',', '.');
+        AuditLog::record('update_financial', "Transaksi kas #{$entry->id} ({$entry->type} {$formattedAmount}) diperbarui: {$entry->category}");
+
+        return redirect()->route('admin.settings', ['tab' => 'financial'])->with('success', "Transaksi pembukuan ({$formattedAmount}) berhasil diperbarui.");
+    }
+
+    /**
+     * Sinkronkan semua pesanan yang telah terbayar ke dalam buku kas operasional.
+     */
+    public function syncOrdersFinancial(Request $request): RedirectResponse
+    {
+        $paidStatuses = [
+            Order::STATUS_PEMBAYARAN_DIKONFIRMASI,
+            Order::STATUS_DESAIN_DISETUJUI,
+            Order::STATUS_DICETAK,
+            Order::STATUS_DIRAKIT_DAN_DIUJI,
+            Order::STATUS_SIAP_DIAMBIL_DIKIRIM,
+            Order::STATUS_SELESAI,
+        ];
+
+        $orders = Order::whereIn('status', $paidStatuses)->get();
+        $syncedCount = 0;
+
+        foreach ($orders as $order) {
+            $created = FinancialEntry::recordOrderPayment($order);
+            if ($created) {
+                $syncedCount++;
+            }
+        }
+
+        if ($syncedCount > 0) {
+            AuditLog::record('sync_orders_financial', "Sinkronisasi buku kas: {$syncedCount} transaksi pesanan terbayar berhasil dicatat.");
+
+            return redirect()->route('admin.settings', ['tab' => 'financial'])->with('success', "{$syncedCount} transaksi pesanan terbayar berhasil disinkronkan ke buku kas!");
+        }
+
+        return redirect()->route('admin.settings', ['tab' => 'financial'])->with('info', 'Semua pesanan yang terbayar sudah tercatat di buku kas operasional.');
+    }
+
+    /**
+     * Ekspor seluruh pembukuan kas operasional ke format CSV (Excel compatible).
+     */
+    public function exportFinancialCsv(Request $request): StreamedResponse
+    {
+        $searchFinance = trim((string) $request->query('search_finance', ''));
+        $financeType = (string) $request->query('finance_type', 'all');
+
+        $query = FinancialEntry::orderBy('entry_date', 'asc')->orderBy('id', 'asc');
+
+        if ($searchFinance !== '') {
+            $query->where(function ($q) use ($searchFinance) {
+                $q->where('category', 'like', "%{$searchFinance}%")
+                    ->orWhere('note', 'like', "%{$searchFinance}%");
+            });
+        }
+
+        if ($financeType !== 'all' && in_array($financeType, ['pemasukan', 'pengeluaran'], true)) {
+            $query->where('type', $financeType);
+        }
+
+        $entries = $query->get();
+
+        $fileName = 'buku-kas-flexitag-'.now()->format('Ymd-His').'.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$fileName}\"",
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0',
+        ];
+
+        return response()->stream(function () use ($entries) {
+            $handle = fopen('php://output', 'w');
+            fwrite($handle, "\xEF\xBB\xBF"); // UTF-8 BOM for Microsoft Excel
+
+            fputcsv($handle, [
+                'No',
+                'Tanggal',
+                'Tipe Mutasi',
+                'Kategori',
+                'Pemasukan (Rp)',
+                'Pengeluaran (Rp)',
+                'Saldo Kumulatif (Rp)',
+                'Keterangan / Catatan',
+            ]);
+
+            $runningBalance = 0;
+            $index = 1;
+
+            foreach ($entries as $entry) {
+                $pemasukan = $entry->type === 'pemasukan' ? (float) $entry->amount : 0;
+                $pengeluaran = $entry->type === 'pengeluaran' ? (float) $entry->amount : 0;
+                $runningBalance += ($pemasukan - $pengeluaran);
+
+                fputcsv($handle, [
+                    $index++,
+                    $entry->entry_date ? $entry->entry_date->format('Y-m-d') : '-',
+                    ucfirst($entry->type),
+                    $entry->category,
+                    $pemasukan > 0 ? $pemasukan : 0,
+                    $pengeluaran > 0 ? $pengeluaran : 0,
+                    $runningBalance,
+                    $entry->note ?? '-',
+                ]);
+            }
+
+            fclose($handle);
+        }, 200, $headers);
     }
 }

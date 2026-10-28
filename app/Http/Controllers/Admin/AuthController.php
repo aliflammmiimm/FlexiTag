@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -38,6 +39,16 @@ class AuthController extends Controller
             'password' => ['required', 'string'],
         ]);
 
+        $throttleKey = Str::transliterate($credentials['email'].'|'.$request->ip().'|admin');
+
+        if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
+            $seconds = RateLimiter::availableIn($throttleKey);
+
+            throw ValidationException::withMessages([
+                'email' => "Terlalu banyak percobaan masuk admin. Coba lagi dalam {$seconds} detik.",
+            ]);
+        }
+
         $remember = $request->boolean('remember');
 
         if (Auth::attempt($credentials, $remember)) {
@@ -47,6 +58,7 @@ class AuthController extends Controller
                 Auth::logout();
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
+                RateLimiter::hit($throttleKey, 300);
 
                 throw ValidationException::withMessages([
                     'email' => 'Akses ditolak. Akun ini tidak memiliki hak akses Pengelola/Admin.',
@@ -57,16 +69,20 @@ class AuthController extends Controller
                 Auth::logout();
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
+                RateLimiter::hit($throttleKey, 300);
 
                 throw ValidationException::withMessages([
                     'email' => 'Akun pengelola ini sedang dinonaktifkan. Hubungi Super Admin.',
                 ]);
             }
 
+            RateLimiter::clear($throttleKey);
             $request->session()->regenerate();
 
             return redirect()->route('admin.dashboard');
         }
+
+        RateLimiter::hit($throttleKey, 300);
 
         throw ValidationException::withMessages([
             'email' => 'Kombinasi email atau kata sandi tidak cocok dengan data pengelola.',

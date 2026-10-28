@@ -192,4 +192,42 @@ class TagActivationWizardTest extends TestCase
             'tag_id' => $tag->id,
         ]);
     }
+
+    public function test_user_with_existing_profile_smart_skips_step_three_to_step_four(): void
+    {
+        $user = User::factory()->create();
+        $user->profile()->create([
+            'display_name' => 'Baharuddin Lopa',
+            'headline' => 'Jaksa Agung / Dosen',
+            'active_mode' => 'kerja',
+        ]);
+
+        $tag = Tag::create([
+            'tag_code' => 'FT-MULTI-01',
+            'activation_code' => 'KD-MULTI-88',
+            'status' => 'belum_aktif',
+            'user_id' => null,
+            'produced_at' => now(),
+        ]);
+
+        $response = $this->actingAs($user)->post(route('user.activation.store'), [
+            'activation_code' => 'KD-MULTI-88',
+        ]);
+
+        $response->assertRedirect(route('user.activation.show', ['step' => 4]));
+        $response->assertSessionHas('status');
+
+        $this->assertDatabaseHas('tags', [
+            'id' => $tag->id,
+            'user_id' => $user->id,
+            'status' => 'aktif',
+        ]);
+
+        // Pastikan konfigurasi profil lama tetap terjaga
+        $this->assertDatabaseHas('profiles', [
+            'user_id' => $user->id,
+            'display_name' => 'Baharuddin Lopa',
+            'active_mode' => 'kerja',
+        ]);
+    }
 }

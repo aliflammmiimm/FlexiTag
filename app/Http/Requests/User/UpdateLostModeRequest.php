@@ -23,9 +23,11 @@ class UpdateLostModeRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'nama_barang' => ['nullable', 'string', 'max:150'],
             'message' => ['required', 'string', 'min:5', 'max:250'],
             'relay_phone' => ['required', 'string', 'min:8', 'max:25'],
             'reward' => ['nullable', 'string', 'max:100'],
+            'instruksi_pengembalian' => ['nullable', 'string', 'max:250'],
             'form_enabled' => ['nullable', 'boolean'],
             'share_location' => ['nullable', 'boolean'],
             'activate_mode' => ['nullable', 'boolean'],
@@ -40,6 +42,7 @@ class UpdateLostModeRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'nama_barang.max' => 'Nama barang maksimal 150 karakter.',
             'message.required' => 'Pesan penemuan barang darurat wajib diisi.',
             'message.min' => 'Pesan penemuan minimal 5 karakter.',
             'message.max' => 'Pesan penemuan maksimal 250 karakter.',
@@ -47,6 +50,7 @@ class UpdateLostModeRequest extends FormRequest
             'relay_phone.min' => 'Nomor HP penerima relay minimal 8 digit.',
             'relay_phone.max' => 'Nomor HP penerima relay maksimal 25 karakter.',
             'reward.max' => 'Informasi imbalan maksimal 100 karakter.',
+            'instruksi_pengembalian.max' => 'Arahan pengembalian maksimal 250 karakter.',
         ];
     }
 }

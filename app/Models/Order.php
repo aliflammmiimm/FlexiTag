@@ -12,6 +12,7 @@ class Order extends Model
 
     protected $fillable = [
         'order_no',
+        'channel',
         'customer_name',
         'whatsapp',
         'email',
@@ -24,6 +25,10 @@ class Order extends Model
         'quantity',
         'unit_price',
         'total',
+        'payment_method',
+        'snap_token',
+        'payment_payload',
+        'paid_at',
         'status',
         'design_file_path',
         'payment_proof_path',
@@ -33,6 +38,8 @@ class Order extends Model
         'quantity' => 'integer',
         'unit_price' => 'decimal:2',
         'total' => 'decimal:2',
+        'payment_payload' => 'array',
+        'paid_at' => 'datetime',
     ];
 
     /**
@@ -133,5 +140,50 @@ class Order extends Model
     public function statusLogs(): HasMany
     {
         return $this->hasMany(OrderStatusLog::class, 'order_id')->orderBy('changed_at', 'desc');
+    }
+
+    /**
+     * Tags (NFC Keychain Hardware) assigned to this order.
+     */
+    public function tags(): HasMany
+    {
+        return $this->hasMany(Tag::class, 'order_id');
+    }
+
+    /**
+     * Generate unique Order Number: ORD-YYYY-XXXX
+     */
+    public static function generateOrderNo(): string
+    {
+        $year = date('Y');
+        $count = self::whereYear('created_at', $year)->count() + 1;
+        $orderNo = sprintf('ORD-%s-%04d', $year, $count);
+
+        while (self::where('order_no', $orderNo)->exists()) {
+            $count++;
+            $orderNo = sprintf('ORD-%s-%04d', $year, $count);
+        }
+
+        return $orderNo;
+    }
+
+    /**
+     * Badge config for Online vs Offline order channel.
+     */
+    public function getChannelBadgeAttribute(): array
+    {
+        if ($this->channel === 'offline') {
+            return [
+                'label' => 'Offline / Langsung',
+                'bg_class' => 'bg-[#FEF5E7] text-[#A86414] border border-[#FAD7A0]',
+                'icon' => 'store',
+            ];
+        }
+
+        return [
+            'label' => 'Online Web',
+            'bg_class' => 'bg-[#EBF5FB] text-[#1E70A0] border border-[#BAE6FD]',
+            'icon' => 'globe',
+        ];
     }
 }

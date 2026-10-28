@@ -23,104 +23,127 @@ class AnalyticsController extends Controller
 
         [$startDate, $prevStartDate, $prevEndDate, $daysCount, $rangeLabel] = $this->resolveDateRange($range);
 
-        // 1. Metric: Total Tap & Growth Rate
-        $currentTapsCount = Tap::where('tapped_at', '>=', $startDate)->count();
-        $previousTapsCount = Tap::whereBetween('tapped_at', [$prevStartDate, $prevEndDate])->count();
+        // 1. Metric: Total Tap & Growth Rate (Real database queries)
+        $currentTapsQuery = Tap::query();
+        if ($startDate) {
+            $currentTapsQuery->where('tapped_at', '>=', $startDate);
+        }
+        $currentTapsCount = $currentTapsQuery->count();
 
-        // If newly installed/seeded and counts are low, maintain realistic baselines
-        $displayTotalTaps = max(3420, $currentTapsCount > 0 ? $currentTapsCount * 45 : 3420);
+        $previousTapsCount = 0;
+        if ($prevStartDate && $prevEndDate) {
+            $previousTapsCount = Tap::whereBetween('tapped_at', [$prevStartDate, $prevEndDate])->count();
+        }
 
         if ($previousTapsCount > 0) {
             $diff = (($currentTapsCount - $previousTapsCount) / $previousTapsCount) * 100;
             $growthRate = ($diff >= 0 ? '+' : '').round($diff, 1).'%';
+            $isGrowthPositive = $diff >= 0;
+        } elseif ($currentTapsCount > 0) {
+            $growthRate = '+100%';
+            $isGrowthPositive = true;
         } else {
-            $growthRate = '+18.4%';
+            $growthRate = '0%';
+            $isGrowthPositive = true;
         }
 
         // 2. Metric: Rata-Rata Tap Harian & Peak Hours
-        $avgDailyTap = max(114, round($displayTotalTaps / max(1, $daysCount)));
+        $avgDailyTap = $daysCount > 0 ? round($currentTapsCount / $daysCount, 1) : 0;
 
-        // Determine Peak Hours from actual taps or Sulsel timezone baseline (WITA)
-        $peakHourBucket = Tap::where('tapped_at', '>=', $startDate)
+        // Determine Peak Hours from actual taps in Sulsel timezone (WITA)
+        $peakHourQuery = Tap::query();
+        if ($startDate) {
+            $peakHourQuery->where('tapped_at', '>=', $startDate);
+        }
+        $peakHourBucket = $peakHourQuery
             ->selectRaw('HOUR(tapped_at) as tap_hour, count(*) as count')
             ->groupBy('tap_hour')
             ->orderByDesc('count')
             ->first();
 
-        if ($peakHourBucket && $peakHourBucket->tap_hour) {
+        if ($peakHourBucket && $peakHourBucket->tap_hour !== null && $currentTapsCount > 0) {
             $startHour = str_pad($peakHourBucket->tap_hour, 2, '0', STR_PAD_LEFT);
-            $endHour = str_pad(($peakHourBucket->tap_hour + 3) % 24, 2, '0', STR_PAD_LEFT);
+            $endHour = str_pad(($peakHourBucket->tap_hour + 2) % 24, 2, '0', STR_PAD_LEFT);
             $peakHoursText = "Puncak {$startHour}.00 – {$endHour}.00 WITA";
         } else {
-            $peakHoursText = 'Puncak 12.00 – 15.00 WITA';
+            $peakHoursText = 'Puncak 12.00 – 14.00 WITA';
         }
 
         // 3. Metric: Panggilan Relay Darurat (Mode Barang Hilang)
-        $emergencyCasesCount = DB::table('messages')->where('type', 'lost_item')->count();
-        $emergencyCases = max(5, $emergencyCasesCount);
+        $emergencyCasesQuery = DB::table('messages')->where('type', 'lost_item');
+        if ($startDate) {
+            $emergencyCasesQuery->where('created_at', '>=', $startDate);
+        }
+        $emergencyCasesCount = $emergencyCasesQuery->count();
+
+        // Count resolved/read messages
+        $emergencyReadQuery = DB::table('messages')->where('type', 'lost_item')->whereNotNull('read_at');
+        if ($startDate) {
+            $emergencyReadQuery->where('created_at', '>=', $startDate);
+        }
+        $emergencyReadCount = $emergencyReadQuery->count();
+
+        if ($emergencyCasesCount > 0) {
+            $respPct = round(($emergencyReadCount / $emergencyCasesCount) * 100);
+            $emergencyLabel = "{$emergencyReadCount} Selesai";
+            $emergencyResponse = "{$respPct}% respons Mode Barang Hilang terhubung";
+        } else {
+            $emergencyLabel = '0 Laporan Aktif';
+            $emergencyResponse = 'Mode Barang Hilang siaga aktif';
+        }
 
         $metrics = [
-            'total_tap' => number_format($displayTotalTaps, 0, ',', '.'),
+            'total_tap' => number_format($currentTapsCount, 0, ',', '.'),
             'growth_rate' => $growthRate,
+            'is_growth_positive' => $isGrowthPositive,
             'growth_label' => 'vs periode sebelumnya',
-            'avg_daily_tap' => number_format($avgDailyTap, 0, ',', '.'),
+            'avg_daily_tap' => number_format($avgDailyTap, 1, ',', '.'),
             'peak_hours' => $peakHoursText,
-            'emergency_cases' => $emergencyCases,
-            'emergency_label' => 'Kasus Selesai',
-            'emergency_response' => '100% respons Mode Barang Hilang terhubung',
+            'emergency_cases' => $emergencyCasesCount,
+            'emergency_label' => $emergencyLabel,
+            'emergency_response' => $emergencyResponse,
         ];
 
         // 4. Trend Data Curve (7 Data Points across chosen range)
         $xCoords = [45, 140, 235, 335, 435, 520, 615];
         $trendData = [];
-        $intervalDays = $daysCount / 6;
+        $intervalDays = max(1, $daysCount / 6);
+        $chartStart = $startDate ?? now()->subDays(30);
+
+        $maxTaps = 0;
+        $peakIndex = 0;
 
         for ($i = 0; $i < 7; $i++) {
-            $pointDate = $startDate->copy()->addDays((int) round($i * $intervalDays));
-            $nextDate = $pointDate->copy()->addDays((int) max(1, round($intervalDays)));
+            $pointDate = $chartStart->copy()->addDays((int) round($i * $intervalDays));
+            $nextDate = $i === 6 ? now() : $pointDate->copy()->addDays((int) max(1, round($intervalDays)));
 
             $tapsInWindow = Tap::whereBetween('tapped_at', [$pointDate->copy()->startOfDay(), $nextDate->copy()->endOfDay()])->count();
 
-            // Calibrate with realistic curve multipliers
-            $simulatedTaps = match ($i) {
-                0 => max(25, $tapsInWindow * 8),
-                1 => max(55, $tapsInWindow * 12),
-                2 => max(82, $tapsInWindow * 16),
-                3 => max(126, $tapsInWindow * 22),
-                4 => max(174, $tapsInWindow * 28),
-                5 => max(184, $tapsInWindow * 32), // Peak
-                6 => max(172, $tapsInWindow * 30),
-                default => 100,
-            };
+            if ($tapsInWindow > $maxTaps) {
+                $maxTaps = $tapsInWindow;
+                $peakIndex = $i;
+            }
 
             $trendData[] = [
-                'date' => $pointDate->translatedFormat('d M'),
-                'full_date' => $pointDate->translatedFormat('d M Y'),
-                'taps' => $simulatedTaps,
+                'date' => $pointDate->locale('id')->translatedFormat('d M'),
+                'full_date' => $pointDate->locale('id')->translatedFormat('d M Y'),
+                'taps' => $tapsInWindow,
                 'x' => $xCoords[$i],
                 'y' => 205, // computed below
                 'is_peak' => false,
             ];
         }
 
-        // Determine Peak
-        $peakIndex = 5;
-        $maxTaps = 0;
-        foreach ($trendData as $idx => $pt) {
-            if ($pt['taps'] > $maxTaps) {
-                $maxTaps = $pt['taps'];
-                $peakIndex = $idx;
-            }
-        }
-
         // Scale y-coordinates: y=205 is 0, y=45 is $maxScale
-        $maxScale = max(200, (int) (ceil($maxTaps / 50) * 50));
+        $maxScale = max(10, (int) (ceil(($maxTaps ?: 10) / 10) * 10));
         foreach ($trendData as $idx => &$pt) {
             $pt['y'] = (int) round(205 - (($pt['taps'] / $maxScale) * 160));
             $pt['y'] = max(45, min(200, $pt['y']));
-            if ($idx === $peakIndex) {
+            if ($idx === $peakIndex && $maxTaps > 0) {
                 $pt['is_peak'] = true;
-                $pt['peak_label'] = "{$pt['taps']} Tap (Peak)";
+                $pt['peak_label'] = "{$pt['taps']} Tap (Puncak)";
+            } else {
+                $pt['peak_label'] = "{$pt['taps']} Tap";
             }
         }
         unset($pt);
@@ -138,16 +161,45 @@ class AnalyticsController extends Controller
             'y50' => (int) round($maxScale * 0.25),
         ];
 
-        // 5. Mode Distribution Breakdown (profiles & taps)
-        $modeCounts = Profile::select('active_mode', DB::raw('count(*) as count'))
-            ->groupBy('active_mode')
-            ->pluck('count', 'active_mode')
-            ->toArray();
+        // 5. Mode Distribution Breakdown (calculated from actual taps with tag/profile mode)
+        $tapsWithTags = Tap::query();
+        if ($startDate) {
+            $tapsWithTags->where('tapped_at', '>=', $startDate);
+        }
+        $tapsRecords = $tapsWithTags->with(['tag.user.profile'])->get();
+
+        $modeTapCounts = [
+            'kampus' => 0,
+            'umkm' => 0,
+            'kerja' => 0,
+            'hilang' => 0,
+        ];
+
+        foreach ($tapsRecords as $tap) {
+            $m = $tap->tag?->mode ?: ($tap->tag?->user?->profile?->active_mode ?? 'kampus');
+            if (! array_key_exists($m, $modeTapCounts)) {
+                $m = 'kampus';
+            }
+            $modeTapCounts[$m]++;
+        }
+
+        // If no taps in period, fall back to registered tag mode proportions
+        $totalModeTaps = array_sum($modeTapCounts);
+        if ($totalModeTaps === 0) {
+            $tagsByMode = DB::table('tags')->where('status', 'aktif')->select('mode', DB::raw('count(*) as count'))->groupBy('mode')->pluck('count', 'mode')->toArray();
+            $totalActiveTags = array_sum($tagsByMode);
+            if ($totalActiveTags > 0) {
+                foreach ($tagsByMode as $k => $c) {
+                    if (array_key_exists($k, $modeTapCounts)) {
+                        $modeTapCounts[$k] = $c;
+                    }
+                }
+            }
+        }
 
         $modeConfigs = [
             'kampus' => [
                 'name' => 'Mode Kampus',
-                'default_pct' => 45,
                 'color' => '#540404',
                 'badge_bg' => 'bg-[#F7EBEB]',
                 'badge_text' => 'text-[#540404]',
@@ -155,7 +207,6 @@ class AnalyticsController extends Controller
             ],
             'umkm' => [
                 'name' => 'Mode UMKM & Bisnis',
-                'default_pct' => 30,
                 'color' => '#D4AF37',
                 'badge_bg' => 'bg-[#FCF5E3]',
                 'badge_text' => 'text-[#8C6D23]',
@@ -163,7 +214,6 @@ class AnalyticsController extends Controller
             ],
             'kerja' => [
                 'name' => 'Mode Kerja & Portofolio',
-                'default_pct' => 15,
                 'color' => '#1A1A1A',
                 'badge_bg' => 'bg-[#F2EEE9]',
                 'badge_text' => 'text-[#1A1A1A]',
@@ -171,7 +221,6 @@ class AnalyticsController extends Controller
             ],
             'hilang' => [
                 'name' => 'Mode Barang Hilang',
-                'default_pct' => 10,
                 'color' => '#A39E93',
                 'badge_bg' => 'bg-[#F0ECE7]',
                 'badge_text' => 'text-[#666666]',
@@ -179,19 +228,21 @@ class AnalyticsController extends Controller
             ],
         ];
 
-        $totalProfiles = array_sum($modeCounts);
+        $totalTapsForDonut = array_sum($modeTapCounts);
         $circumference = 364.42; // 2 * PI * 58
         $accumulatedPct = 0;
         $modeBreakdown = [];
+        $highestModeCount = -1;
+        $mostActiveMode = ['name' => 'Mode Kampus'];
 
         foreach ($modeConfigs as $modeKey => $config) {
-            if ($totalProfiles > 0 && isset($modeCounts[$modeKey])) {
-                $pct = round(($modeCounts[$modeKey] / $totalProfiles) * 100);
-            } else {
-                $pct = $config['default_pct'];
-            }
+            $count = $modeTapCounts[$modeKey];
+            $pct = $totalTapsForDonut > 0 ? (int) round(($count / $totalTapsForDonut) * 100) : 0;
 
-            $modeTaps = (int) round(($pct / 100) * $displayTotalTaps);
+            if ($count > $highestModeCount) {
+                $highestModeCount = $count;
+                $mostActiveMode = $config;
+            }
 
             $strokeLength = round(($pct / 100) * $circumference, 2);
             $offset = round(-($accumulatedPct / 100) * $circumference, 2);
@@ -199,7 +250,7 @@ class AnalyticsController extends Controller
 
             $modeBreakdown[] = [
                 'name' => $config['name'],
-                'taps' => number_format($modeTaps, 0, ',', '.'),
+                'taps' => number_format($count, 0, ',', '.'),
                 'percentage' => $pct,
                 'color' => $config['color'],
                 'badge_bg' => $config['badge_bg'],
@@ -210,23 +261,17 @@ class AnalyticsController extends Controller
             ];
         }
 
-        // Most frequent mode
-        $mostActiveMode = $modeBreakdown[0] ?? ['name' => 'Mode Kampus'];
-
         // 6. Geographic concentration in South Sulawesi
-        $dbRegions = Tap::where('tapped_at', '>=', $startDate)
+        $regionQuery = Tap::query();
+        if ($startDate) {
+            $regionQuery->where('tapped_at', '>=', $startDate);
+        }
+        $dbRegions = $regionQuery
             ->whereNotNull('region')
             ->select('region', DB::raw('count(*) as count'))
             ->groupBy('region')
             ->orderByDesc('count')
             ->get();
-
-        $defaultRegions = [
-            ['name' => 'Kota Makassar', 'badge' => 'PUSAT UTAMA', 'badge_class' => 'bg-[#F7EBEB] text-[#540404]', 'bar_color' => 'bg-[#540404]', 'pct' => 60, 'taps' => 2052],
-            ['name' => 'Kab. Pangkep', 'badge' => null, 'badge_class' => '', 'bar_color' => 'bg-[#C49A5E]', 'pct' => 20, 'taps' => 684],
-            ['name' => 'Kab. Gowa', 'badge' => null, 'badge_class' => '', 'bar_color' => 'bg-[#1A1A1A]', 'pct' => 12, 'taps' => 410],
-            ['name' => 'Tana Toraja', 'badge' => 'HERITAGE TAG', 'badge_class' => 'bg-[#FCF5E3] text-[#8C6D23]', 'bar_color' => 'bg-[#E5BC50]', 'pct' => 8, 'taps' => 274],
-        ];
 
         $regions = [];
         $rank = 1;
@@ -234,8 +279,7 @@ class AnalyticsController extends Controller
         if ($dbRegions->isNotEmpty()) {
             $totalRegionTaps = $dbRegions->sum('count');
             foreach ($dbRegions as $row) {
-                $pct = $totalRegionTaps > 0 ? (int) round(($row->count / $totalRegionTaps) * 100) : 25;
-                $displayRegionalTaps = (int) round(($pct / 100) * $displayTotalTaps);
+                $pct = $totalRegionTaps > 0 ? (int) round(($row->count / $totalRegionTaps) * 100) : 0;
 
                 $badge = null;
                 $badgeClass = '';
@@ -258,23 +302,23 @@ class AnalyticsController extends Controller
                     'name' => $row->region,
                     'badge' => $badge,
                     'badge_class' => $badgeClass,
-                    'taps' => number_format($displayRegionalTaps, 0, ',', '.').' tap',
+                    'taps' => number_format($row->count, 0, ',', '.').' tap',
                     'percentage' => $pct,
                     'bar_color' => $barColor,
                 ];
             }
-        }
-
-        if (empty($regions)) {
-            foreach ($defaultRegions as $def) {
+        } else {
+            // Default regional empty state / reference regions with 0
+            $defaultRegions = ['Kota Makassar', 'Kab. Gowa', 'Kab. Pangkep', 'Tana Toraja'];
+            foreach ($defaultRegions as $regName) {
                 $regions[] = [
                     'rank' => $rank++,
-                    'name' => $def['name'],
-                    'badge' => $def['badge'],
-                    'badge_class' => $def['badge_class'],
-                    'taps' => number_format($def['taps'], 0, ',', '.').' tap',
-                    'percentage' => $def['pct'],
-                    'bar_color' => $def['bar_color'],
+                    'name' => $regName,
+                    'badge' => $regName === 'Kota Makassar' ? 'PUSAT UTAMA' : ($regName === 'Tana Toraja' ? 'HERITAGE TAG' : null),
+                    'badge_class' => $regName === 'Kota Makassar' ? 'bg-[#F7EBEB] text-[#540404]' : 'bg-[#FCF5E3] text-[#8C6D23]',
+                    'taps' => '0 tap',
+                    'percentage' => 0,
+                    'bar_color' => 'bg-[#ECE8E1]',
                 ];
             }
         }
@@ -302,10 +346,14 @@ class AnalyticsController extends Controller
         $range = $request->query('range', '30_days');
         [$startDate, , , , $rangeLabel] = $this->resolveDateRange($range);
 
-        $taps = Tap::with(['tag.user.profile'])
-            ->where('tapped_at', '>=', $startDate)
-            ->orderByDesc('tapped_at')
-            ->get();
+        $tapsQuery = Tap::with(['tag.user.profile'])
+            ->orderByDesc('tapped_at');
+
+        if ($startDate) {
+            $tapsQuery->where('tapped_at', '>=', $startDate);
+        }
+
+        $taps = $tapsQuery->get();
 
         // Record sensitive administrative action in audit log (FR-ADM-10)
         AuditLog::record('export_telemetry_csv', "Laporan telemetri NFC diekspor ({$taps->count()} baris, rentang: {$rangeLabel})");
@@ -329,13 +377,13 @@ class AnalyticsController extends Controller
             ]);
 
             foreach ($taps as $tap) {
-                $profile = $tap->tag?->user?->profile;
-                $activeMode = match ($profile?->active_mode) {
+                $modeKey = $tap->tag?->mode ?: ($tap->tag?->user?->profile?->active_mode ?? 'kampus');
+                $activeMode = match ($modeKey) {
                     'kampus' => 'Mode Kampus',
                     'umkm' => 'Mode UMKM & Bisnis',
-                    'kerja' => 'Mode Kerja',
+                    'kerja' => 'Mode Kerja & Portofolio',
                     'hilang' => 'Mode Barang Hilang',
-                    default => 'Belum Diatur',
+                    default => 'Mode Kampus',
                 };
 
                 fputcsv($handle, [
@@ -360,7 +408,7 @@ class AnalyticsController extends Controller
     /**
      * Resolve date bounds based on time range query parameter.
      *
-     * @return array{0: Carbon, 1: Carbon, 2: Carbon, 3: int, 4: string}
+     * @return array{0: Carbon|null, 1: Carbon|null, 2: Carbon|null, 3: int, 4: string}
      */
     private function resolveDateRange(string $range): array
     {
@@ -385,6 +433,13 @@ class AnalyticsController extends Controller
                 now()->subYear()->endOfYear(),
                 max(1, (int) now()->dayOfYear),
                 'Tahun Ini',
+            ],
+            'all' => [
+                null,
+                null,
+                null,
+                max(30, (int) now()->diffInDays(Carbon::create(2026, 1, 1))),
+                'Semua Waktu',
             ],
             default => [
                 now()->subDays(30),

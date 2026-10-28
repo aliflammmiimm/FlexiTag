@@ -16,7 +16,9 @@ class Tag extends Model
         'tag_code',
         'activation_code',
         'user_id',
+        'order_id',
         'status',
+        'mode',
         'disabled_by',
         'batch_id',
         'produced_at',
@@ -31,6 +33,11 @@ class Tag extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function order(): BelongsTo
+    {
+        return $this->belongsTo(Order::class, 'order_id');
     }
 
     public function taps(): HasMany

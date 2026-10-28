@@ -10,7 +10,7 @@
                 Analitik Interaksi NFC
             </h2>
             <p class="text-xs text-[#737373] mt-1 font-normal max-w-2xl leading-relaxed">
-                Pantau intensitas pemindaian chip NTAG215, tren interaksi publik, dan efektivitas relay darurat di seluruh Sulawesi Selatan.
+                Pantau intensitas pemindaian chip NTAG213 / NTAG215, tren interaksi publik, dan efektivitas relay darurat di seluruh Sulawesi Selatan.
             </p>
         </div>
 
@@ -37,11 +37,28 @@
                 </button>
 
                 <!-- Dropdown Menu -->
-                <div id="date-range-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-[#ECE8E1] py-1.5 z-40 text-xs">
-                    <a href="{{ route('admin.analytics', ['range' => '7_days']) }}" class="block px-4 py-2 hover:bg-[#F6F5F2] {{ $range === '7_days' ? 'font-bold text-maroon' : 'text-[#4A4A4A]' }}">7 Hari Terakhir</a>
-                    <a href="{{ route('admin.analytics', ['range' => '30_days']) }}" class="block px-4 py-2 hover:bg-[#F6F5F2] {{ $range === '30_days' || empty($range) ? 'font-bold text-maroon' : 'text-[#4A4A4A]' }}">30 Hari Terakhir</a>
-                    <a href="{{ route('admin.analytics', ['range' => '90_days']) }}" class="block px-4 py-2 hover:bg-[#F6F5F2] {{ $range === '90_days' ? 'font-bold text-maroon' : 'text-[#4A4A4A]' }}">90 Hari Terakhir</a>
-                    <a href="{{ route('admin.analytics', ['range' => 'year']) }}" class="block px-4 py-2 hover:bg-[#F6F5F2] {{ $range === 'year' ? 'font-bold text-maroon' : 'text-[#4A4A4A]' }}">Tahun Ini</a>
+                <div id="date-range-dropdown" class="hidden absolute right-0 mt-2 w-52 max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-xl border border-[#ECE8E1] py-1.5 z-40 text-xs">
+                    <a href="{{ route('admin.analytics', ['range' => '7_days']) }}" class="flex items-center justify-between px-4 py-2 hover:bg-[#F6F5F2] {{ $range === '7_days' ? 'font-bold text-maroon bg-[#FBF7F7]' : 'text-[#4A4A4A]' }}">
+                        <span>7 Hari Terakhir</span>
+                        @if ($range === '7_days') <span class="text-maroon">✓</span> @endif
+                    </a>
+                    <a href="{{ route('admin.analytics', ['range' => '30_days']) }}" class="flex items-center justify-between px-4 py-2 hover:bg-[#F6F5F2] {{ $range === '30_days' || empty($range) ? 'font-bold text-maroon bg-[#FBF7F7]' : 'text-[#4A4A4A]' }}">
+                        <span>30 Hari Terakhir</span>
+                        @if ($range === '30_days' || empty($range)) <span class="text-maroon">✓</span> @endif
+                    </a>
+                    <a href="{{ route('admin.analytics', ['range' => '90_days']) }}" class="flex items-center justify-between px-4 py-2 hover:bg-[#F6F5F2] {{ $range === '90_days' ? 'font-bold text-maroon bg-[#FBF7F7]' : 'text-[#4A4A4A]' }}">
+                        <span>90 Hari Terakhir</span>
+                        @if ($range === '90_days') <span class="text-maroon">✓</span> @endif
+                    </a>
+                    <a href="{{ route('admin.analytics', ['range' => 'year']) }}" class="flex items-center justify-between px-4 py-2 hover:bg-[#F6F5F2] {{ $range === 'year' ? 'font-bold text-maroon bg-[#FBF7F7]' : 'text-[#4A4A4A]' }}">
+                        <span>Tahun Ini</span>
+                        @if ($range === 'year') <span class="text-maroon">✓</span> @endif
+                    </a>
+                    <div class="border-t border-[#F2EEE9] my-1"></div>
+                    <a href="{{ route('admin.analytics', ['range' => 'all']) }}" class="flex items-center justify-between px-4 py-2 hover:bg-[#F6F5F2] {{ $range === 'all' ? 'font-bold text-maroon bg-[#FBF7F7]' : 'text-[#4A4A4A]' }}">
+                        <span>Semua Waktu</span>
+                        @if ($range === 'all') <span class="text-maroon">✓</span> @endif
+                    </a>
                 </div>
             </div>
 
@@ -85,13 +102,23 @@
 
             <!-- Footer Badge -->
             <div class="mt-4 pt-3 flex items-center">
-                <span class="inline-flex items-center gap-1.5 bg-[#EAF5EC] text-[#2E7D32] text-[11px] font-bold px-3 py-1 rounded-full">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25"/>
-                    </svg>
-                    <span>{{ $metrics['growth_rate'] }}</span>
-                    <span class="font-normal text-[#4A7C52] ml-0.5">{{ $metrics['growth_label'] }}</span>
-                </span>
+                @if ($metrics['is_growth_positive'])
+                    <span class="inline-flex items-center gap-1.5 bg-[#EAF5EC] text-[#2E7D32] text-[11px] font-bold px-3 py-1 rounded-full">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25"/>
+                        </svg>
+                        <span>{{ $metrics['growth_rate'] }}</span>
+                        <span class="font-normal text-[#4A7C52] ml-0.5">{{ $metrics['growth_label'] }}</span>
+                    </span>
+                @else
+                    <span class="inline-flex items-center gap-1.5 bg-[#FBE8E8] text-maroon text-[11px] font-bold px-3 py-1 rounded-full">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 4.5l15 15m0 0V8.25m0 11.25H8.25"/>
+                        </svg>
+                        <span>{{ $metrics['growth_rate'] }}</span>
+                        <span class="font-normal text-maroon/75 ml-0.5">{{ $metrics['growth_label'] }}</span>
+                    </span>
+                @endif
             </div>
         </div>
 
@@ -236,7 +263,9 @@
                     <text x="30" y="209" fill="#999999" font-size="11" font-weight="500" text-anchor="end">0</text>
 
                     <!-- Vertical Dotted Line for Peak -->
-                    <line x1="{{ $peakPoint['x'] }}" y1="{{ $peakPoint['y'] }}" x2="{{ $peakPoint['x'] }}" y2="205" stroke="#D4AF37" stroke-width="1.5" stroke-dasharray="3,3" />
+                    @if ($peakPoint['is_peak'])
+                        <line x1="{{ $peakPoint['x'] }}" y1="{{ $peakPoint['y'] }}" x2="{{ $peakPoint['x'] }}" y2="205" stroke="#D4AF37" stroke-width="1.5" stroke-dasharray="3,3" />
+                    @endif
 
                     <!-- Area Fill Polygon Under Curve -->
                     <path 
@@ -260,23 +289,29 @@
                             <!-- Outer Halo -->
                             <circle cx="{{ $point['x'] }}" cy="{{ $point['y'] }}" r="9" fill="#D4AF37" fill-opacity="0.3" />
                             <!-- Gold Peak Node -->
-                            <circle cx="{{ $point['x'] }}" cy="{{ $point['y'] }}" r="5.5" fill="#D4AF37" stroke="#FFFFFF" stroke-width="2.2" class="cursor-pointer" />
+                            <circle cx="{{ $point['x'] }}" cy="{{ $point['y'] }}" r="5.5" fill="#D4AF37" stroke="#FFFFFF" stroke-width="2.2" class="cursor-pointer">
+                                <title>{{ $point['full_date'] }}: {{ $point['taps'] }} tap</title>
+                            </circle>
                         @else
-                            <circle cx="{{ $point['x'] }}" cy="{{ $point['y'] }}" r="4.5" fill="#FFFFFF" stroke="#540404" stroke-width="2.5" class="hover:r-6 cursor-pointer transition-all" />
+                            <circle cx="{{ $point['x'] }}" cy="{{ $point['y'] }}" r="4.5" fill="#FFFFFF" stroke="#540404" stroke-width="2.5" class="hover:r-6 cursor-pointer transition-all">
+                                <title>{{ $point['full_date'] }}: {{ $point['taps'] }} tap</title>
+                            </circle>
                         @endif
                     @endforeach
 
                     <!-- FLOATING TOOLTIP BOX (above Peak) -->
-                    <g transform="translate({{ $peakPoint['x'] }}, {{ max(28, $peakPoint['y'] - 22) }})">
-                        <!-- Tooltip Container Box -->
-                        <rect x="-48" y="-24" width="96" height="26" rx="6" fill="#380208" filter="url(#glow)" />
-                        <!-- Tooltip Pointer Arrow -->
-                        <polygon points="-4,2 4,2 0,6" fill="#380208" />
-                        <!-- Date text -->
-                        <text x="0" y="-12" fill="#F0C75E" font-size="8.5" font-weight="700" text-anchor="middle" letter-spacing="0.5">{{ strtoupper($peakPoint['full_date']) }}</text>
-                        <!-- Value text -->
-                        <text x="0" y="-2" fill="#FFFFFF" font-size="9.5" font-weight="800" text-anchor="middle">{{ $peakPoint['peak_label'] }}</text>
-                    </g>
+                    @if ($peakPoint['is_peak'])
+                        <g transform="translate({{ $peakPoint['x'] }}, {{ max(28, $peakPoint['y'] - 22) }})">
+                            <!-- Tooltip Container Box -->
+                            <rect x="-48" y="-24" width="96" height="26" rx="6" fill="#380208" filter="url(#glow)" />
+                            <!-- Tooltip Pointer Arrow -->
+                            <polygon points="-4,2 4,2 0,6" fill="#380208" />
+                            <!-- Date text -->
+                            <text x="0" y="-12" fill="#F0C75E" font-size="8.5" font-weight="700" text-anchor="middle" letter-spacing="0.5">{{ strtoupper($peakPoint['full_date']) }}</text>
+                            <!-- Value text -->
+                            <text x="0" y="-2" fill="#FFFFFF" font-size="9.5" font-weight="800" text-anchor="middle">{{ $peakPoint['peak_label'] }}</text>
+                        </g>
+                    @endif
 
                     <!-- X-Axis Date Labels -->
                     @foreach ($trendData as $point)
@@ -350,7 +385,7 @@
                                 Total Tap
                             </span>
                             <span class="text-[9px] font-bold text-[#2E7D32] mt-0.5">
-                                100% Valid
+                                100% Sinkron
                             </span>
                         </div>
                     </div>
@@ -400,7 +435,7 @@
                         Wilayah Interaksi Terbanyak (Sulawesi Selatan)
                     </h3>
                     <p class="text-xs text-[#737373] mt-0.5 font-normal">
-                        Konsentrasi geolokasi node transmisi interaksi aktif
+                        Konsentrasi geolokasi transmisi interaksi aktif di Sulawesi Selatan
                     </p>
                 </div>
 
@@ -438,7 +473,7 @@
             <!-- Card Footer: Node Regional Connection Status -->
             <div class="border-t border-[#F2EEE9] pt-4 mt-6 flex items-center gap-2 text-xs text-[#737373]">
                 <span class="w-2 h-2 rounded-full bg-[#2E7D32] animate-pulse shrink-0"></span>
-                <span>Terhubung otomatis via Node Regional <strong class="text-[#1A1A1A]">Makassar Core-01</strong> (Latency &lt; 42ms)</span>
+                <span>Terhubung sinkron dengan database telemetri FlexiTag Sulawesi Selatan</span>
             </div>
 
         </div>
@@ -450,13 +485,21 @@
 <script>
     function toggleDateRangeDropdown() {
         const menu = document.getElementById('date-range-dropdown');
-        menu.classList.toggle('hidden');
+        if (menu) {
+            menu.classList.toggle('hidden');
+        }
     }
 
     window.addEventListener('click', function(e) {
         const dropdown = document.getElementById('date-range-dropdown');
         if (dropdown && !dropdown.contains(e.target) && !e.target.closest('button[onclick="toggleDateRangeDropdown()"]')) {
             dropdown.classList.add('hidden');
+        }
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            document.getElementById('date-range-dropdown')?.classList.add('hidden');
         }
     });
 </script>

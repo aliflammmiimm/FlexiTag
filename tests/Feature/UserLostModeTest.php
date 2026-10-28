@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Message;
 use App\Models\Profile;
 use App\Models\Tag;
 use App\Models\User;
@@ -257,5 +258,179 @@ class UserLostModeTest extends TestCase
         $response->assertDontSee('Enkripsi 256-bit');
         $response->assertSee('Privasi Terlindungi');
         $response->assertSee('Nomor kontak pribadi pemilik tidak ditampilkan langsung');
+    }
+
+    /**
+     * 12. Floating Box Modal pada Dashboard menampilkan pesan penemuan barang dan status unread.
+     */
+    public function test_owner_inbox_displays_lost_item_messages(): void
+    {
+        $user = User::factory()->create();
+        Profile::create([
+            'user_id' => $user->id,
+            'display_name' => 'Owner Testing',
+            'active_mode' => 'hilang',
+        ]);
+
+        Tag::create([
+            'tag_code' => 'FT-TEST01',
+            'activation_code' => 'ACT-TEST01',
+            'status' => 'aktif',
+            'user_id' => $user->id,
+        ]);
+
+        $message = Message::create([
+            'type' => 'lost_item',
+            'user_id' => $user->id,
+            'sender_name' => 'Budi Penemu',
+            'location' => 'Kantin Teknik Unhas Gowa',
+            'message' => 'Gantungan kunci ditemukan di meja kantin lantai 2.',
+            'contact' => '082199887766',
+            'read_at' => null,
+            'created_at' => now(),
+        ]);
+
+        $response = $this->actingAs($user)->get(route('user.dashboard'));
+
+        $response->assertStatus(200);
+        $response->assertSee('modalLostReports');
+        $response->assertSee('Laporan Penemuan Barang');
+        $response->assertSee('1 Baru');
+        $response->assertSee('Budi Penemu');
+        $response->assertSee('Kantin Teknik Unhas Gowa');
+        $response->assertSee('Gantungan kunci ditemukan di meja kantin lantai 2.');
+        $response->assertSee('Hubungi Penemu (082199887766)');
+        $response->assertSee('Tandai Dibaca');
+    }
+
+    /**
+     * 13. Pemilik dapat menandai pesan sebagai dibaca via endpoint AJAX.
+     */
+    public function test_owner_can_mark_message_as_read_via_ajax(): void
+    {
+        $user = User::factory()->create();
+
+        $message = Message::create([
+            'type' => 'lost_item',
+            'user_id' => $user->id,
+            'sender_name' => 'Ahmad Penemu',
+            'location' => 'Pantai Losari Makassar',
+            'message' => 'Barang aman dititip di pos security.',
+            'contact' => '081234567890',
+            'read_at' => null,
+            'created_at' => now(),
+        ]);
+
+        $response = $this->actingAs($user)->postJson(route('user.lost-mode.messages.read', $message->id));
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'message' => 'Pesan telah ditandai sebagai dibaca.',
+            ]);
+
+        $this->assertNotNull($message->fresh()->read_at);
+    }
+
+    /**
+     * 14. Pemilik dapat menandai semua pesan sebagai dibaca sekaligus.
+     */
+    public function test_owner_can_mark_all_messages_as_read(): void
+    {
+        $user = User::factory()->create();
+
+        $msg1 = Message::create([
+            'type' => 'lost_item',
+            'user_id' => $user->id,
+            'sender_name' => 'Penemu 1',
+            'location' => 'Lokasi 1',
+            'message' => 'Pesan 1',
+            'contact' => '0811111111',
+            'read_at' => null,
+            'created_at' => now(),
+        ]);
+
+        $msg2 = Message::create([
+            'type' => 'lost_item',
+            'user_id' => $user->id,
+            'sender_name' => 'Penemu 2',
+            'location' => 'Lokasi 2',
+            'message' => 'Pesan 2',
+            'contact' => '0822222222',
+            'read_at' => null,
+            'created_at' => now(),
+        ]);
+
+        $response = $this->actingAs($user)->postJson(route('user.lost-mode.messages.readAll'));
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+            ]);
+
+        $this->assertNotNull($msg1->fresh()->read_at);
+        $this->assertNotNull($msg2->fresh()->read_at);
+    }
+
+    /**
+     * 15. User lain tidak dapat menandai pesan milik orang lain sebagai dibaca.
+     */
+    public function test_other_user_cannot_mark_different_users_message(): void
+    {
+        $user1 = User::factory()->create();
+        $user2 = User::factory()->create();
+
+        $message = Message::create([
+            'type' => 'lost_item',
+            'user_id' => $user1->id,
+            'sender_name' => 'Penemu',
+            'location' => 'Lokasi',
+            'message' => 'Pesan untuk user 1',
+            'read_at' => null,
+            'created_at' => now(),
+        ]);
+
+        $response = $this->actingAs($user2)->postJson(route('user.lost-mode.messages.read', $message->id));
+
+        $response->assertStatus(403);
+        $this->assertNull($message->fresh()->read_at);
+    }
+
+    /**
+     * 16. Dashboard pemilik menampilkan banner notifikasi jika ada pesan penemuan belum dibaca.
+     */
+    public function test_dashboard_displays_emergency_alert_banner_when_unread_messages_exist(): void
+    {
+        $user = User::factory()->create();
+        Profile::create([
+            'user_id' => $user->id,
+            'display_name' => 'Owner Testing',
+            'active_mode' => 'hilang',
+        ]);
+        Tag::create([
+            'tag_code' => 'FT-TEST-DASH',
+            'activation_code' => 'ACT-TEST-DASH',
+            'status' => 'aktif',
+            'user_id' => $user->id,
+            'mode' => 'hilang',
+        ]);
+
+        Message::create([
+            'type' => 'lost_item',
+            'user_id' => $user->id,
+            'sender_name' => 'Penemu Baik',
+            'location' => 'Makassar',
+            'message' => 'Kunci ditemukan.',
+            'contact' => '081234567890',
+            'read_at' => null,
+            'created_at' => now(),
+        ]);
+
+        $response = $this->actingAs($user)->get(route('user.dashboard'));
+
+        $response->assertStatus(200);
+        $response->assertSee('Pemberitahuan Barang Ditemukan!');
+        $response->assertSee('1 Baru');
+        $response->assertSee('Buka Laporan');
     }
 }

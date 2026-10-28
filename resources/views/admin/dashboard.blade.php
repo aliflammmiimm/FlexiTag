@@ -15,12 +15,51 @@
         </div>
 
         <div class="flex items-center gap-3 shrink-0">
-            <!-- Date Filter Pill -->
-            <div class="bg-white border border-[#E8E4DC] rounded-full px-4 py-2 text-xs font-medium text-[#1A1A1A] shadow-sm flex items-center gap-2 cursor-pointer hover:border-[#D4AF37] transition">
-                <svg class="w-4 h-4 text-[#8A8A85]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/>
-                </svg>
-                <span>Pekan Ini (12 – 18 Mei 2025)</span>
+            <!-- Date Filter Dropdown (FR-ADM-01) -->
+            <div class="relative">
+                <button 
+                    type="button" 
+                    onclick="toggleDashboardPeriodDropdown()" 
+                    class="bg-white border border-[#E8E4DC] rounded-full px-4 py-2 text-xs font-semibold text-[#1A1A1A] shadow-xs flex items-center gap-2 cursor-pointer hover:border-[#D4AF37] hover:bg-[#FAF9F6] transition"
+                    title="Pilih rentang waktu filter analitik operasional"
+                >
+                    <svg class="w-4 h-4 text-[#8A8A85]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/>
+                    </svg>
+                    <span>{{ $periodLabel }}</span>
+                    <svg class="w-3.5 h-3.5 text-[#8A8A85]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
+                    </svg>
+                </button>
+
+                <!-- Dropdown Menu -->
+                <div id="dashboard-period-dropdown" class="hidden absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-[#ECE8E1] py-1.5 z-40 text-xs">
+                    <a href="{{ route('admin.dashboard', ['period' => 'pekan_ini']) }}" class="flex items-center justify-between px-4 py-2 hover:bg-[#F6F5F2] {{ $period === 'pekan_ini' || empty($period) ? 'font-bold text-maroon bg-[#FBF7F7]' : 'text-[#4A4A4A]' }}">
+                        <span>Pekan Ini</span>
+                        @if ($period === 'pekan_ini' || empty($period))
+                            <span class="text-maroon text-xs">✓</span>
+                        @endif
+                    </a>
+                    <a href="{{ route('admin.dashboard', ['period' => 'bulan_ini']) }}" class="flex items-center justify-between px-4 py-2 hover:bg-[#F6F5F2] {{ $period === 'bulan_ini' ? 'font-bold text-maroon bg-[#FBF7F7]' : 'text-[#4A4A4A]' }}">
+                        <span>Bulan Ini</span>
+                        @if ($period === 'bulan_ini')
+                            <span class="text-maroon text-xs">✓</span>
+                        @endif
+                    </a>
+                    <a href="{{ route('admin.dashboard', ['period' => 'tahun_ini']) }}" class="flex items-center justify-between px-4 py-2 hover:bg-[#F6F5F2] {{ $period === 'tahun_ini' ? 'font-bold text-maroon bg-[#FBF7F7]' : 'text-[#4A4A4A]' }}">
+                        <span>Tahun Ini</span>
+                        @if ($period === 'tahun_ini')
+                            <span class="text-maroon text-xs">✓</span>
+                        @endif
+                    </a>
+                    <div class="border-t border-[#F2EEE9] my-1"></div>
+                    <a href="{{ route('admin.dashboard', ['period' => 'semua']) }}" class="flex items-center justify-between px-4 py-2 hover:bg-[#F6F5F2] {{ $period === 'semua' ? 'font-bold text-maroon bg-[#FBF7F7]' : 'text-[#4A4A4A]' }}">
+                        <span>Semua Waktu</span>
+                        @if ($period === 'semua')
+                            <span class="text-maroon text-xs">✓</span>
+                        @endif
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -31,9 +70,9 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-7">
 
         <!-- Card 1: TOTAL PENDAPATAN -->
-        <div class="bg-white rounded-2xl p-5 border border-[#ECE8E1] shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col justify-between">
+        <a href="{{ route('admin.settings', ['tab' => 'buku-kas']) }}" class="block bg-white hover:border-[#D4AF37]/60 rounded-2xl p-5 border border-[#ECE8E1] shadow-[0_2px_12px_rgba(0,0,0,0.02)] transition group">
             <div class="flex items-center justify-between">
-                <span class="text-[11px] font-bold tracking-wider text-[#8A8A85] uppercase">
+                <span class="text-[11px] font-bold tracking-wider text-[#8A8A85] uppercase group-hover:text-maroon transition-colors">
                     Total Pendapatan
                 </span>
                 <div class="w-8 h-8 rounded-lg bg-[#F0EBE1] text-[#7A735E] flex items-center justify-center">
@@ -47,17 +86,24 @@
                 <h3 class="text-2xl font-bold text-[#1A1A1A] tracking-tight">
                     {{ $metrics['total_pendapatan'] }}
                 </h3>
-                <p class="text-xs font-semibold text-[#2E7D32] flex items-center gap-1 mt-1">
-                    <span>📈 {{ $metrics['growth_pendapatan'] }}</span>
-                    <span class="text-[#737373] font-normal">vs pekan lalu</span>
-                </p>
+                @if ($metrics['is_growth_positive'])
+                    <p class="text-xs font-semibold text-[#2E7D32] flex items-center gap-1 mt-1">
+                        <span>📈 {{ $metrics['growth_pendapatan'] }}</span>
+                        <span class="text-[#737373] font-normal">{{ $metrics['growth_vs'] }}</span>
+                    </p>
+                @else
+                    <p class="text-xs font-semibold text-maroon flex items-center gap-1 mt-1">
+                        <span>📉 {{ $metrics['growth_pendapatan'] }}</span>
+                        <span class="text-[#737373] font-normal">{{ $metrics['growth_vs'] }}</span>
+                    </p>
+                @endif
             </div>
-        </div>
+        </a>
 
         <!-- Card 2: TOTAL PESANAN -->
-        <div class="bg-white rounded-2xl p-5 border border-[#ECE8E1] shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col justify-between">
+        <a href="{{ route('admin.orders') }}" class="block bg-white hover:border-[#D4AF37]/60 rounded-2xl p-5 border border-[#ECE8E1] shadow-[0_2px_12px_rgba(0,0,0,0.02)] transition group">
             <div class="flex items-center justify-between">
-                <span class="text-[11px] font-bold tracking-wider text-[#8A8A85] uppercase">
+                <span class="text-[11px] font-bold tracking-wider text-[#8A8A85] uppercase group-hover:text-maroon transition-colors">
                     Total Pesanan
                 </span>
                 <div class="w-8 h-8 rounded-lg bg-[#F7EBEB] text-[#8B3A3A] flex items-center justify-center">
@@ -74,12 +120,12 @@
                     <span>↑ {{ $metrics['new_orders'] }}</span>
                 </p>
             </div>
-        </div>
+        </a>
 
         <!-- Card 3: TAG AKTIF -->
-        <div class="bg-white rounded-2xl p-5 border border-[#ECE8E1] shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col justify-between">
+        <a href="{{ route('admin.tags', ['status' => 'aktif']) }}" class="block bg-white hover:border-[#D4AF37]/60 rounded-2xl p-5 border border-[#ECE8E1] shadow-[0_2px_12px_rgba(0,0,0,0.02)] transition group">
             <div class="flex items-center justify-between">
-                <span class="text-[11px] font-bold tracking-wider text-[#8A8A85] uppercase">
+                <span class="text-[11px] font-bold tracking-wider text-[#8A8A85] uppercase group-hover:text-maroon transition-colors">
                     Tag Aktif
                 </span>
                 <div class="w-8 h-8 rounded-lg bg-[#FCF5E3] text-[#B8860B] flex items-center justify-center">
@@ -95,16 +141,16 @@
                 </h3>
                 <p class="text-xs text-[#555] flex items-center gap-1.5 mt-1 font-medium">
                     <span class="w-2 h-2 rounded-full bg-[#7F6B2A]"></span>
-                    <span>{{ $metrics['rasio_aktif'] }} rasio tap aktif</span>
+                    <span>{{ $metrics['rasio_aktif'] }} dari {{ $metrics['total_tag'] }} total tag</span>
                 </p>
             </div>
-        </div>
+        </a>
 
         <!-- Card 4: PERLU DIKIRIM -->
-        <div class="bg-white rounded-2xl p-5 border border-[#ECE8E1] shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col justify-between">
+        <a href="{{ route('admin.orders', ['status' => 'perlu_dikirim']) }}" class="block bg-white hover:border-[#D4AF37]/60 rounded-2xl p-5 border border-[#ECE8E1] shadow-[0_2px_12px_rgba(0,0,0,0.02)] transition group">
             <div class="flex items-center justify-between">
-                <span class="text-[11px] font-bold tracking-wider text-[#8A8A85] uppercase">
-                    Perlu Dikirim
+                <span class="text-[11px] font-bold tracking-wider text-[#8A8A85] uppercase group-hover:text-maroon transition-colors">
+                    Perlu Diproses / Kirim
                 </span>
                 <div class="w-8 h-8 rounded-lg bg-[#FCF5E3] text-[#B8860B] flex items-center justify-center">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
@@ -121,10 +167,16 @@
                         <circle cx="12" cy="12" r="9"/>
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2"/>
                     </svg>
-                    <span>Siap pickup kurir</span>
+                    <span>
+                        @if ($metrics['siap_pickup'] > 0)
+                            {{ $metrics['siap_pickup'] }} siap pickup kurir
+                        @else
+                            Dalam antrean produksi
+                        @endif
+                    </span>
                 </p>
             </div>
-        </div>
+        </a>
 
     </div>
 
@@ -143,7 +195,7 @@
                             Tren Penjualan &amp; Aktivasi Mingguan
                         </h3>
                         <p class="text-xs text-[#737373] mt-0.5 font-normal">
-                            Perbandingan volume transaksi produk fisik vs aktivasi digital tap
+                            Perbandingan volume transaksi produk fisik vs interaksi aktivasi tap sepekan
                         </p>
                     </div>
 
@@ -166,10 +218,10 @@
                         @foreach ($weeklyTrends as $trend)
                             <div class="flex flex-col items-center flex-1 h-full justify-end relative group">
                                 
-                                <!-- Peak Badge on Friday (Jum) -->
+                                <!-- Peak Badge on Highest Activity Day -->
                                 @if ($trend['is_peak'])
                                     <div class="absolute -top-7 z-10">
-                                        <span class="bg-[#F0C75E] text-[#380208] text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full shadow-sm">
+                                        <span class="bg-[#F0C75E] text-[#380208] text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full shadow-xs">
                                             Puncak
                                         </span>
                                     </div>
@@ -179,23 +231,28 @@
                                 <div class="flex items-end gap-1 sm:gap-1.5 w-full justify-center">
                                     <!-- Penjualan Bar (Maroon) -->
                                     <div 
-                                        class="w-3 sm:w-4 bg-[#540404] rounded-t-xs hover:brightness-125 transition-all duration-300"
-                                        style="height: {{ $trend['penjualan'] * 1.8 }}px;"
-                                        title="{{ $trend['day'] }} - Penjualan: {{ $trend['penjualan'] }}"
+                                        class="w-3 sm:w-4 bg-[#540404] rounded-t-xs hover:brightness-125 transition-all duration-300 {{ $trend['penjualan'] === 0 ? 'opacity-30' : '' }}"
+                                        style="height: {{ $trend['penjualan_height'] }}px;"
+                                        title="{{ $trend['day_full'] }} ({{ $trend['date_formatted'] }}) — Penjualan: {{ $trend['penjualan'] }} unit"
                                     ></div>
 
                                     <!-- Aktivasi Bar (Olive/Gold) -->
                                     <div 
-                                        class="w-3 sm:w-4 bg-[#7F6B2A] rounded-t-xs hover:brightness-125 transition-all duration-300"
-                                        style="height: {{ $trend['aktivasi'] * 1.8 }}px;"
-                                        title="{{ $trend['day'] }} - Aktivasi: {{ $trend['aktivasi'] }}"
+                                        class="w-3 sm:w-4 bg-[#7F6B2A] rounded-t-xs hover:brightness-125 transition-all duration-300 {{ $trend['aktivasi'] === 0 ? 'opacity-30' : '' }}"
+                                        style="height: {{ $trend['aktivasi_height'] }}px;"
+                                        title="{{ $trend['day_full'] }} ({{ $trend['date_formatted'] }}) — Aktivasi/Tap: {{ $trend['aktivasi'] }} interaksi"
                                     ></div>
                                 </div>
 
-                                <!-- Day Label -->
-                                <span class="text-[11px] mt-2 font-medium {{ $trend['is_peak'] ? 'font-bold text-[#540404]' : 'text-[#737373]' }}">
-                                    {{ $trend['day'] }}
-                                </span>
+                                <!-- Day Label & Date -->
+                                <div class="text-center mt-2">
+                                    <span class="block text-[11px] font-medium {{ $trend['is_peak'] ? 'font-bold text-[#540404]' : 'text-[#737373]' }}">
+                                        {{ $trend['day'] }}
+                                    </span>
+                                    <span class="block text-[9px] text-[#A39E93]">
+                                        {{ $trend['date_formatted'] }}
+                                    </span>
+                                </div>
                             </div>
                         @endforeach
                     </div>
@@ -205,14 +262,12 @@
             <!-- Footer Summary Info -->
             <div class="border-t border-[#F2EEE9] pt-4 mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs">
                 <div class="flex items-center gap-1.5 text-[#737373]">
-                    <svg class="w-4 h-4 text-[#4E6333]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/>
-                    </svg>
-                    <span>Sinkronisasi otomatis dengan Node Makassar Core-01</span>
+                    <span class="w-2 h-2 rounded-full bg-[#2E7D32] shrink-0"></span>
+                    <span>Sinkronisasi otomatis dengan server database lokal FlexiTag</span>
                 </div>
 
                 <div class="font-bold text-[#1A1A1A]">
-                    Rerata 24 tap / perangkat aktif
+                    Rerata {{ $avgTapPerTag }} tap / perangkat aktif
                 </div>
             </div>
         </div>
@@ -227,32 +282,32 @@
                             Distribusi Mode Pelanggan
                         </h3>
                         <p class="text-xs text-[#737373] mt-0.5 font-normal">
-                            Preferensi fungsional chip NTAG215 pelanggan aktif
+                            Preferensi fungsional chip NTAG213 pada {{ $totalActiveTagsCount ?? 0 }} tag aktif
                         </p>
                     </div>
 
                     <!-- Sliders Filter Icon -->
-                    <button class="text-[#8A8A85] hover:text-[#1A1A1A] p-1.5 transition rounded-lg hover:bg-[#F6F5F2]" title="Filter Mode">
+                    <a href="{{ route('admin.tags') }}" class="text-[#8A8A85] hover:text-[#1A1A1A] p-1.5 transition rounded-lg hover:bg-[#F6F5F2]" title="Buka Manajemen Inventaris Tag">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"/>
                         </svg>
-                    </button>
+                    </a>
                 </div>
 
                 <!-- Mode Bars List -->
                 <div class="space-y-4">
                     @foreach ($modeDistribution as $mode)
-                        <div>
+                        <a href="{{ route('admin.tags', ['mode' => $mode['key']]) }}" class="block group transition" title="Lihat daftar tag dengan {{ $mode['name'] }}">
                             <div class="flex items-center justify-between text-xs mb-1.5">
                                 <div class="flex items-center gap-2">
                                     <span class="w-2.5 h-2.5 rounded-full {{ $mode['bg_dot'] }}"></span>
-                                    <span class="font-semibold text-[#1A1A1A]">{{ $mode['name'] }}</span>
+                                    <span class="font-semibold text-[#1A1A1A] group-hover:text-maroon transition-colors">{{ $mode['name'] }}</span>
                                 </div>
                                 <div class="flex items-center gap-3">
-                                    <span class="bg-[#F6F5F2] text-[#666666] text-[11px] font-medium px-2.5 py-0.5 rounded-full">
-                                        {{ $mode['count'] }} Pengguna
+                                    <span class="bg-[#F6F5F2] group-hover:bg-[#ECE8E1] text-[#666666] text-[11px] font-medium px-2.5 py-0.5 rounded-full transition-colors">
+                                        {{ $mode['count'] }} Tag
                                     </span>
-                                    <span class="font-bold text-xs text-[#1A1A1A] w-7 text-right">
+                                    <span class="font-bold text-xs text-[#1A1A1A] w-9 text-right">
                                         {{ $mode['percentage'] }}%
                                     </span>
                                 </div>
@@ -265,21 +320,26 @@
                                     style="width: {{ $mode['percentage'] }}%;"
                                 ></div>
                             </div>
-                        </div>
+                        </a>
                     @endforeach
                 </div>
             </div>
 
             <!-- Mode Switch Notice Banner -->
-            <div class="bg-[#F6F5F2] rounded-2xl p-3.5 flex items-start gap-2.5 mt-6 border border-[#EFECE6]/70">
-                <svg class="w-4 h-4 text-[#8A8A85] shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="9"/>
-                    <line x1="12" y1="8" x2="12" y2="12"/>
-                    <line x1="12" y1="16" x2="12.01" y2="16"/>
-                </svg>
-                <p class="text-[11px] text-[#737373] leading-relaxed font-normal">
-                    Aktivasi mode dapat dialihkan mandiri oleh pemegang ganci via tap.
-                </p>
+            <div class="bg-[#FAF9F6] rounded-2xl p-3.5 flex items-start justify-between gap-2.5 mt-6 border border-[#ECE8E1]">
+                <div class="flex items-start gap-2.5">
+                    <svg class="w-4 h-4 text-[#8A8A85] shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="9"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    <p class="text-[11px] text-[#737373] leading-relaxed font-normal">
+                        Total <strong>{{ $totalActiveTagsCount ?? 0 }}</strong> tag aktif terhubung. Mode dapat dialihkan mandiri oleh pemilik ganci via tap NFC.
+                    </p>
+                </div>
+                <a href="{{ route('admin.tags') }}" class="text-[11px] text-maroon font-bold shrink-0 hover:underline self-center whitespace-nowrap">
+                    Kelola Tag →
+                </a>
             </div>
         </div>
 
@@ -321,11 +381,22 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-[#F2EEE9]">
-                    @foreach ($orders as $order)
+                    @forelse ($orders as $order)
                         <tr class="hover:bg-[#FAF9F6] transition-colors">
                             <!-- ID Pesanan -->
-                            <td class="py-4 px-5 font-bold text-maroon">
-                                {{ $order['id_pesanan'] }}
+                            <td class="py-4 px-5">
+                                <a href="{{ route('admin.orders', ['search' => $order['id_pesanan']]) }}" class="font-bold text-maroon hover:underline">
+                                    {{ $order['id_pesanan'] }}
+                                </a>
+                                @if (isset($order['channel']) && $order['channel'] === 'offline')
+                                    <span class="inline-block mt-0.5 bg-[#FEF5E7] text-[#A86414] text-[9.5px] font-semibold px-2 py-0.5 rounded-full border border-[#FAD7A0]">
+                                        Offline
+                                    </span>
+                                @else
+                                    <span class="inline-block mt-0.5 bg-[#EBF5FB] text-[#1E70A0] text-[9.5px] font-semibold px-2 py-0.5 rounded-full border border-[#BAE6FD]">
+                                        Online Web
+                                    </span>
+                                @endif
                             </td>
 
                             <!-- Nama Pembeli -->
@@ -342,6 +413,11 @@
                                     </svg>
                                     <span>{{ $order['produk'] }}</span>
                                 </div>
+                                @if (isset($order['quantity']) && $order['quantity'] > 1)
+                                    <span class="text-[10px] text-[#8A8A85] mt-0.5 block font-normal">
+                                        Jumlah: {{ $order['quantity'] }} pcs
+                                    </span>
+                                @endif
                             </td>
 
                             <!-- Status Tahapan SRS (Mapped Badge) -->
@@ -384,10 +460,48 @@
                                 </a>
                             </td>
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr>
+                            <td colspan="6" class="py-10 text-center text-[#8A8A85]">
+                                <div class="flex flex-col items-center justify-center gap-2">
+                                    <svg class="w-8 h-8 text-[#D1CCC4]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/>
+                                    </svg>
+                                    <span class="text-xs font-medium">Belum ada transaksi pesanan yang tercatat.</span>
+                                    <a href="{{ route('admin.orders') }}" class="text-xs text-maroon font-semibold hover:underline">
+                                        Buka Antrean Pesanan →
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
 
     </div>
 @endsection
+
+@push('scripts')
+<script>
+    function toggleDashboardPeriodDropdown() {
+        const menu = document.getElementById('dashboard-period-dropdown');
+        if (menu) {
+            menu.classList.toggle('hidden');
+        }
+    }
+
+    window.addEventListener('click', function(e) {
+        const dropdown = document.getElementById('dashboard-period-dropdown');
+        if (dropdown && !dropdown.contains(e.target) && !e.target.closest('button[onclick="toggleDashboardPeriodDropdown()"]')) {
+            dropdown.classList.add('hidden');
+        }
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            document.getElementById('dashboard-period-dropdown')?.classList.add('hidden');
+        }
+    });
+</script>
+@endpush

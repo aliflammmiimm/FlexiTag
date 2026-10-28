@@ -1,53 +1,21 @@
 /**
  * FlexiTag User Settings Interactions
+ * Manages modal dialogues and keyboard accessibility.
+ * Note: Navigation drawer is managed by user-sidebar.js.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Navigation Drawer Toggle
-    const openDrawerBtn = document.getElementById('openDrawerBtn');
-    const closeDrawerBtn = document.getElementById('closeDrawerBtn');
-    const drawerBackdrop = document.getElementById('drawerBackdrop');
-    const sideDrawer = document.getElementById('sideDrawer');
-
-    function toggleDrawer(open) {
-        if (!sideDrawer || !drawerBackdrop) return;
-        if (open) {
-            sideDrawer.classList.add('is-open');
-            drawerBackdrop.classList.add('is-open');
-            document.body.style.overflow = 'hidden';
-        } else {
-            sideDrawer.classList.remove('is-open');
-            drawerBackdrop.classList.remove('is-open');
-            document.body.style.overflow = '';
-        }
-    }
-
-    if (openDrawerBtn) {
-        openDrawerBtn.addEventListener('click', () => toggleDrawer(true));
-    }
-    if (closeDrawerBtn) {
-        closeDrawerBtn.addEventListener('click', () => toggleDrawer(false));
-    }
-    if (drawerBackdrop) {
-        drawerBackdrop.addEventListener('click', () => toggleDrawer(false));
-    }
-
-    // Keyboard support: Escape closes drawer and modals
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            if (sideDrawer && sideDrawer.classList.contains('is-open')) {
-                toggleDrawer(false);
-            }
-            closeAllModals();
-        }
-    });
-
-    // 2. Modals Management
     window.openModal = function(id) {
         const modal = document.getElementById(id);
         if (modal) {
             modal.classList.add('is-active');
             document.body.style.overflow = 'hidden';
+
+            // Auto-focus first interactive control
+            const firstInput = modal.querySelector('input:not([type="hidden"]), button.btn-secondary-action');
+            if (firstInput) {
+                setTimeout(() => firstInput.focus(), 60);
+            }
         }
     };
 
@@ -55,7 +23,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const modal = document.getElementById(id);
         if (modal) {
             modal.classList.remove('is-active');
-            document.body.style.overflow = '';
+            // Only restore scroll if no other modals are active
+            const otherActive = document.querySelector('.settings-modal-overlay.is-active');
+            if (!otherActive) {
+                document.body.style.overflow = '';
+            }
         }
     };
 
@@ -65,4 +37,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         document.body.style.overflow = '';
     }
+
+    // Keyboard support: Escape key closes active modal
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeAllModals();
+        }
+    });
 });

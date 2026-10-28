@@ -23,9 +23,14 @@
             @error('password') <div class="err">{{ $message }}</div> @enderror
         </div>
 
-        <label class="check">
-            <input type="checkbox" name="remember" value="1"> Ingat saya di perangkat ini
-        </label>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.15rem;">
+            <label class="check" style="margin-bottom: 0;">
+                <input type="checkbox" name="remember" value="1"> Ingat saya
+            </label>
+            <a href="{{ route('password.request') }}" style="font-size: 0.78rem; font-weight: 600; color: var(--maroon); text-decoration: none;">
+                Lupa kata sandi?
+            </a>
+        </div>
 
         <button type="submit" class="btn btn-gold btn-block" style="font-weight: 700; padding: 0.75rem 1.2rem; font-size: 0.95rem;">
             Masuk ke Dashboard →

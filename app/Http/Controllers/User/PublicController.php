@@ -3,13 +3,20 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Mail\LostItemMessageNotification;
+use App\Models\Design;
 use App\Models\Link;
+use App\Models\Message;
 use App\Models\Tag;
 use App\Models\Tap;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -17,7 +24,12 @@ class PublicController extends Controller
 {
     public function landing(): View
     {
-        return view('landing');
+        $designs = Design::active()->get()
+            ->sortByDesc(fn (Design $d) => $d->units_sold)
+            ->values()
+            ->take(4);
+
+        return view('landing', compact('designs'));
     }
 
     public function showTagProfile(Request $request, string $tag_code): View|RedirectResponse
@@ -57,7 +69,15 @@ class PublicController extends Controller
         $profile = $user?->profile;
         $links = $user?->links ?? collect();
         $privacy = $user?->privacySetting;
-        $activeMode = $request->query('mode', $profile?->active_mode ?? 'kampus');
+
+        // Mode resolution:
+        // Prioritaskan mode spesifik milik tag ($tag->mode), fallback ke active_mode profil.
+        // Jika status profil user sedang dalam darurat 'hilang', prioritaskan 'hilang' kecuali jika ada query ?mode= eksplisit.
+        $defaultMode = $tag->mode ?: ($profile?->active_mode ?? 'kampus');
+        if ($profile?->active_mode === 'hilang' && ! $request->has('mode')) {
+            $defaultMode = 'hilang';
+        }
+        $activeMode = $request->query('mode', $defaultMode);
 
         // Mode data resolution: check user relation first, fallback to DB query
         $modeRow = $user?->modeData?->firstWhere('mode', $activeMode);
@@ -162,8 +182,17 @@ class PublicController extends Controller
         $modeData = $user?->modeData?->firstWhere('mode', 'kerja')?->data ?? [];
         $cvPath = $modeData['cv_file_path'] ?? null;
 
-        if ($cvPath && file_exists(public_path($cvPath))) {
-            return response()->download(public_path($cvPath));
+        if ($cvPath) {
+            if (Storage::disk('public')->exists($cvPath)) {
+                $nameForFile = $profile?->display_name ?? $user?->name ?? 'Curriculum_Vitae';
+                $ext = pathinfo($cvPath, PATHINFO_EXTENSION) ?: 'pdf';
+                $filename = Str::slug($nameForFile, '_').'_cv.'.$ext;
+
+                return Storage::disk('public')->download($cvPath, $filename);
+            }
+            if (file_exists(public_path($cvPath))) {
+                return response()->download(public_path($cvPath));
+            }
         }
 
         $name = $profile?->display_name ?? $user?->name ?? 'Curriculum Vitae';
@@ -196,5 +225,140 @@ class PublicController extends Controller
             'Content-Type' => 'text/plain; charset=utf-8',
             'Content-Disposition' => 'attachment; filename="'.$filename.'"',
         ]);
+    }
+
+    /**
+     * Kirim pesan aman dari penemu barang ke pemilik tag (FR-LST-01, FR-LST-02, FR-LST-04).
+     */
+    public function submitLostItemMessage(Request $request, string $tag_code): JsonResponse|RedirectResponse
+    {
+        $tag = Tag::with('user')->where('tag_code', $tag_code)->firstOrFail();
+
+        if ($tag->status !== 'aktif' || ! $tag->user) {
+            if ($request->wantsJson()) {
+                return response()->json(['error' => 'Perangkat tag tidak aktif atau belum terikat pada pemilik.'], 422);
+            }
+
+            return back()->with('error', 'Perangkat tag tidak aktif atau belum terikat pada pemilik.');
+        }
+
+        $validated = $request->validate([
+            'sender_name' => ['nullable', 'string', 'max:100'],
+            'location' => ['required', 'string', 'max:150'],
+            'message' => ['required', 'string', 'max:1000'],
+            'contact' => ['nullable', 'string', 'max:100'],
+        ], [
+            'location.required' => 'Lokasi penemuan barang wajib diisi agar pemilik dapat menjemputnya.',
+            'location.max' => 'Lokasi penemuan maksimal 150 karakter.',
+            'message.required' => 'Pesan atau keterangan penemuan wajib diisi.',
+            'message.max' => 'Pesan maksimal 1000 karakter.',
+        ]);
+
+        $lostMessage = Message::create([
+            'type' => 'lost_item',
+            'user_id' => $tag->user_id,
+            'sender_name' => ! empty($validated['sender_name']) ? strip_tags(trim($validated['sender_name'])) : 'Penemu Baik Hati',
+            'location' => strip_tags(trim($validated['location'])),
+            'message' => strip_tags(trim($validated['message'])),
+            'contact' => ! empty($validated['contact']) ? strip_tags(trim($validated['contact'])) : null,
+            'read_at' => null,
+            'created_at' => now(),
+        ]);
+
+        // Kirim notifikasi email relay ke pemilik jika relay aktif (FR-LST-03)
+        try {
+            $relayEnabled = DB::table('settings')->where('key', 'relay_wa_otomatis_aktif')->value('value');
+            if ($tag->user && $tag->user->email && ($relayEnabled === null || in_array((string) $relayEnabled, ['1', 'true'], true))) {
+                Mail::to($tag->user->email)->send(
+                    new LostItemMessageNotification($tag->user, $tag, $lostMessage)
+                );
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Gagal mengirimkan email notifikasi relay barang hilang: '.$e->getMessage());
+        }
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Terima kasih atas kejujuran dan bantuan Anda! Pesan penemuan berhasil diteruskan dengan aman ke pemilik barang.',
+            ]);
+        }
+
+        return back()->with('lost_message_success', 'Terima kasih atas kejujuran dan bantuan Anda! Pesan penemuan berhasil diteruskan dengan aman ke pemilik barang.');
+    }
+
+    /**
+     * Kirim laporan penyalahgunaan profil publik ke panel admin (FR-PUB-12).
+     */
+    public function submitAbuseReport(Request $request, string $tag_code): JsonResponse|RedirectResponse
+    {
+        $tag = Tag::with('user')->where('tag_code', $tag_code)->firstOrFail();
+
+        $validated = $request->validate([
+            'sender_name' => ['nullable', 'string', 'max:100'],
+            'location' => ['nullable', 'string', 'max:150'],
+            'message' => ['required', 'string', 'max:1000'],
+            'contact' => ['nullable', 'string', 'max:100'],
+        ], [
+            'message.required' => 'Keterangan indikasi penyalahgunaan wajib diisi.',
+            'message.max' => 'Keterangan indikasi penyalahgunaan maksimal 1000 karakter.',
+        ]);
+
+        Message::create([
+            'type' => 'abuse_report',
+            'user_id' => $tag->user_id,
+            'sender_name' => ! empty($validated['sender_name']) ? strip_tags(trim($validated['sender_name'])) : 'Pengunjung Anonim',
+            'location' => ! empty($validated['location']) ? strip_tags(trim($validated['location'])) : 'Online / Profil Publik',
+            'message' => "[Laporan Profil {$tag->tag_code}] ".strip_tags(trim($validated['message'])),
+            'contact' => ! empty($validated['contact']) ? strip_tags(trim($validated['contact'])) : null,
+            'read_at' => null,
+            'created_at' => now(),
+        ]);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Laporan penyalahgunaan berhasil dikirim ke tim keamanan kami untuk ditinjau.',
+            ]);
+        }
+
+        return back()->with('abuse_report_success', 'Laporan penyalahgunaan berhasil dikirim ke tim keamanan kami untuk ditinjau.');
+    }
+
+    /**
+     * Kirim pesan kontak dari landing page ke admin drawer (FR-ADM-09).
+     */
+    public function submitContact(Request $request): JsonResponse|RedirectResponse
+    {
+        $validated = $request->validate([
+            'sender_name' => ['required', 'string', 'max:100'],
+            'location' => ['nullable', 'string', 'max:150'],
+            'message' => ['required', 'string', 'max:1500'],
+            'contact' => ['required', 'string', 'max:100'],
+        ], [
+            'sender_name.required' => 'Nama lengkap wajib diisi.',
+            'contact.required' => 'Nomor WhatsApp atau Email kontak wajib diisi.',
+            'message.required' => 'Pesan atau pertanyaan wajib diisi.',
+        ]);
+
+        Message::create([
+            'type' => 'contact',
+            'user_id' => null,
+            'sender_name' => strip_tags(trim($validated['sender_name'])),
+            'location' => ! empty($validated['location']) ? strip_tags(trim($validated['location'])) : 'Website Landing Page',
+            'message' => strip_tags(trim($validated['message'])),
+            'contact' => strip_tags(trim($validated['contact'])),
+            'read_at' => null,
+            'created_at' => now(),
+        ]);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Pesan Anda telah kami terima! Tim FlexiTag akan segera menghubungi Anda.',
+            ]);
+        }
+
+        return back()->with('contact_success', 'Pesan Anda telah kami terima! Tim FlexiTag akan segera menghubungi Anda.');
     }
 }

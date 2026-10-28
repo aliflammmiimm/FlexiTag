@@ -313,7 +313,8 @@
   padding: 0.95rem 1.15rem 0.85rem;
   display: flex;
   align-items: center;
-  gap: 1.15rem;
+  justify-content: space-between;
+  gap: 0.85rem;
   position: sticky;
   top: 0;
   z-index: 100;
@@ -325,6 +326,12 @@
   .user-topbar {
     padding: 1.2rem 1.85rem 1rem;
   }
+}
+
+.topbar-left-group {
+  display: flex;
+  align-items: center;
+  gap: 1.15rem;
 }
 
 .hamburger-btn {
@@ -362,7 +369,7 @@
   color: #F5BA41;
   text-transform: uppercase;
   line-height: 1;
-  margin-bottom: 2px;
+  margin: 0 0 2px 0;
 }
 
 .topbar-title {
@@ -371,4 +378,47 @@
   color: #FFFFFF;
   line-height: 1.15;
   letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.topbar-inbox-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #FFFFFF;
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.topbar-inbox-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.35);
+  transform: translateY(-1px);
+}
+
+.topbar-inbox-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #DC2626;
+  color: #FFFFFF;
+  font-size: 0.62rem;
+  font-weight: 800;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  border: 2px solid #3B0508;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }

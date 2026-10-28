@@ -75,6 +75,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Messages relation (1:N).
+     */
+    public function messages(): HasMany
+    {
+        return $this->hasMany(Message::class, 'user_id');
+    }
+
+    /**
      * Role badge metadata.
      */
     public function getRoleBadgeAttribute(): array

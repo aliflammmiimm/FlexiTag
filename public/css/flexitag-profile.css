@@ -475,7 +475,11 @@ html, body {
   text-overflow: ellipsis;
 }
 
-.contact-chevron {
+.contact-chevron,
+.contact-chevron-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: #BDB6AC;
   font-size: 18px;
   font-weight: 600;
@@ -626,11 +630,21 @@ html, body {
   line-height: 1.35;
 }
 
-.link-chevron-arrow {
+.link-chevron-arrow,
+.link-chevron-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: #BDB6AC;
   font-size: 18px;
   font-weight: 600;
   flex-shrink: 0;
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.link-card-item:hover .link-chevron-wrap {
+  transform: translateX(2px);
+  color: var(--ft-text-main);
 }
 
 /* ==========================================================================
@@ -995,56 +1009,60 @@ html, body {
   background: #FFFFFF;
   border: 1px solid #ECE7DE;
   border-radius: 20px;
-  padding: 16px 16px 14px;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.03);
+  padding: 18px 18px 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
 }
 
 .lost-status-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .pill-status-searching {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   background: #FEF3C7;
   border: 1px solid #FDE68A;
   color: #92400E;
-  font-size: 9.5px;
+  font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.04em;
-  padding: 3.5px 10px;
+  padding: 4px 12px;
   border-radius: 999px;
 }
 
 .pill-status-searching .dot-orange {
-  width: 6px;
-  height: 6px;
+  width: 6.5px;
+  height: 6.5px;
   border-radius: 50%;
   background: #D97706;
+  box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.2);
 }
 
 .auto-protected-text {
   font-size: 10.5px;
   color: #78716C;
-  font-weight: 500;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .lost-info-row {
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  padding: 10px 0;
+  padding: 11px 0;
   border-top: 1px solid #F5F1E9;
 }
 
 .lost-info-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
   background: #FAF7F0;
   border: 1px solid #EAE3D2;
   display: flex;
@@ -1066,90 +1084,164 @@ html, body {
   color: #78716C;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  margin-bottom: 2px;
+  margin-bottom: 3px;
 }
 
 .lost-info-value {
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 600;
   color: #1C1917;
-  line-height: 1.35;
+  line-height: 1.4;
 }
 
 .lost-personal-message-box {
   background: #FCFBF7;
   border: 1px solid #EADBBE;
-  border-radius: 14px;
-  padding: 12px 14px;
-  margin-top: 12px;
+  border-radius: 16px;
+  padding: 14px 15px;
+  margin-top: 14px;
 }
 
 .lost-message-title {
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 800;
   color: #78350F;
+  letter-spacing: 0.04em;
   display: flex;
   align-items: center;
-  gap: 5px;
-  margin-bottom: 6px;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.lost-message-quote-wrap {
+  background: #FFFFFF;
+  border-radius: 10px;
+  border-left: 3.5px solid #E5B239;
+  padding: 11px 13px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
 }
 
 .lost-message-quote {
-  font-size: 11.5px;
+  font-size: 12px;
   font-style: italic;
-  line-height: 1.5;
-  color: #44403C;
+  line-height: 1.55;
+  color: #292524;
 }
 
-.lost-privacy-guarantee {
-  margin-top: 12px;
-  background: #F8FAFC;
-  border: 1px solid #E2E8F0;
+.lost-reward-badge-card {
+  background: linear-gradient(135deg, #FEF9EE 0%, #FFF5DF 100%);
+  border: 1px solid #F6E2B1;
   border-radius: 12px;
-  padding: 9px 12px;
+  padding: 9px 13px;
+  margin-top: 10px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 10.5px;
-  line-height: 1.4;
-  color: #475569;
+  gap: 10px;
+  box-shadow: 0 1px 4px rgba(229, 178, 57, 0.08);
 }
 
-.lost-privacy-guarantee .lock-icon {
-  color: #059669;
+.lost-reward-badge-card .reward-gift-icon {
+  font-size: 18px;
   flex-shrink: 0;
 }
 
-/* Tombol Aksi Hilang */
+.lost-reward-badge-card .reward-text-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.lost-reward-badge-card .reward-sub-label {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #8C6D23;
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+}
+
+.lost-reward-badge-card .reward-main-value {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #723B13;
+  line-height: 1.35;
+}
+
+.lost-privacy-guarantee {
+  margin-top: 14px;
+  background: #F9FBF8;
+  border: 1px solid #E1ECE3;
+  border-radius: 12px;
+  padding: 10px 13px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.lost-privacy-icon-box {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #ECFDF5;
+  color: #059669;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.lost-privacy-text {
+  font-size: 11px;
+  line-height: 1.45;
+  color: #334155;
+}
+
+/* ==========================================================================
+   Aksi Khusus Mode Barang Hilang (Unified & Pixel-Perfect)
+   ========================================================================== */
+.lost-actions-section {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  padding: 0 16px;
+  margin-bottom: 20px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Tombol 1: Hubungi Pemilik via Relay Aman */
 .btn-lost-contact-owner {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin: 0 16px 10px;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
   background: linear-gradient(135deg, #500A0E 0%, #350508 100%);
-  border-radius: 18px;
+  border-radius: 16px;
   padding: 13px 16px;
   color: #FFFFFF;
   text-decoration: none;
-  box-shadow: 0 6px 18px rgba(80, 10, 14, 0.28);
-  border: 1px solid rgba(245, 186, 65, 0.25);
+  box-shadow: 0 6px 18px rgba(80, 10, 14, 0.25);
+  border: 1px solid rgba(245, 186, 65, 0.28);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.18s ease;
+  font-family: inherit;
 }
 
 .btn-lost-contact-owner:hover {
   transform: translateY(-1px);
-  filter: brightness(1.05);
+  filter: brightness(1.06);
+  box-shadow: 0 8px 22px rgba(80, 10, 14, 0.35);
   color: #FFFFFF;
 }
 
 .btn-lost-icon-bubble {
   position: relative;
-  width: 38px;
-  height: 38px;
+  width: 40px;
+  height: 40px;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1161,10 +1253,17 @@ html, body {
   position: absolute;
   top: 7px;
   left: 7px;
-  width: 5.5px;
-  height: 5.5px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: #22C55E;
+  box-shadow: 0 0 6px #22C55E;
+}
+
+.btn-lost-text-col {
+  flex: 1;
+  text-align: left;
+  min-width: 0;
 }
 
 .btn-lost-title {
@@ -1172,13 +1271,15 @@ html, body {
   font-weight: 800;
   color: #FFFFFF;
   display: block;
+  line-height: 1.25;
 }
 
 .btn-lost-sub {
   font-size: 10.5px;
-  color: rgba(255, 255, 255, 0.72);
+  color: rgba(255, 255, 255, 0.78);
   display: block;
   margin-top: 2px;
+  line-height: 1.35;
 }
 
 .btn-lost-arrow {
@@ -1186,88 +1287,378 @@ html, body {
   font-size: 16px;
   margin-left: auto;
   font-weight: 700;
+  flex-shrink: 0;
 }
 
+/* Tombol 2: Kirim Titik Lokasi Temuan (Presisi, Rapi, Bounded) */
 .btn-lost-share-location {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin: 0 16px 10px;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
   background: #FFFFFF;
-  border: 1px solid #ECE7DE;
+  border: 1.5px solid #EAE3D5;
   border-radius: 16px;
-  padding: 12px 16px;
+  padding: 13px 16px;
   color: #1C1917;
   text-decoration: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.18s ease;
+  font-family: inherit;
+  text-align: left;
 }
 
 .btn-lost-share-location:hover {
-  background: #FAF7F0;
+  background: #FFFDF9;
+  border-color: #E5B239;
   transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(229, 178, 57, 0.16);
+}
+
+.btn-lost-share-location.is-detecting {
+  opacity: 0.85;
+  cursor: wait;
 }
 
 .btn-lost-gps-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: #FFFBEB;
-  border: 1px solid #FDE68A;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: #FEF3C7;
+  border: 1.5px solid #F5BA41;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #B45309;
+  color: #92400E;
   flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.btn-lost-share-location:hover .btn-lost-gps-icon {
+  transform: scale(1.05);
 }
 
 .btn-lost-gps-title {
-  font-size: 12.5px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 750;
   color: #1C1917;
   display: block;
+  line-height: 1.25;
 }
 
 .btn-lost-gps-sub {
-  font-size: 10px;
+  font-size: 10.5px;
   color: #78716C;
   display: block;
   margin-top: 2px;
+  line-height: 1.35;
 }
 
-.btn-lost-chevron {
-  color: #A8A29E;
-  font-size: 16px;
+.btn-lost-action-arrow {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #FAF7F0;
+  border: 1px solid #ECE7DF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8C827A;
   margin-left: auto;
+  flex-shrink: 0;
+  transition: all 0.18s ease;
 }
 
+.btn-lost-share-location:hover .btn-lost-action-arrow {
+  background: #FEF3C7;
+  border-color: #F5BA41;
+  color: #92400E;
+  transform: translateX(2px);
+}
+
+/* Tombol 3: Barang Sudah Berhasil Dikembalikan? */
 .btn-lost-returned {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  margin: 0 16px 20px;
-  background: #FFFFFF;
-  border: 1px solid #D6D0C2;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  background: #FFFDF9;
+  border: 1.5px solid #D6D0C2;
   border-radius: 16px;
   padding: 12px 16px;
   color: #292524;
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 700;
   text-decoration: none;
   cursor: pointer;
-  transition: all 0.15s ease;
-  width: calc(100% - 32px);
+  transition: all 0.18s ease;
   font-family: inherit;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
 }
 
 .btn-lost-returned:hover {
-  background: #F5F1E9;
+  background: #FAF5EB;
+  border-color: #0D9488;
+  color: #0F766E;
+  transform: translateY(-1px);
 }
 
 .btn-lost-returned .check-icon-teal {
   color: #0D9488;
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   Interactive Dialog Modals (Location GPS & Return Confirmations)
+   ========================================================================== */
+.lost-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  transition: opacity 0.25s ease;
+}
+
+.lost-modal-backdrop[hidden] {
+  display: none !important;
+}
+
+.lost-modal-dialog {
+  width: 100%;
+  max-width: 375px;
+  background: #FFFFFF;
+  border-radius: 24px;
+  padding: 24px 20px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+  position: relative;
+  text-align: center;
+  animation: qrModalPop 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+.lost-modal-icon-badge {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+  font-size: 24px;
+}
+
+.lost-modal-icon-badge.badge-gps {
+  background: #FEF3C7;
+  border: 2px solid #F5BA41;
+  color: #92400E;
+}
+
+.lost-modal-icon-badge.badge-success {
+  background: #EAF5EC;
+  border: 2px solid #86EFAC;
+  color: #166534;
+}
+
+.lost-modal-icon-badge.badge-warn {
+  background: #FEF2F2;
+  border: 2px solid #FECACA;
+  color: #991B1B;
+}
+
+.lost-modal-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #1C1917;
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
+}
+
+.lost-modal-desc {
+  font-size: 12px;
+  color: #6B7280;
+  line-height: 1.45;
+  margin-bottom: 16px;
+}
+
+.lost-modal-coords-card {
+  background: #FAF8F5;
+  border: 1px solid #ECE7DE;
+  border-radius: 14px;
+  padding: 12px;
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.lost-modal-coords-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #92400E;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 2px;
+}
+
+.lost-modal-coords-val {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #1C1917;
+  word-break: break-all;
+}
+
+.lost-modal-coords-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #500A0E;
+  text-decoration: underline;
+  margin-top: 6px;
+}
+
+.lost-modal-btn-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lost-btn-wa {
+  width: 100%;
+  background: linear-gradient(135deg, #F5BA41 0%, #E5A31E 100%);
+  color: #2C1A04;
+  border: none;
+  border-radius: 14px;
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 750;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(229, 179, 42, 0.35);
+  text-decoration: none;
+  font-family: inherit;
+  transition: all 0.15s ease;
+}
+
+.lost-btn-wa:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(229, 179, 42, 0.45);
+}
+
+.lost-btn-secondary {
+  width: 100%;
+  background: #FFFFFF;
+  border: 1.5px solid #E5E1DA;
+  border-radius: 14px;
+  padding: 10px 14px;
+  font-size: 12px;
+  font-weight: 650;
+  color: #4B5563;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s ease;
+}
+
+.lost-btn-secondary:hover {
+  background: #FAF8F5;
+  color: #1C1917;
+}
+
+.lost-btn-ghost {
+  background: transparent;
+  border: none;
+  color: #9CA3AF;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 6px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.lost-btn-ghost:hover {
+  color: #4B5563;
+}
+
+/* Formulir Relay Aman & Laporan Abuse */
+.lost-form-group {
+  margin-bottom: 12px;
+  text-align: left;
+}
+
+.lost-form-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #374151;
+  margin-bottom: 4px;
+}
+
+.lost-form-label .req {
+  color: #DC2626;
+  margin-left: 2px;
+}
+
+.lost-form-input,
+.lost-form-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  background: #FAF8F5;
+  border: 1.5px solid #E5E1DA;
+  border-radius: 12px;
+  padding: 9px 12px;
+  font-size: 12px;
+  color: #1F2937;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.18s ease;
+  outline: none;
+}
+
+.lost-form-input:focus,
+.lost-form-textarea:focus {
+  border-color: #8B0000;
+  background: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(139, 0, 0, 0.10);
+}
+
+.lost-form-textarea {
+  resize: vertical;
+  min-height: 70px;
+}
+
+.lost-form-gps-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #8B0000;
+  background: #FEF3C7;
+  border: 1px solid #F5BA41;
+  border-radius: 8px;
+  padding: 4px 8px;
+  margin-top: 5px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.lost-form-gps-btn:hover {
+  background: #FDE68A;
+  color: #78350F;
 }
 
 /* Footer Hilang */

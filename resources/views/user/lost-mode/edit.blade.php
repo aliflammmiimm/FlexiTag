@@ -61,35 +61,13 @@
             </div>
         @endif
 
-        {{-- Card 1: Privasi Terlindungi (Overlap ke Header) --}}
-        <section class="privacy-overlap-card" aria-label="Informasi Privasi">
-            <div class="privacy-card-header">
-                <div class="privacy-lock-box" aria-hidden="true">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                    </svg>
-                </div>
-                <h2 class="privacy-title-text">Privasi Terlindungi</h2>
-            </div>
-
-            <p class="privacy-desc-text">
-                Nomor kontak pribadi pemilik tidak ditampilkan langsung kepada penemu barang. Pesan penemu diteruskan secara aman melalui sistem relay cloud MaccaTech.
-            </p>
-
-            <div class="privacy-bottom-pill">
-                <span>🔒</span>
-                <span>Relay Pesan Aman</span>
-            </div>
-        </section>
-
-        {{-- Card 2: Hardware/Tag Card --}}
+        {{-- Card 1: Hardware/Tag Card Status --}}
         <section class="hardware-info-card" aria-label="Informasi Tag">
             <div class="hardware-pattern-right" aria-hidden="true"></div>
 
             <div class="hardware-header-row">
                 <div class="hardware-nfc-icon-box" aria-hidden="true">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
                         <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
                         <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
@@ -105,16 +83,36 @@
                         ID: {{ $primaryTag?->tag_code ?? '-' }}
                     </span>
                 </div>
-            </div>
 
-            <div class="hardware-status-alert">
                 <span class="hardware-status-badge">
                     <span>⚠️</span>
-                    <span>Status: Mode Barang Hilang Siaga</span>
+                    <span>Mode Hilang Siaga</span>
                 </span>
-                <p class="hardware-status-desc">
-                    Penemu yang men-scan tag ini akan langsung melihat pesan darurat tanpa membuka profil media sosial Anda.
-                </p>
+            </div>
+        </section>
+
+        {{-- Card 2: Privasi Terlindungi Callout --}}
+        <section class="privacy-overlap-card" aria-label="Informasi Privasi">
+            <div class="privacy-card-header">
+                <div class="privacy-lock-box" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="privacy-title-text">Privasi Terlindungi</h2>
+                    <span style="font-size: 0.65rem; color: #8C6D23; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;">PROTEKSI PRIVASI AKTIF • UU PDP</span>
+                </div>
+            </div>
+
+            <p class="privacy-desc-text">
+                Nomor kontak pribadi pemilik tidak ditampilkan langsung kepada penemu barang. Pesan penemu diteruskan secara aman melalui sistem relay cloud MaccaTech.
+            </p>
+
+            <div class="privacy-bottom-pill">
+                <span>🔒</span>
+                <span>Relay Pesan Aman</span>
             </div>
         </section>
 
@@ -125,11 +123,41 @@
             {{-- Card 3: Formulir Informasi Darurat --}}
             <section class="emergency-form-card" aria-label="Formulir Darurat">
                 <div class="form-heading-row">
-                    <h3 class="form-title-text">Formulir Informasi Darurat</h3>
+                    <div>
+                        <h3 class="form-title-text">Formulir Informasi Darurat</h3>
+                        <span style="font-size: 0.68rem; color: #78716C;">Atur pesan &amp; informasi kontak saat tag di-tap penemu</span>
+                    </div>
                     <span class="form-required-note">* Wajib diisi</span>
                 </div>
 
-                {{-- Field 1: Pesan Penemuan Barang --}}
+                {{-- Field 1: Nama / Deskripsi Barang yang Hilang (SRS FR-LST & Section 6.3) --}}
+                <div class="form-field-group">
+                    <div class="field-label-row">
+                        <label for="namaBarang" class="field-label">
+                            Nama / Kategori Barang yang Hilang
+                        </label>
+                        <span class="field-badge-public">
+                            <span class="badge-dot">●</span>
+                            <span>Ditampilkan ke Penemu</span>
+                        </span>
+                    </div>
+
+                    <input type="text" 
+                           id="namaBarang" 
+                           name="nama_barang" 
+                           class="form-text-input" 
+                           value="{{ old('nama_barang', $currentNamaBarang) }}" 
+                           placeholder="Contoh: Gantungan Kunci & Kunci Motor Honda Vario">
+
+                    <span class="field-helper-text">
+                        Judul barang yang terikat dengan gantungan kunci ini saat penemu melihat halaman darurat.
+                    </span>
+                    @error('nama_barang')
+                        <span class="field-error-text">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                {{-- Field 2: Pesan Penemuan Barang --}}
                 <div class="form-field-group">
                     <div class="field-label-row">
                         <label for="lostMessage" class="field-label">
@@ -143,8 +171,8 @@
                     <textarea id="lostMessage" 
                               name="message" 
                               class="form-textarea" 
-                              maxlength="250"
-                              placeholder="Tulis pesan darurat untuk penemu barang..." 
+                              maxlength="250" 
+                              placeholder="Contoh: Halo orang baik! Barang ini milik saya dan sangat berharga karena berisi kunci rumah utama. Jika Anda menemukannya, mohon bantu hubungi saya melalui formulir di bawah ini. Ada imbalan apresiasi atas kejujuran Anda!" 
                               required>{{ old('message', $currentMessage) }}</textarea>
 
                     <span class="field-helper-text">
@@ -155,11 +183,44 @@
                     @enderror
                 </div>
 
-                {{-- Field 2: Nomor HP Penerima Relay --}}
+                {{-- Field 3: Perkiraan Lokasi Terakhir / Arahan Pengembalian --}}
                 <div class="form-field-group">
-                    <label for="relayPhone" class="field-label">
-                        Nomor HP Penerima Relay <span style="color:#DC2626;">*</span>
-                    </label>
+                    <div class="field-label-row">
+                        <label for="instruksiPengembalian" class="field-label">
+                            Perkiraan Lokasi Terakhir / Arahan Pengembalian (Opsional)
+                        </label>
+                        <span class="field-badge-public">
+                            <span class="badge-dot">●</span>
+                            <span>Ditampilkan ke Penemu</span>
+                        </span>
+                    </div>
+
+                    <input type="text" 
+                           id="instruksiPengembalian" 
+                           name="instruksi_pengembalian" 
+                           class="form-text-input" 
+                           value="{{ old('instruksi_pengembalian', $currentInstruksi) }}" 
+                           placeholder="Contoh: Area Kampus Unhas Tamalanrea / Sekitar Pantai Losari, Makassar">
+
+                    <span class="field-helper-text">
+                        Membantu penemu mengetahui area kemungkinan barang tertinggal atau lokasi penitipan aman.
+                    </span>
+                    @error('instruksi_pengembalian')
+                        <span class="field-error-text">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                {{-- Field 4: Nomor HP Penerima Relay --}}
+                <div class="form-field-group">
+                    <div class="field-label-row">
+                        <label for="relayPhone" class="field-label">
+                            Nomor HP Penerima Relay <span style="color:#DC2626;">*</span>
+                        </label>
+                        <span class="field-badge-private">
+                            <span>🔒</span>
+                            <span>Privat (Relay Cloud)</span>
+                        </span>
+                    </div>
 
                     <input type="text" 
                            id="relayPhone" 
@@ -169,25 +230,22 @@
                            placeholder="contoh: 081299887766" 
                            required>
 
-                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.25rem;">
-                        <span class="field-helper-text">
-                            Pemberitahuan pesan penemu akan dikirimkan ke nomor ini via relay.
-                        </span>
-                        <span class="field-badge-private">
-                            <span>🔒</span>
-                            <span>Tidak ditampilkan publik</span>
-                        </span>
-                    </div>
+                    <span class="field-helper-text">
+                        Pemberitahuan pesan penemu akan dikirimkan ke nomor WhatsApp ini melalui enkripsi cloud MaccaTech tanpa menampilkan nomor Anda ke publik.
+                    </span>
                     @error('relay_phone')
                         <span class="field-error-text">{{ $message }}</span>
                     @enderror
                 </div>
 
-                {{-- Field 3: Reward (Optional) --}}
+                {{-- Field 5: Reward (Optional) --}}
                 <div class="form-field-group">
-                    <label for="lostReward" class="field-label">
-                        Reward / Imbalan (Opsional)
-                    </label>
+                    <div class="field-label-row">
+                        <label for="lostReward" class="field-label">
+                            Reward / Imbalan (Opsional)
+                        </label>
+                        <span style="font-size: 0.7rem; color: #8C6D23; font-weight: 700;">🎁 Apresiasi Penemu</span>
+                    </div>
 
                     <input type="text" 
                            id="lostReward" 
@@ -206,41 +264,43 @@
             </section>
 
             {{-- Section: Opsi Komunikasi & Keamanan --}}
-            <div class="options-section-head">
-                Opsi Komunikasi &amp; Keamanan
+            <div class="options-group-wrapper">
+                <div class="options-section-head">
+                    Opsi Komunikasi &amp; Keamanan
+                </div>
+
+                <section class="options-card" aria-label="Opsi Komunikasi">
+                    {{-- Toggle 1: Form Pesan Penemu --}}
+                    <div class="option-row">
+                        <div class="option-text-col">
+                            <span class="option-title">Aktifkan Form Pesan Penemu</span>
+                            <span class="option-subtitle">
+                                Izinkan penemu mengirim pesan &amp; kontak mereka melalui server FlexiTag.
+                            </span>
+                        </div>
+
+                        <label class="switch-toggle-wrap">
+                            <input type="checkbox" name="form_enabled" value="1" {{ old('form_enabled', $formEnabled) ? 'checked' : '' }} aria-label="Aktifkan Form Pesan Penemu">
+                            <span class="switch-slider"></span>
+                        </label>
+                    </div>
+
+                    {{-- Toggle 2: Bagikan Lokasi GPS --}}
+                    <div class="option-row">
+                        <div class="option-text-col">
+                            <span class="option-title">Bagikan Lokasi GPS Terakhir Penemu</span>
+                            <span class="option-subtitle">
+                                Minta izin koordinat lokasi perangkat penemu saat form dikirimkan.
+                            </span>
+                        </div>
+
+                        <label class="switch-toggle-wrap">
+                            <input type="checkbox" name="share_location" value="1" {{ old('share_location', $shareLocation) ? 'checked' : '' }} aria-label="Bagikan Lokasi GPS Terakhir Penemu">
+                            <span class="switch-slider"></span>
+                        </label>
+                    </div>
+                </section>
             </div>
-
-            <section class="options-card" aria-label="Opsi Komunikasi">
-                {{-- Toggle 1: Form Pesan Penemu --}}
-                <div class="option-row">
-                    <div class="option-text-col">
-                        <span class="option-title">Aktifkan Form Pesan Penemu</span>
-                        <span class="option-subtitle">
-                            Izinkan penemu mengirim pesan &amp; kontak mereka melalui server FlexiTag.
-                        </span>
-                    </div>
-
-                    <label class="switch-toggle-wrap">
-                        <input type="checkbox" name="form_enabled" value="1" {{ old('form_enabled', $formEnabled) ? 'checked' : '' }} aria-label="Aktifkan Form Pesan Penemu">
-                        <span class="switch-slider"></span>
-                    </label>
-                </div>
-
-                {{-- Toggle 2: Bagikan Lokasi GPS --}}
-                <div class="option-row">
-                    <div class="option-text-col">
-                        <span class="option-title">Bagikan Lokasi GPS Terakhir Penemu</span>
-                        <span class="option-subtitle">
-                            Minta izin koordinat lokasi perangkat penemu saat form dikirimkan.
-                        </span>
-                    </div>
-
-                    <label class="switch-toggle-wrap">
-                        <input type="checkbox" name="share_location" value="1" {{ old('share_location', $shareLocation) ? 'checked' : '' }} aria-label="Bagikan Lokasi GPS Terakhir Penemu">
-                        <span class="switch-slider"></span>
-                    </label>
-                </div>
-            </section>
 
             {{-- Hidden input to activate mode hilang --}}
             <input type="hidden" name="activate_mode" value="1">
@@ -252,7 +312,7 @@
                         <div class="preview-icon-box" aria-hidden="true">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                <circle cx="12" cy="12" r="3"></circle>
+                                <circle cx="12" cy="3" r="3"></circle>
                             </svg>
                         </div>
                         <div>
@@ -271,7 +331,7 @@
                         <div class="preview-icon-box" aria-hidden="true">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                <circle cx="12" cy="12" r="3"></circle>
+                                <circle cx="12" cy="3" r="3"></circle>
                             </svg>
                         </div>
                         <div>

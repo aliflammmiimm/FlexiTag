@@ -5,7 +5,7 @@
 @php
     $sidebarUser = auth()->user();
     $sidebarProfile = $sidebarUser?->profile;
-    $sidebarDisplayName = $sidebarProfile?->display_name ?? $sidebarUser?->name ?? 'Pengguna FlexiTag';
+    $sidebarDisplayName = $sidebarUser?->name ?? $sidebarProfile?->display_name ?? 'Pengguna FlexiTag';
     $sidebarHeadline = $sidebarProfile?->headline ?? 'Member MaccaTech';
     $sidebarParts = explode(' ', trim($sidebarDisplayName));
     $sidebarInitials = '';

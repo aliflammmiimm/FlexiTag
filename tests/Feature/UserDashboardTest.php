@@ -64,7 +64,7 @@ class UserDashboardTest extends TestCase
         $response->assertSee('Pegawai Kopdes');
     }
 
-    public function test_admin_user_can_view_user_dashboard_without_redirect_to_admin_dashboard(): void
+    public function test_admin_user_with_active_tag_can_view_user_dashboard(): void
     {
         $admin = User::factory()->create([
             'name' => 'Super Administrator',
@@ -78,12 +78,26 @@ class UserDashboardTest extends TestCase
             'active_mode' => 'kampus',
         ]);
 
+        $this->createActiveTagFor($admin);
+
         $response = $this->actingAs($admin)->get(route('user.dashboard'));
 
         $response->assertStatus(200);
         $response->assertDontSee('Konsol Pengelola');
         $response->assertSee('FLEXITAG');
         $response->assertSee('Halo, Super Administrator');
+    }
+
+    public function test_admin_without_active_tag_is_redirected_to_admin_dashboard(): void
+    {
+        $admin = User::factory()->create([
+            'name' => 'Admin Saparuddin',
+            'role' => 'admin',
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('user.dashboard'));
+
+        $response->assertRedirect(route('admin.dashboard'));
     }
 
     private function createActiveTagFor(User $user): Tag
@@ -154,6 +168,16 @@ class UserDashboardTest extends TestCase
         $response->assertSee(route('login'));
         $response->assertSee('Aktivasi Tag');
         $response->assertSee('Pesan Sekarang');
+    }
+
+    public function test_landing_page_displays_catalog_designs_with_images(): void
+    {
+        $response = $this->get(route('home'));
+        $response->assertStatus(200);
+        $response->assertSee('<img', false);
+        $response->assertSee('★ Top #1');
+        $response->assertSee('★ Top #4');
+        $response->assertDontSee('★ Top #5');
     }
 
     public function test_user_can_login_and_is_redirected_to_user_dashboard(): void
@@ -277,7 +301,7 @@ class UserDashboardTest extends TestCase
         $response->assertRedirect(route('user.dashboard'));
         $response->assertSessionHas('status');
 
-        $this->assertEquals('Warung Pangkep Sentosa', $user->fresh()->profile->display_name);
+        $this->assertEquals($user->name, $user->fresh()->profile->display_name);
         $this->assertEquals('6281234567899', $user->fresh()->no_whatsapp);
 
         $this->assertDatabaseHas('mode_data', [
@@ -591,5 +615,226 @@ class UserDashboardTest extends TestCase
         $publicResponse->assertStatus(200);
         $publicResponse->assertSee('Perangkat Dinonaktifkan');
         $publicResponse->assertSee('Penangguhan oleh Administrator');
+    }
+
+    public function test_user_can_quick_claim_new_tag_from_merch_page(): void
+    {
+        $user = User::factory()->create(['name' => 'Owner Multi Tag']);
+        $this->createActiveTagFor($user);
+
+        Profile::create([
+            'user_id' => $user->id,
+            'display_name' => 'Owner Multi Tag',
+            'active_mode' => 'kampus',
+        ]);
+
+        $newTag = Tag::create([
+            'tag_code' => 'FT-QUICK-01',
+            'activation_code' => 'KD-QUICK-99',
+            'status' => 'belum_aktif',
+            'user_id' => null,
+            'produced_at' => now(),
+        ]);
+
+        $response = $this->actingAs($user)->post(route('user.merch.claimTag'), [
+            'activation_code' => 'KD-QUICK-99',
+        ]);
+
+        $response->assertRedirect(route('user.merch'));
+        $response->assertSessionHas('status');
+
+        $this->assertDatabaseHas('tags', [
+            'id' => $newTag->id,
+            'user_id' => $user->id,
+            'status' => 'aktif',
+        ]);
+    }
+
+    public function test_user_can_view_edit_mode_kampus_page(): void
+    {
+        $user = User::factory()->create(['name' => 'Andi Muhammad']);
+        $tag = $this->createActiveTagFor($user);
+
+        Profile::create([
+            'user_id' => $user->id,
+            'display_name' => 'Andi Muhammad',
+            'headline' => 'Teknik Komputer • Universitas Negeri Makassar',
+            'bio' => 'Angkatan 2023 • Makassar, Sulawesi Selatan',
+            'active_mode' => 'kampus',
+        ]);
+
+        $response = $this->actingAs($user)->get(route('user.profile.kampus'));
+
+        $response->assertStatus(200);
+        $response->assertSee('Edit Profil');
+        $response->assertSee('JEJARING AKADEMIK');
+        $response->assertSee('KAMPUS');
+        $response->assertSee('Foto Profil Mahasiswa');
+        $response->assertSee('Identitas Mahasiswa');
+        $response->assertSee('Teknik Komputer');
+        $response->assertSee('Universitas Negeri Makassar');
+        $response->assertSee('HIMA Teknik Komputer UNM');
+    }
+
+    public function test_user_can_update_mode_kampus_profile_and_sync_public_profile(): void
+    {
+        $user = User::factory()->create(['name' => 'Andi Muhammad']);
+        $tag = $this->createActiveTagFor($user);
+
+        Profile::create([
+            'user_id' => $user->id,
+            'display_name' => 'Andi Muhammad',
+            'headline' => 'Mahasiswa Baru',
+            'active_mode' => 'kampus',
+        ]);
+
+        $links = [
+            [
+                'id' => 1,
+                'type' => 'academic',
+                'title' => 'HIMA Teknik Komputer UNM',
+                'subtitle' => 'Pengurus Divisi Riset & Teknologi',
+                'url' => 'https://himatekkom.unm.ac.id',
+                'is_visible' => true,
+            ],
+            [
+                'id' => 2,
+                'type' => 'linkedin',
+                'title' => 'LinkedIn Mahasiswa',
+                'subtitle' => 'Jejaring akademik, lomba, & sertifikasi',
+                'url' => 'https://linkedin.com/in/andimuhammad',
+                'is_visible' => true,
+            ],
+        ];
+
+        $postData = [
+            'nama_lengkap' => 'Andi Muhammad Baru',
+            'program_studi' => 'Teknik Informatika & Komputer',
+            'universitas' => 'Universitas Negeri Makassar',
+            'angkatan' => '2023',
+            'domisili' => 'Makassar, Sulawesi Selatan',
+            'telepon_kampus' => '081234567890',
+            'email_kampus' => 'andi.muhammad@student.unm.ac.id',
+            'links_json' => json_encode($links),
+        ];
+
+        $response = $this->actingAs($user)->post(route('user.profile.kampus.update'), $postData);
+
+        $response->assertRedirect(route('user.dashboard'));
+        $response->assertSessionHas('status', 'Profil Mode Kampus berhasil disimpan & disinkronkan ke Tag!');
+
+        // Verifikasi database mode_data dan profile
+        $this->assertDatabaseHas('mode_data', [
+            'user_id' => $user->id,
+            'mode' => 'kampus',
+        ]);
+
+        $this->assertDatabaseHas('profiles', [
+            'user_id' => $user->id,
+            'display_name' => 'Andi Muhammad Baru',
+            'headline' => 'Teknik Informatika & Komputer • Universitas Negeri Makassar',
+            'active_mode' => 'kampus',
+        ]);
+
+        // Verifikasi publik profil tag
+        $publicResponse = $this->get(route('public.tag', ['tag_code' => $tag->tag_code]));
+        $publicResponse->assertStatus(200);
+        $publicResponse->assertSee('Andi Muhammad Baru');
+        $publicResponse->assertSee('Teknik Informatika & Komputer • Universitas Negeri Makassar');
+        $publicResponse->assertSee('Angkatan 2023 • Makassar, Sulawesi Selatan');
+        $publicResponse->assertSee('HIMA Teknik Komputer UNM');
+        $publicResponse->assertSee('Pengurus Divisi Riset & Teknologi');
+    }
+
+    public function test_authenticated_user_can_view_edit_mode_kerja_page(): void
+    {
+        $user = User::factory()->create(['role' => 'user']);
+        $tag = $this->createActiveTagFor($user);
+
+        Profile::create([
+            'user_id' => $user->id,
+            'display_name' => 'Budi Developer',
+            'headline' => 'Full-Stack Developer',
+            'active_mode' => 'kerja',
+        ]);
+
+        ModeData::create([
+            'user_id' => $user->id,
+            'mode' => 'kampus',
+            'data' => [
+                'nama_mahasiswa' => 'Budi Developer',
+                'program_studi' => 'Teknik Informatika',
+                'universitas' => 'Universitas Hasanuddin',
+                'domisili' => 'Makassar',
+                'telepon_kampus' => '081234567890',
+                'email_kampus' => 'budi@student.unhas.ac.id',
+            ],
+        ]);
+
+        $response = $this->actingAs($user)->get(route('user.profile.kerja'));
+
+        $response->assertStatus(200);
+        $response->assertSee('PORTOFOLIO &amp; KARIR', false);
+        $response->assertSee('Salin dari Profil Kampus');
+        $response->assertSee('Foto Profil Profesional');
+        $response->assertSee('Curriculum Vitae (PDF)');
+        $response->assertSee('Simpan Perubahan Mode Kerja');
+    }
+
+    public function test_authenticated_user_can_update_mode_kerja(): void
+    {
+        $user = User::factory()->create(['role' => 'user']);
+        $tag = $this->createActiveTagFor($user);
+
+        Profile::create([
+            'user_id' => $user->id,
+            'display_name' => 'Andi Muhammad',
+            'headline' => 'Junior Developer',
+            'active_mode' => 'kerja',
+        ]);
+
+        $postData = [
+            'nama_lengkap' => 'Andi Muhammad, S.Kom',
+            'posisi' => 'Senior IoT & Cloud Engineer',
+            'perusahaan' => 'PT Celebes Digital Solusindo',
+            'lokasi_kantor' => 'Makassar, Sulawesi Selatan (Hybrid)',
+            'bio' => 'Berpengalaman 3+ tahun membangun sistem tertanam dan platform web berbasis Laravel.',
+            'telepon_kerja' => '081234567890',
+            'email_kerja' => 'andi.pro@example.com',
+            'links_json' => json_encode([
+                [
+                    'id' => 1,
+                    'type' => 'portfolio',
+                    'title' => 'Portofolio Digital',
+                    'subtitle' => 'Koleksi aplikasi IoT',
+                    'url' => 'https://andimuhammad.dev',
+                    'is_visible' => true,
+                ],
+            ]),
+        ];
+
+        $response = $this->actingAs($user)->post(route('user.profile.kerja.update'), $postData);
+
+        $response->assertRedirect(route('user.dashboard'));
+        $response->assertSessionHas('status', 'Profil Mode Kerja berhasil disimpan & disinkronkan ke Tag!');
+
+        $this->assertDatabaseHas('mode_data', [
+            'user_id' => $user->id,
+            'mode' => 'kerja',
+        ]);
+
+        $this->assertDatabaseHas('profiles', [
+            'user_id' => $user->id,
+            'display_name' => 'Andi Muhammad, S.Kom',
+            'headline' => 'Senior IoT & Cloud Engineer • PT Celebes Digital Solusindo',
+            'active_mode' => 'kerja',
+        ]);
+
+        $pubResponse = $this->get(route('public.tag', ['tag_code' => $tag->tag_code]));
+        $pubResponse->assertStatus(200);
+        $pubResponse->assertSee('Andi Muhammad, S.Kom');
+        $pubResponse->assertSee('Senior IoT &amp; Cloud Engineer', false);
+        $pubResponse->assertSee('Makassar, Sulawesi Selatan (Hybrid)');
+        $pubResponse->assertSee('Unduh CV (PDF)');
     }
 }

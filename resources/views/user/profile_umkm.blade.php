@@ -283,7 +283,7 @@
 
             <div class="form-field-group">
                 <label for="modalProdLabel" class="field-label">Label Promosi</label>
-                <select id="modalProdLabel" class="umkm-input">
+                <select id="modalProdLabel" class="umkm-input umkm-select">
                     <option value="">(Tanpa Label)</option>
                     <option value="Unggulan|⭐|badge-gold">⭐ Unggulan</option>
                     <option value="Paling Laris|🔥|badge-red">🔥 Paling Laris</option>

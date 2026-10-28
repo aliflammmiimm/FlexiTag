@@ -33,9 +33,10 @@
         $currentMode = $activeMode ?? ($profile?->active_mode ?? 'kampus');
 
         if ($currentMode === 'kerja') {
-            $headline = $modeData['headline'] ?? $modeData['posisi'] ?? ($profile?->headline ?: 'Software Engineer & Embedded IoT Developer');
-            $bioText = $modeData['bio'] ?? ($profile?->bio ?: 'Fokus membangun sistem web modern dan perangkat keras pintar berbasis mikrokontroler.');
-            $locationText = $modeData['lokasi'] ?? $modeData['lokasi_kantor'] ?? ($profile?->bio && !str_contains($profile->bio, 'Angkatan') && strlen($profile->bio) < 50 ? $profile->bio : 'Makassar, Sulawesi Selatan');
+            $displayName = $modeData['nama_profesional'] ?? $modeData['nama_lengkap'] ?? $profile?->display_name ?? $user?->name ?? 'Andi Muhammad';
+            $headline = $modeData['headline'] ?? $modeData['posisi'] ?? ($profile?->headline && !str_contains($profile->headline, 'Teknik Komputer') ? $profile->headline : 'Software Engineer & Embedded IoT Developer');
+            $bioText = $modeData['bio'] ?? ($profile?->bio && !str_contains($profile->bio, 'Angkatan') ? $profile->bio : 'Fokus membangun sistem web modern dan perangkat keras pintar berbasis mikrokontroler.');
+            $locationText = $modeData['lokasi_kantor'] ?? $modeData['lokasi'] ?? ($profile?->bio && !str_contains($profile->bio, 'Angkatan') && strlen($profile->bio) < 50 ? $profile->bio : 'Makassar, Sulawesi Selatan');
             $phoneLabel = 'TELEPON & WHATSAPP KERJA';
             $emailLabel = 'EMAIL PROFESIONAL';
             $phone = $modeData['telepon_kerja'] ?? $user?->no_whatsapp ?? '+62 812-3456-7890';
@@ -76,6 +77,24 @@
             $cleanPhone = '62' . substr($cleanPhone, 1);
         } elseif (str_starts_with($cleanPhone, '+')) {
             $cleanPhone = substr($cleanPhone, 1);
+        }
+
+        $formattedPhone = $phone;
+        $digitsOnly = preg_replace('/[^\d]/', '', $phone);
+        if (str_starts_with($digitsOnly, '62') && strlen($digitsOnly) >= 11) {
+            $prefix = '+62';
+            $rest = substr($digitsOnly, 2);
+            if (strlen($rest) >= 9) {
+                $p1 = substr($rest, 0, 3);
+                $p2 = substr($rest, 3, 4);
+                $p3 = substr($rest, 7);
+                $formattedPhone = "{$prefix} {$p1}-{$p2}-{$p3}";
+            }
+        } elseif (str_starts_with($digitsOnly, '0') && strlen($digitsOnly) >= 10) {
+            $p1 = substr($digitsOnly, 0, 4);
+            $p2 = substr($digitsOnly, 4, 4);
+            $p3 = substr($digitsOnly, 8);
+            $formattedPhone = "{$p1}-{$p2}-{$p3}";
         }
     @endphp
 
@@ -142,6 +161,46 @@
                     <p class="lost-mode-sub">MaccaTag Sulawesi Heritage Edition • Safe Recovery Gateway</p>
                 </div>
             </header>
+
+            {{-- Flash Alert Feedback Pesan Penemu & Abuse --}}
+            @if (session('lost_message_success'))
+                <div style="background: #ECFDF5; border: 1.5px solid #10B981; border-radius: 16px; padding: 14px 18px; margin: 16px 20px 0; text-align: left; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.12);">
+                    <div style="display: flex; align-items: flex-start; gap: 10px;">
+                        <span style="font-size: 20px; line-height: 1;">🎉</span>
+                        <div>
+                            <strong style="display: block; font-size: 13px; color: #065F46; font-weight: 750;">Pesan Berhasil Terkirim ke Pemilik!</strong>
+                            <p style="margin: 2px 0 0; font-size: 12px; color: #047857; line-height: 1.45;">
+                                {{ session('lost_message_success') }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            @if (session('abuse_report_success'))
+                <div style="background: #F0FDF4; border: 1.5px solid #22C55E; border-radius: 16px; padding: 14px 18px; margin: 16px 20px 0; text-align: left;">
+                    <div style="display: flex; align-items: flex-start; gap: 10px;">
+                        <span style="font-size: 18px; line-height: 1;">🛡️</span>
+                        <div>
+                            <strong style="display: block; font-size: 13px; color: #166534; font-weight: 750;">Laporan Diterima</strong>
+                            <p style="margin: 2px 0 0; font-size: 12px; color: #15803D; line-height: 1.45;">
+                                {{ session('abuse_report_success') }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            @if ($errors->any())
+                <div style="background: #FEF2F2; border: 1.5px solid #EF4444; border-radius: 16px; padding: 14px 18px; margin: 16px 20px 0; text-align: left;">
+                    <strong style="display: block; font-size: 13px; color: #991B1B; font-weight: 750;">Gagal Mengirim:</strong>
+                    <ul style="margin: 4px 0 0; padding-left: 18px; font-size: 12px; color: #B91C1C;">
+                        @foreach ($errors->all() as $err)
+                            <li>{{ $err }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
             {{-- Emblem Siren & Hero Title --}}
             <section class="lost-hero-section">
@@ -220,50 +279,57 @@
                         <span>🛡️</span>
                         <span>PESAN DARURAT PEMILIK</span>
                     </div>
-                    <p class="lost-message-quote">
-                        "{{ $modeData['message'] ?? $modeData['pesan_darurat'] ?? 'Halo orang baik! Gantungan kunci ini sangat berharga bagi saya karena berisi kunci rumah utama dan data penting. Ada imbalan terima kasih bagi siapa pun yang bersedia mengembalikan. Terima kasih banyak atas kejujuran Anda!' }}"
-                    </p>
+                    <div class="lost-message-quote-wrap">
+                        <p class="lost-message-quote">
+                            "{{ $modeData['message'] ?? $modeData['pesan_darurat'] ?? 'Halo orang baik! Gantungan kunci ini sangat berharga bagi saya karena berisi kunci rumah utama dan data penting. Ada imbalan terima kasih bagi siapa pun yang bersedia mengembalikan. Terima kasih banyak atas kejujuran Anda!' }}"
+                        </p>
+                    </div>
                     @if (!empty($modeData['reward']))
-                        <div style="background: #FDF6B2; border: 1px solid #FCE96A; border-radius: 8px; padding: 0.5rem 0.75rem; font-size: 0.76rem; color: #723B13; font-weight: 700; margin-top: 0.75rem;">
-                            🎁 Imbalan bagi penemu: {{ $modeData['reward'] }}
+                        <div class="lost-reward-badge-card">
+                            <span class="reward-gift-icon">🎁</span>
+                            <div class="reward-text-col">
+                                <span class="reward-sub-label">Apresiasi &amp; Imbalan Penemu</span>
+                                <span class="reward-main-value">{{ $modeData['reward'] }}</span>
+                            </div>
                         </div>
                     @endif
                 </div>
 
                 {{-- Jaminan Privasi --}}
                 <div class="lost-privacy-guarantee">
-                    <svg class="lock-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                    </svg>
-                    <div>
-                        <strong>Privasi Terjamin:</strong> Nomor telepon dan identitas kedua belah pihak terlindungi di balik enkripsi MaccaTag.
+                    <div class="lost-privacy-icon-box">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                    </div>
+                    <div class="lost-privacy-text">
+                        <strong>Privasi Terjamin:</strong> Nomor telepon dan identitas pemilik terlindungi aman di balik enkripsi MaccaTag.
                     </div>
                 </div>
             </section>
 
-            {{-- Tombol Aksi Hubungi & Kirim Lokasi --}}
+            {{-- Tombol Aksi Hubungi & Kirim Lokasi (FR-LST-01, FR-LST-02, NFR-SEC-06) --}}
             <section class="lost-actions-section">
-                {{-- Tombol 1: Hubungi Pemilik (Kontak Aman) --}}
-                <a href="https://wa.me/{{ $cleanPhone }}?text={{ urlencode('Halo, saya menemukan barang FlexiTag Anda (' . $tag->tag_code . '). Saya ingin membantu mengembalikannya secara aman.') }}" 
-                   target="_blank" rel="noopener" class="btn-lost-contact-owner" id="btnLostContactOwner">
+                {{-- Tombol 1: Hubungi Pemilik (Relay Aman) --}}
+                <button type="button" class="btn-lost-contact-owner" id="btnLostContactOwner" onclick="openLostMessageModal()">
                     <div class="btn-lost-icon-bubble">
                         <span class="dot-live"></span>
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                         </svg>
                     </div>
-                    <div>
+                    <div class="btn-lost-text-col" style="text-align: left;">
                         <span class="btn-lost-title">Hubungi Pemilik via Relay Aman</span>
-                        <span class="btn-lost-sub">Kirim pesan chat anonim via gateway terenkripsi WhatsApp / Web</span>
+                        <span class="btn-lost-sub">Kirim pesan penemuan langsung ke pemilik tanpa nomor telepon terekspos</span>
                     </div>
                     <span class="btn-lost-arrow">➔</span>
-                </a>
+                </button>
 
                 {{-- Tombol 2: Kirim Titik Lokasi Temuan --}}
-                <button type="button" class="btn-lost-share-location" id="btnShareLocation" onclick="shareCurrentLocation('{{ $cleanPhone }}', '{{ $tag->tag_code }}')">
+                <button type="button" class="btn-lost-share-location" id="btnShareLocation" onclick="shareCurrentLocation('{{ $tag->tag_code }}')">
                     <div class="btn-lost-gps-icon">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="12" r="10"></circle>
                             <circle cx="12" cy="12" r="3"></circle>
                             <line x1="12" y1="2" x2="12" y2="4"></line>
@@ -272,11 +338,15 @@
                             <line x1="20" y1="12" x2="22" y2="12"></line>
                         </svg>
                     </div>
-                    <div style="text-align: left;">
-                        <span class="btn-lost-gps-title">Kirim Titik Lokasi Temuan</span>
-                        <span class="btn-lost-gps-sub">Bantu pemilik menjemput dengan koordinat aman GPS</span>
+                    <div class="btn-lost-text-col" style="text-align: left;">
+                        <span class="btn-lost-gps-title" id="btnShareLocationTitle">Kirim Titik Lokasi Temuan</span>
+                        <span class="btn-lost-gps-sub" id="btnShareLocationSub">Bantu pemilik menjemput dengan koordinat aman GPS</span>
                     </div>
-                    <span class="btn-lost-chevron">›</span>
+                    <div class="btn-lost-action-arrow" aria-hidden="true">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </div>
                 </button>
 
                 {{-- Tombol 3: Barang Sudah Berhasil Dikembalikan? --}}
@@ -301,8 +371,28 @@
                     POWERED BY MACCATAG • SMART NFC MERCHANDISE<br>
                     SULAWESI HERITAGE EDITION • ZERO APP REQUIRED
                 </div>
+                <div style="margin-top: 14px;">
+                    <button type="button" onclick="openAbuseModal()" style="background: none; border: none; font-size: 11px; color: #8C827A; text-decoration: underline; cursor: pointer; padding: 4px 8px; font-family: inherit;">
+                        Laporkan Penyalahgunaan Profil
+                    </button>
+                </div>
             </footer>
         @else
+            {{-- Flash Alert Feedback Abuse di Regular Mode --}}
+            @if (session('abuse_report_success'))
+                <div style="background: #F0FDF4; border: 1.5px solid #22C55E; border-radius: 16px; padding: 14px 18px; margin: 16px 20px 0; text-align: left;">
+                    <div style="display: flex; align-items: flex-start; gap: 10px;">
+                        <span style="font-size: 18px; line-height: 1;">🛡️</span>
+                        <div>
+                            <strong style="display: block; font-size: 13px; color: #166534; font-weight: 750;">Laporan Diterima</strong>
+                            <p style="margin: 2px 0 0; font-size: 12px; color: #15803D; line-height: 1.45;">
+                                {{ session('abuse_report_success') }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             {{-- 1. Banner Header Marun dengan Gelombang Konsentris NFC --}}
             <header class="profile-banner-header">
                 {{-- Ornamen Gelombang Konsentris Tap NFC --}}
@@ -446,9 +536,13 @@
                             </div>
                             <div class="contact-info-col">
                                 <span class="contact-label-sub">{{ $phoneLabel }}</span>
-                                <span class="contact-value-main">{{ $phone }}</span>
+                                <span class="contact-value-main">{{ $formattedPhone }}</span>
                             </div>
-                            <span class="contact-chevron">›</span>
+                            <div class="contact-chevron-wrap" aria-hidden="true">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#BDB6AC" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="9 18 15 12 9 6"></polyline>
+                                </svg>
+                            </div>
                         </a>
                     @endif
 
@@ -468,7 +562,11 @@
                                 <span class="contact-label-sub">{{ $emailLabel }}</span>
                                 <span class="contact-value-main">{{ $email }}</span>
                             </div>
-                            <span class="contact-chevron">›</span>
+                            <div class="contact-chevron-wrap" aria-hidden="true">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#BDB6AC" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="9 18 15 12 9 6"></polyline>
+                                </svg>
+                            </div>
                         </a>
                     @endif
                 </section>
@@ -476,20 +574,6 @@
 
             {{-- 6. Seksi Jejaring & Daftar Tautan --}}
             <section class="profile-links-section">
-                <div class="links-header-row">
-                    <div class="links-header-title">
-                        @if ($currentMode === 'kerja')
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E5B239" stroke-width="2.3" style="flex-shrink: 0;" aria-hidden="true">
-                                <circle cx="12" cy="12" r="10"/>
-                                <circle cx="12" cy="12" r="5" fill="#E5B239"/>
-                            </svg>
-                        @else
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="#E5B239" style="flex-shrink: 0;" aria-hidden="true">
-                                <path d="M19 4h-2V3a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v1H5a3 3 0 0 0-3 3v2a5 5 0 0 0 4.1 4.9A7.002 7.002 0 0 0 11 17.92V20H8a1 1 0 0 0 0 2h8a1 1 0 0 0 0-2h-3v-2.08a7.002 7.002 0 0 0 4.9-4.02A5 5 0 0 0 22 9V7a3 3 0 0 0-3-3zM4 9V7a1 1 0 0 1 1-1h2v4.18A3.003 3.003 0 0 1 4 9zm16 0a3.003 3.003 0 0 1-3 1.18V6h2a1 1 0 0 1 1 1v2z"/>
-                            </svg>
-                        @endif
-                        <span>{{ $modeBadge['section_title'] }}</span>
-                    </div>
                 @php
                     if ($currentMode === 'kerja') {
                         $kerjaLinks = $modeData['links'] ?? null;
@@ -575,7 +659,73 @@
                         }
                         $totalActiveLinks = count($kerjaLinks);
                     } else {
-                        $totalActiveLinks = $links->count() > 0 ? $links->count() : 4;
+                        // Mode Kampus & Default: Ambil dari mode_data['links'], jika kosong ambil dari $links relasi DB (kecuali whatsapp), atau fallback 4 tautan utama
+                        $campusLinks = $modeData['links'] ?? null;
+                        if (is_array($campusLinks)) {
+                            $campusLinks = array_values(array_filter($campusLinks, function ($item) {
+                                $type = $item['type'] ?? '';
+                                $title = strtolower($item['title'] ?? '');
+
+                                return ! in_array($type, ['whatsapp', 'phone', 'email']) && ! str_contains($title, 'fast order');
+                            }));
+                        }
+                        if (empty($campusLinks) && $links->count() > 0) {
+                            $campusDbLinks = $links->filter(fn ($l) => ! in_array($l->type, ['whatsapp', 'phone', 'email']));
+                            if ($campusDbLinks->count() > 0) {
+                                $campusLinks = $campusDbLinks->map(function ($l) use ($tag) {
+                                    $hasPipe = str_contains($l->label, '|');
+
+                                    return [
+                                        'type' => $l->type,
+                                        'title' => $hasPipe ? trim(explode('|', $l->label)[0]) : $l->label,
+                                        'subtitle' => $hasPipe ? trim(explode('|', $l->label)[1]) : match ($l->type) {
+                                            'academic', 'organization' => 'Pengurus Divisi Riset & Teknologi',
+                                            'linkedin' => 'Jejaring akademik, lomba, & sertifikasi',
+                                            'instagram' => 'Aktivitas kampus & dokumentasi kegiatan',
+                                            'github', 'code' => 'Kumpulan laporan riset IoT & sistem tertanam',
+                                            default => 'Tautan profil terverifikasi',
+                                        },
+                                        'url' => route('public.tag.link', ['tag_code' => $tag->tag_code, 'link_id' => $l->id]),
+                                    ];
+                                })->values()->toArray();
+                            }
+                        }
+
+                        if (empty($campusLinks)) {
+                            $userHandle = \Illuminate\Support\Str::slug($displayName, '');
+                            if (empty($userHandle)) {
+                                $userHandle = 'mahasiswa';
+                            }
+                            $userSlug = \Illuminate\Support\Str::slug($displayName);
+
+                            $campusLinks = [
+                                [
+                                    'type' => 'academic',
+                                    'title' => 'HIMA Teknik Komputer UNM',
+                                    'subtitle' => 'Pengurus Divisi Riset & Teknologi',
+                                    'url' => 'https://himatekkom.unm.ac.id',
+                                ],
+                                [
+                                    'type' => 'linkedin',
+                                    'title' => 'LinkedIn Mahasiswa',
+                                    'subtitle' => 'Jejaring akademik, lomba, & sertifikasi',
+                                    'url' => 'https://linkedin.com/in/'.$userSlug,
+                                ],
+                                [
+                                    'type' => 'instagram',
+                                    'title' => 'Instagram (@'.$userHandle.')',
+                                    'subtitle' => 'Aktivitas kampus & dokumentasi kegiatan',
+                                    'url' => 'https://instagram.com/'.$userHandle,
+                                ],
+                                [
+                                    'type' => 'github',
+                                    'title' => 'Proyek Kuliah & Tugas Akhir',
+                                    'subtitle' => 'Kumpulan laporan riset IoT & sistem tertanam',
+                                    'url' => 'https://github.com/'.$userHandle,
+                                ],
+                            ];
+                        }
+                        $totalActiveLinks = count($campusLinks);
                     }
                 @endphp
 
@@ -587,8 +737,12 @@
                                 <circle cx="12" cy="12" r="5" fill="#E5B239"/>
                             </svg>
                         @else
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="#E5B239" style="flex-shrink: 0;" aria-hidden="true">
-                                <path d="M19 4h-2V3a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v1H5a3 3 0 0 0-3 3v2a5 5 0 0 0 4.1 4.9A7.002 7.002 0 0 0 11 17.92V20H8a1 1 0 0 0 0 2h8a1 1 0 0 0 0-2h-3v-2.08a7.002 7.002 0 0 0 4.9-4.02A5 5 0 0 0 22 9V7a3 3 0 0 0-3-3zM4 9V7a1 1 0 0 1 1-1h2v4.18A3.003 3.003 0 0 1 4 9zm16 0a3.003 3.003 0 0 1-3 1.18V6h2a1 1 0 0 1 1 1v2z"/>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E5B239" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;" aria-hidden="true">
+                                <path d="M6 9H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2"/>
+                                <path d="M18 9h2a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-2"/>
+                                <path d="M6 3h12v7a6 6 0 0 1-12 0V3z"/>
+                                <path d="M12 16v4"/>
+                                <path d="M8 20h8"/>
                             </svg>
                         @endif
                         <span>{{ $modeBadge['section_title'] }}</span>
@@ -643,137 +797,81 @@
                                     <span class="link-title">{{ $kLink['title'] ?? '' }}</span>
                                     <span class="link-subtitle">{{ $kLink['subtitle'] ?? '' }}</span>
                                 </div>
-                                <span class="link-chevron-arrow">›</span>
+                                <div class="link-chevron-wrap" aria-hidden="true">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#BDB6AC" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="9 18 15 12 9 6"></polyline>
+                                    </svg>
+                                </div>
                             </a>
                         @endforeach
                     @else
-                        {{-- Mode Kampus & Lainnya --}}
-                        @forelse ($links as $link)
-                        @php
-                            // Parsing label & subtitle (contoh "HIMA Teknik Komputer UNM|Pengurus Divisi Riset")
-                            $hasPipe = str_contains($link->label, '|');
-                            $linkTitle = $hasPipe ? trim(explode('|', $link->label)[0]) : $link->label;
-                            $linkSubtitle = $hasPipe ? trim(explode('|', $link->label)[1]) : match($link->type) {
-                                'academic', 'organization' => 'Pengurus Divisi Riset & Teknologi',
-                                'linkedin' => 'Jejaring akademik, lomba, & sertifikasi',
-                                'instagram' => 'Aktivitas kampus & dokumentasi kegiatan',
-                                'github', 'code' => 'Kumpulan laporan riset IoT & sistem tertanam',
-                                'whatsapp' => 'Hubungi langsung melalui WhatsApp',
-                                default => 'Tautan profil terverifikasi',
-                            };
+                        {{-- Mode Kampus & Default --}}
+                        @foreach ($campusLinks as $cLink)
+                            @php
+                                $cType = $cLink['type'] ?? 'academic';
+                                $cTitle = $cLink['title'] ?? 'Tautan Kampus';
+                                $cSubtitle = $cLink['subtitle'] ?? '';
+                                $cUrl = $cLink['url'] ?? '#';
 
-                            // Styling kelas icon box
-                            $iconBoxClass = match($link->type) {
-                                'academic', 'organization' => 'icon-box-academic',
-                                'linkedin' => 'icon-box-linkedin',
-                                'instagram' => 'icon-box-instagram',
-                                'github', 'code' => 'icon-box-github',
-                                default => 'icon-box-default',
-                            };
-                        @endphp
+                                $iconBoxClass = match($cType) {
+                                    'academic', 'organization' => 'icon-box-academic',
+                                    'linkedin' => 'icon-box-linkedin',
+                                    'instagram' => 'icon-box-instagram',
+                                    'github', 'code' => 'icon-box-github',
+                                    default => 'icon-box-default',
+                                };
+                            @endphp
 
-                        <a href="{{ route('public.tag.link', ['tag_code' => $tag->tag_code, 'link_id' => $link->id]) }}" 
-                           target="_blank" rel="noopener" class="link-card-item">
-                            <div class="link-icon-box {{ $iconBoxClass }}">
-                                @if (in_array($link->type, ['academic', 'organization']))
-                                    {{-- Graduation Cap SVG --}}
-                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-                                        <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                            <a href="{{ $cUrl }}" target="_blank" rel="noopener" class="link-card-item">
+                                <div class="link-icon-box {{ $iconBoxClass }}">
+                                    @if (in_array($cType, ['academic', 'organization']))
+                                        {{-- Graduation Cap SVG --}}
+                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                                            <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                                        </svg>
+                                    @elseif ($cType === 'linkedin')
+                                        {{-- LinkedIn In SVG --}}
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                                        </svg>
+                                    @elseif ($cType === 'instagram')
+                                        {{-- Instagram Camera Outline SVG --}}
+                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+                                        </svg>
+                                    @elseif (in_array($cType, ['github', 'code']))
+                                        {{-- Code Brackets SVG --}}
+                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="16 18 22 12 16 6"/>
+                                            <polyline points="8 6 2 12 8 18"/>
+                                        </svg>
+                                    @else
+                                        {{-- Default Globe / Link SVG --}}
+                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="12" cy="12" r="10"/>
+                                            <line x1="2" y1="12" x2="22" y2="12"/>
+                                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                                        </svg>
+                                    @endif
+                                </div>
+
+                                <div class="link-text-col">
+                                    <span class="link-title">{{ $cTitle }}</span>
+                                    @if (!empty($cSubtitle))
+                                        <span class="link-subtitle">{{ $cSubtitle }}</span>
+                                    @endif
+                                </div>
+
+                                <div class="link-chevron-wrap" aria-hidden="true">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#BDB6AC" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="9 18 15 12 9 6"></polyline>
                                     </svg>
-                                @elseif ($link->type === 'linkedin')
-                                    {{-- LinkedIn In SVG --}}
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
-                                    </svg>
-                                @elseif ($link->type === 'instagram')
-                                    {{-- Instagram Camera Outline SVG --}}
-                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-                                        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-                                        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
-                                    </svg>
-                                @elseif (in_array($link->type, ['github', 'code']))
-                                    {{-- Code Brackets SVG --}}
-                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-                                        <polyline points="16 18 22 12 16 6"/>
-                                        <polyline points="8 6 2 12 8 18"/>
-                                    </svg>
-                                @else
-                                    {{-- Default Globe / Link SVG --}}
-                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <circle cx="12" cy="12" r="10"/>
-                                        <line x1="2" y1="12" x2="22" y2="12"/>
-                                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-                                    </svg>
-                                @endif
-                            </div>
-
-                            <div class="link-text-col">
-                                <span class="link-title">{{ $linkTitle }}</span>
-                                <span class="link-subtitle">{{ $linkSubtitle }}</span>
-                            </div>
-
-                            <span class="link-chevron-arrow">›</span>
-                        </a>
-                    @empty
-                        {{-- Fallback default 4 tautan aktivitas kampus sesuai referensi desain --}}
-                        <div class="link-card-item">
-                            <div class="link-icon-box icon-box-academic">
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-                                    <path d="M6 12v5c3 3 9 3 12 0v-5"/>
-                                </svg>
-                            </div>
-                            <div class="link-text-col">
-                                <span class="link-title">HIMA Teknik Komputer UNM</span>
-                                <span class="link-subtitle">Pengurus Divisi Riset &amp; Teknologi</span>
-                            </div>
-                            <span class="link-chevron-arrow">›</span>
-                        </div>
-
-                        <div class="link-card-item">
-                            <div class="link-icon-box icon-box-linkedin">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
-                                </svg>
-                            </div>
-                            <div class="link-text-col">
-                                <span class="link-title">LinkedIn Mahasiswa</span>
-                                <span class="link-subtitle">Jejaring akademik, lomba, &amp; sertifikasi</span>
-                            </div>
-                            <span class="link-chevron-arrow">›</span>
-                        </div>
-
-                        <div class="link-card-item">
-                            <div class="link-icon-box icon-box-instagram">
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-                                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-                                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
-                                </svg>
-                            </div>
-                            <div class="link-text-col">
-                                <span class="link-title">Instagram (@andimuh_)</span>
-                                <span class="link-subtitle">Aktivitas kampus &amp; dokumentasi kegiatan</span>
-                            </div>
-                            <span class="link-chevron-arrow">›</span>
-                        </div>
-
-                        <div class="link-card-item">
-                            <div class="link-icon-box icon-box-github">
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-                                    <polyline points="16 18 22 12 16 6"/>
-                                    <polyline points="8 6 2 12 8 18"/>
-                                </svg>
-                            </div>
-                            <div class="link-text-col">
-                                <span class="link-title">Proyek Kuliah &amp; Tugas Akhir</span>
-                                <span class="link-subtitle">Kumpulan laporan riset IoT &amp; sistem tertanam</span>
-                            </div>
-                            <span class="link-chevron-arrow">›</span>
-                        </div>
-                    @endforelse
+                                </div>
+                            </a>
+                        @endforeach
                     @endif
                 </div>
             </section>
@@ -820,6 +918,12 @@
                         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                     </svg>
                     <span>Enkripsi Kunci Aman Sulawesi Selatan</span>
+                </div>
+
+                <div style="margin-top: 14px;">
+                    <button type="button" onclick="openAbuseModal()" style="background: none; border: none; font-size: 11px; color: #8C827A; text-decoration: underline; cursor: pointer; padding: 4px 8px; font-family: inherit;">
+                        Laporkan Penyalahgunaan Profil
+                    </button>
                 </div>
             </footer>
         @endif
@@ -885,8 +989,209 @@
     </div>
 </div>
 
+{{-- ========================================================================= --}}
+{{-- MODALS KHUSUS MODE BARANG HILANG (GPS LOCATION & RETURN FLOW)             --}}
+{{-- ==========={{-- ========================================================================= --}}
+{{-- MODALS KHUSUS MODE BARANG HILANG (SAFE RELAY GATEWAY & RECOVERY FLOW)      --}}
+{{-- ========================================================================= --}}
+
+{{-- Modal 0: Formulir Hubungi Pemilik via Relay Aman (FR-LST-01, FR-LST-02) --}}
+<div class="lost-modal-backdrop" id="modalLostMessage" hidden role="dialog" aria-modal="true" aria-labelledby="modalLostTitle">
+    <div class="lost-modal-dialog" style="max-width: 410px; text-align: left;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 22px;">🛡️</span>
+                <div>
+                    <h3 class="lost-modal-title" id="modalLostTitle" style="margin: 0; font-size: 15px; color: #500A0E;">Hubungi Pemilik via Relay Aman</h3>
+                    <span style="font-size: 11px; color: #78716C;">Pesan dikirim tanpa mengekspos nomor pribadi</span>
+                </div>
+            </div>
+            <button type="button" class="lost-btn-ghost" onclick="closeLostModal('modalLostMessage')" style="font-size: 16px; padding: 2px 6px;">✕</button>
+        </div>
+
+        <form action="{{ route('public.tag.lost_message', $tag->tag_code) }}" method="POST" id="formLostMessage">
+            @csrf
+            <div class="lost-form-group">
+                <label class="lost-form-label" for="lostSenderName">Nama / Inisial Anda (Opsional)</label>
+                <input type="text" name="sender_name" id="lostSenderName" class="lost-form-input" placeholder="Contoh: Budi / Petugas Kebersihan Lobi" maxlength="100">
+            </div>
+
+            <div class="lost-form-group">
+                <label class="lost-form-label" for="lostLocationInput">
+                    Lokasi Temuan Barang <span class="req">*</span>
+                </label>
+                <input type="text" name="location" id="lostLocationInput" class="lost-form-input" placeholder="Contoh: Lobi Lantai 1 Gedung LK UNM" maxlength="150" required>
+                <button type="button" class="lost-form-gps-btn" onclick="detectGpsForForm()">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+                    <span>Deteksi Koordinat GPS Otomatis</span>
+                </button>
+            </div>
+
+            <div class="lost-form-group">
+                <label class="lost-form-label" for="lostMessageInput">
+                    Isi Pesan / Keterangan Temuan <span class="req">*</span>
+                </label>
+                <textarea name="message" id="lostMessageInput" class="lost-form-textarea" placeholder="Contoh: Halo, barang Anda tertinggal di atas meja. Saya titipkan aman di Pos Satpam Utama." rows="3" maxlength="1000" required></textarea>
+            </div>
+
+            <div class="lost-form-group">
+                <label class="lost-form-label" for="lostContactInput">No. WhatsApp / Kontak Anda (Opsional)</label>
+                <input type="text" name="contact" id="lostContactInput" class="lost-form-input" placeholder="Contoh: 0812-3456-7890 (agar pemilik dapat membalas)" maxlength="100">
+            </div>
+
+            <div class="lost-modal-btn-stack" style="margin-top: 16px;">
+                <button type="submit" class="lost-btn-wa" id="btnSubmitLostMessage">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                    <span>Kirim Pesan ke Pemilik Barang</span>
+                </button>
+                <button type="button" class="lost-btn-ghost" onclick="closeLostModal('modalLostMessage')">
+                    Batal
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{-- Modal 1: Titik Lokasi GPS Berhasil Dideteksi --}}
+<div class="lost-modal-backdrop" id="modalGpsLocation" hidden role="dialog" aria-modal="true" aria-labelledby="modalGpsTitle">
+    <div class="lost-modal-dialog">
+        <div class="lost-modal-icon-badge badge-gps">
+            📍
+        </div>
+        <h3 class="lost-modal-title" id="modalGpsTitle">Titik Lokasi GPS Ditemukan</h3>
+        <p class="lost-modal-desc">
+            Koordinat akurat telah dideteksi melalui sensor perangkat. Teruskan koordinat ini agar pemilik dapat menjemput barangnya dengan mudah.
+        </p>
+
+        <div class="lost-modal-coords-card">
+            <div class="lost-modal-coords-label">Koordinat Presisi GPS:</div>
+            <div class="lost-modal-coords-val" id="gpsCoordsText">-5.1476, 119.4327</div>
+            <div style="font-size: 10.5px; color: #78716C; margin-top: 2px;" id="gpsAccuracyText">Akurasi: ±15 meter</div>
+            <a href="#" target="_blank" rel="noopener" class="lost-modal-coords-link" id="gpsMapsPreviewLink">
+                <span>Buka pratinjau di Google Maps</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+            </a>
+        </div>
+
+        <div class="lost-modal-btn-stack">
+            <button type="button" class="lost-btn-wa" onclick="useGpsInMessageModal()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                <span>Gunakan Titik GPS di Formulir Pesan</span>
+            </button>
+            <button type="button" class="lost-btn-secondary" id="btnCopyGpsLink">
+                <span>Salin Tautan Titik Lokasi</span>
+            </button>
+            <button type="button" class="lost-btn-ghost" onclick="closeLostModal('modalGpsLocation')">
+                Tutup
+            </button>
+        </div>
+    </div>
+</div>
+
+{{-- Modal 2: Izin Lokasi Belum Aktif / Fallback GPS --}}
+<div class="lost-modal-backdrop" id="modalGpsFallback" hidden role="dialog" aria-modal="true" aria-labelledby="modalFallbackTitle">
+    <div class="lost-modal-dialog">
+        <div class="lost-modal-icon-badge badge-warn">
+            ⚠️
+        </div>
+        <h3 class="lost-modal-title" id="modalFallbackTitle">Izin Lokasi Belum Aktif</h3>
+        <p class="lost-modal-desc">
+            Browser Anda belum memberikan izin sensor lokasi GPS. Anda dapat langsung mengetikkan lokasi temuan secara manual ke pemilik via formulir aman.
+        </p>
+
+        <div class="lost-modal-btn-stack">
+            <button type="button" class="lost-btn-wa" onclick="closeLostModal('modalGpsFallback'); openLostMessageModal();">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                <span>Tulis Pesan Manual ke Pemilik</span>
+            </button>
+            <button type="button" class="lost-btn-secondary" onclick="closeLostModal('modalGpsFallback'); shareCurrentLocation('{{ $tag->tag_code }}')">
+                <span>Coba Deteksi Lagi</span>
+            </button>
+            <button type="button" class="lost-btn-ghost" onclick="closeLostModal('modalGpsFallback')">
+                Tutup
+            </button>
+        </div>
+    </div>
+</div>
+
+{{-- Modal 3: Konfirmasi Pengembalian Barang --}}
+<div class="lost-modal-backdrop" id="modalReturned" hidden role="dialog" aria-modal="true" aria-labelledby="modalReturnedTitle">
+    <div class="lost-modal-dialog">
+        <div class="lost-modal-icon-badge badge-success">
+            🤝
+        </div>
+        <h3 class="lost-modal-title" id="modalReturnedTitle">Konfirmasi Pengembalian</h3>
+        <p class="lost-modal-desc">
+            Apakah barang atau gantungan kunci FlexiTag ini sudah berhasil diserahkan kembali kepada pemiliknya?
+        </p>
+
+        <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 14px; padding: 12px; margin-bottom: 16px; font-size: 11.5px; color: #166534; line-height: 1.45; text-align: left;">
+            🌟 <strong>Penghargaan Integritas:</strong> Nilai kejujuran Anda sangat luar biasa dan sangat diapresiasi oleh seluruh ekosistem FlexiTag.
+        </div>
+
+        <div class="lost-modal-btn-stack">
+            <button type="button" class="lost-btn-wa" onclick="confirmReturnViaRelay()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>Kirim Konfirmasi ke Pemilik</span>
+            </button>
+            <button type="button" class="lost-btn-secondary" onclick="confirmReturnedSuccess()">
+                <span>Tandai Sudah Selesai</span>
+            </button>
+            <button type="button" class="lost-btn-ghost" onclick="closeLostModal('modalReturned')">
+                Batal
+            </button>
+        </div>
+    </div>
+</div>
+
+{{-- Modal 4: Laporkan Penyalahgunaan Profil (FR-PUB-12) --}}
+<div class="lost-modal-backdrop" id="modalAbuse" hidden role="dialog" aria-modal="true" aria-labelledby="modalAbuseTitle">
+    <div class="lost-modal-dialog" style="max-width: 400px; text-align: left;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 22px;">⚠️</span>
+                <div>
+                    <h3 class="lost-modal-title" id="modalAbuseTitle" style="margin: 0; font-size: 15px; color: #991B1B;">Laporkan Penyalahgunaan</h3>
+                    <span style="font-size: 11px; color: #78716C;">Laporan akan ditinjau langsung oleh admin sistem</span>
+                </div>
+            </div>
+            <button type="button" class="lost-btn-ghost" onclick="closeLostModal('modalAbuse')" style="font-size: 16px; padding: 2px 6px;">✕</button>
+        </div>
+
+        <form action="{{ route('public.tag.abuse_report', $tag->tag_code) }}" method="POST">
+            @csrf
+            <div class="lost-form-group">
+                <label class="lost-form-label" for="abuseSenderName">Nama / Inisial Anda (Opsional)</label>
+                <input type="text" name="sender_name" id="abuseSenderName" class="lost-form-input" placeholder="Contoh: Pengunjung Peduli" maxlength="100">
+            </div>
+
+            <div class="lost-form-group">
+                <label class="lost-form-label" for="abuseMessageInput">
+                    Rincian Pelanggaran / Konten Mencurigakan <span class="req">*</span>
+                </label>
+                <textarea name="message" id="abuseMessageInput" class="lost-form-textarea" placeholder="Jelaskan indikasi pelanggaran, phishing, atau konten tidak pantas pada profil ini..." rows="3" maxlength="1000" required></textarea>
+            </div>
+
+            <div class="lost-form-group">
+                <label class="lost-form-label" for="abuseContactInput">Kontak / Email Anda (Opsional)</label>
+                <input type="text" name="contact" id="abuseContactInput" class="lost-form-input" placeholder="Contoh: email@anda.com" maxlength="100">
+            </div>
+
+            <div class="lost-modal-btn-stack" style="margin-top: 16px;">
+                <button type="submit" class="lost-btn-wa" style="background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%); color: #FFFFFF; box-shadow: 0 4px 14px rgba(220, 38, 38, 0.35);">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    <span>Kirim Laporan ke Admin</span>
+                </button>
+                <button type="button" class="lost-btn-ghost" onclick="closeLostModal('modalAbuse')">
+                    Batal
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 {{-- Toast Feedback --}}
-<div class="copy-toast" id="copyToast">✓ Tautan profil berhasil disalin!</div>
+<div class="copy-toast" id="copyToast">✓ Tautan berhasil disalin!</div>
 
 <script>
     (function () {
@@ -894,7 +1199,6 @@
         var btnOpen = document.getElementById('btnOpenQrModal');
         var btnClose = document.getElementById('btnCloseQrModal');
         var btnCopy = document.getElementById('btnCopyProfileUrl');
-        var toast = document.getElementById('copyToast');
         var profileUrl = "{{ url('/u/' . $tag->tag_code) }}";
 
         if (btnOpen && qrModal) {
@@ -920,7 +1224,9 @@
         if (btnCopy) {
             btnCopy.addEventListener('click', function () {
                 if (navigator.clipboard) {
-                    navigator.clipboard.writeText(profileUrl).then(showToast);
+                    navigator.clipboard.writeText(profileUrl).then(function() {
+                        showLostToast('✓ Tautan profil berhasil disalin!');
+                    });
                 } else {
                     var el = document.createElement('textarea');
                     el.value = profileUrl;
@@ -928,18 +1234,22 @@
                     el.select();
                     document.execCommand('copy');
                     document.body.removeChild(el);
-                    showToast();
+                    showLostToast('✓ Tautan profil berhasil disalin!');
                 }
             });
         }
 
-        function showToast() {
-            if (!toast) return;
-            toast.style.display = 'block';
-            setTimeout(function () {
-                toast.style.display = 'none';
-            }, 2500);
-        }
+        // Close lost modals on backdrop click
+        ['modalGpsLocation', 'modalGpsFallback', 'modalReturned', 'modalLostMessage', 'modalAbuse'].forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('click', function(e) {
+                    if (e.target === el) {
+                        closeLostModal(id);
+                    }
+                });
+            }
+        });
     })();
 
     function pronounceName(name) {
@@ -952,24 +1262,168 @@
         }
     }
 
-    function shareCurrentLocation(phone, tagCode) {
+    var lastGpsCoords = '';
+    var lastGpsMapsUrl = '';
+
+    function shareCurrentLocation(tagCode) {
+        var btn = document.getElementById('btnShareLocation');
+        var title = document.getElementById('btnShareLocationTitle');
+        var sub = document.getElementById('btnShareLocationSub');
+        
+        if (btn) {
+            btn.classList.add('is-detecting');
+            if (title) title.textContent = 'Mendeteksi Koordinat GPS...';
+            if (sub) sub.textContent = 'Memohon izin sensor GPS dari perangkat...';
+        }
+
+        function resetButton() {
+            if (btn) {
+                btn.classList.remove('is-detecting');
+                if (title) title.textContent = 'Kirim Titik Lokasi Temuan';
+                if (sub) sub.textContent = 'Bantu pemilik menjemput dengan koordinat aman GPS';
+            }
+        }
+
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(function (position) {
+                resetButton();
                 var lat = position.coords.latitude;
                 var lng = position.coords.longitude;
+                var acc = position.coords.accuracy || 15;
                 var mapsUrl = 'https://maps.google.com/?q=' + lat + ',' + lng;
-                var msg = 'Halo, saya menemukan perangkat FlexiTag Anda (' + tagCode + '). Ini koordinat GPS lokasi temuan: ' + mapsUrl;
-                window.open('https://wa.me/' + phone + '?text=' + encodeURIComponent(msg), '_blank');
+                lastGpsCoords = lat.toFixed(6) + ', ' + lng.toFixed(6);
+                lastGpsMapsUrl = mapsUrl;
+
+                var coordsEl = document.getElementById('gpsCoordsText');
+                var accEl = document.getElementById('gpsAccuracyText');
+                var previewEl = document.getElementById('gpsMapsPreviewLink');
+                var copyBtn = document.getElementById('btnCopyGpsLink');
+
+                if (coordsEl) coordsEl.textContent = lastGpsCoords;
+                if (accEl) accEl.textContent = 'Akurasi sensor: ±' + Math.round(acc) + ' meter';
+                if (previewEl) previewEl.href = mapsUrl;
+                if (copyBtn) {
+                    copyBtn.onclick = function () {
+                        if (navigator.clipboard) {
+                            navigator.clipboard.writeText(mapsUrl).then(function() {
+                                showLostToast('✓ Tautan koordinat GPS berhasil disalin!');
+                            });
+                        } else {
+                            showLostToast('✓ Koordinat GPS: ' + lastGpsCoords);
+                        }
+                    };
+                }
+
+                openLostModal('modalGpsLocation');
             }, function (error) {
-                alert('Tidak dapat mendeteksi lokasi GPS otomatis. Silakan hubungi pemilik secara langsung via WhatsApp.');
-            }, { timeout: 10000 });
+                resetButton();
+                openLostModal('modalGpsFallback');
+            }, { timeout: 12000, enableHighAccuracy: true });
         } else {
-            alert('Browser perangkat tidak mendukung deteksi lokasi otomatis.');
+            resetButton();
+            openLostModal('modalGpsFallback');
         }
     }
 
+    function openLostMessageModal() {
+        openLostModal('modalLostMessage');
+        var loc = document.getElementById('lostLocationInput');
+        if (loc && !loc.value && lastGpsMapsUrl) {
+            loc.value = lastGpsMapsUrl;
+        }
+    }
+
+    function useGpsInMessageModal() {
+        closeLostModal('modalGpsLocation');
+        openLostMessageModal();
+        var loc = document.getElementById('lostLocationInput');
+        if (loc) {
+            loc.value = lastGpsMapsUrl || lastGpsCoords;
+        }
+        var msg = document.getElementById('lostMessageInput');
+        if (msg && !msg.value) {
+            msg.value = 'Halo, saya menemukan barang FlexiTag Anda di titik lokasi koordinat ini.';
+            msg.focus();
+        }
+    }
+
+    function detectGpsForForm() {
+        if (!navigator.geolocation) {
+            alert('Sensor GPS tidak didukung di peramban ini.');
+            return;
+        }
+        var loc = document.getElementById('lostLocationInput');
+        if (loc) {
+            loc.value = 'Sedang mendeteksi titik GPS...';
+        }
+        navigator.geolocation.getCurrentPosition(function (position) {
+            var lat = position.coords.latitude;
+            var lng = position.coords.longitude;
+            var mapsUrl = 'https://maps.google.com/?q=' + lat + ',' + lng;
+            lastGpsCoords = lat.toFixed(6) + ', ' + lng.toFixed(6);
+            lastGpsMapsUrl = mapsUrl;
+            if (loc) {
+                loc.value = mapsUrl;
+            }
+            showLostToast('✓ Lokasi GPS berhasil dimasukkan ke formulir!');
+        }, function (err) {
+            if (loc) {
+                loc.value = '';
+                loc.focus();
+            }
+            alert('Gagal mendeteksi GPS. Silakan ketik lokasi temuan secara manual.');
+        }, { timeout: 10000, enableHighAccuracy: true });
+    }
+
+    function confirmReturnViaRelay() {
+        closeLostModal('modalReturned');
+        openLostMessageModal();
+        var loc = document.getElementById('lostLocationInput');
+        if (loc && !loc.value) {
+            loc.value = 'Sudah diserahkan langsung kepada pemilik';
+        }
+        var msg = document.getElementById('lostMessageInput');
+        if (msg) {
+            msg.value = 'Halo, saya mengonfirmasi bahwa barang FlexiTag Anda telah berhasil diserahkan/dikembalikan. Terima kasih banyak!';
+            msg.focus();
+        }
+    }
+
+    function openAbuseModal() {
+        openLostModal('modalAbuse');
+    }
+
     function openReturnedModal() {
-        alert('Terima kasih banyak atas integritas dan kejujuran Anda dalam membantu mengembalikan barang ini kepada pemiliknya!');
+        openLostModal('modalReturned');
+    }
+
+    function confirmReturnedSuccess() {
+        closeLostModal('modalReturned');
+        showLostToast('🎉 Terima kasih! Integritas dan kejujuran Anda sangat dihargai.');
+    }
+
+    function openLostModal(modalId) {
+        var modal = document.getElementById(modalId);
+        if (modal) {
+            modal.removeAttribute('hidden');
+        }
+    }
+
+    function closeLostModal(modalId) {
+        var modal = document.getElementById(modalId);
+        if (modal) {
+            modal.setAttribute('hidden', '');
+        }
+    }
+
+    function showLostToast(msg) {
+        var toast = document.getElementById('copyToast');
+        if (!toast) return;
+        toast.textContent = msg;
+        toast.style.display = 'block';
+        setTimeout(function () {
+            toast.style.display = 'none';
+        }, 3200);
     }
 </script>
 

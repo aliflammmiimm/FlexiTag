@@ -33,13 +33,17 @@
         ['04', 'zap', 'Tap & Bagikan', 'Kelola isi profil di dashboard dan bagikan identitas dalam 1–2 detik.'],
     ];
 
+    // 4 Produk Terlaris (Katalog Desain & Model Ganci)
+    $catalogDesigns = ($designs ?? \App\Models\Design::active()->get())
+        ->sortByDesc(fn ($d) => $d->units_sold ?? 0)
+        ->values()
+        ->take(4);
+
     $models = [
-        ['circle', 'Model 01 — Bentuk Bulat', 'Pribadi & Kampus', 'Desain bulat dengan pilihan ukuran kecil, sedang, atau besar.'],
-        ['square', 'Model 02 — Bentuk Persegi', 'UMKM', 'Bentuk persegi untuk menampilkan logo usaha, nama brand, dan QR.'],
-        ['star', 'Model 03 — Bentuk Bebas / Custom', 'Organisasi', 'Bentuk menyesuaikan berkas desain logo himpunan atau komunitas.'],
-        ['diamond', 'Model 04 — Edisi Motif Toraja', 'Tema Lokal', 'Gantungan kunci akrilik dengan ornamen khas budaya Toraja.'],
-        ['diamond', 'Model 05 — Edisi Motif Bugis', 'Tema Lokal', 'Gantungan kunci akrilik dengan sentuhan motif tradisional Bugis.'],
-        ['cap', 'Model 06 — Edisi Identitas Kampus & Kepanitiaan', 'Mahasiswa • Panitia • Angkatan', 'Desain khusus untuk mahasiswa, panitia acara, dan angkatan.'],
+        ['circle', 'Model 01 — Bentuk Bulat', 'Pribadi & Kampus', 'Desain bulat dengan pilihan ukuran kecil, sedang, atau besar.', asset('storage/designs/ganci_bulat.png')],
+        ['square', 'Model 02 — Bentuk Persegi', 'UMKM', 'Bentuk persegi untuk menampilkan logo usaha, nama brand, dan QR.', asset('storage/designs/ganci_umkm.png')],
+        ['diamond', 'Model 04 — Edisi Motif Toraja', 'Tema Lokal', 'Gantungan kunci akrilik dengan ornamen khas budaya Toraja.', asset('storage/designs/ganci_toraja.png')],
+        ['diamond', 'Model 05 — Edisi Motif Bugis', 'Tema Lokal', 'Gantungan kunci akrilik dengan sentuhan motif tradisional Bugis.', asset('storage/designs/ganci_bugis.png')],
     ];
 
     $faqs = [
@@ -93,15 +97,16 @@
             <nav class="nav" aria-label="Navigasi utama">
                 <a href="#produk">Produk</a>
                 <a href="#cara-kerja">Cara Kerja</a>
-                {{-- TODO Tahap 4: arahkan ke halaman Lacak Pesanan setelah route tersedia --}}
-                <a href="#cara-kerja">Lacak Pesanan</a>
+                <a href="{{ route('order.track') }}">Lacak Pesanan</a>
                 <a href="#faq">FAQ</a>
                 <a href="#kontak">Kontak</a>
             </nav>
 
             <div class="header-actions">
                 @auth
-                    @if (auth()->user()->tags()->where('status', 'aktif')->exists() || in_array(auth()->user()->role, ['admin', 'staff'], true))
+                    @if (in_array(auth()->user()->role, ['admin', 'staff'], true))
+                        <a href="{{ route('admin.dashboard') }}" class="btn btn-gold">Dashboard Admin</a>
+                    @elseif (auth()->user()->tags()->where('status', 'aktif')->exists())
                         <a href="{{ route('user.dashboard') }}" class="btn btn-gold">Buka Dashboard</a>
                     @else
                         <a href="{{ route('user.activation.show', ['step' => 2]) }}" class="btn btn-gold">Aktivasi Tag</a>
@@ -113,7 +118,7 @@
                 @else
                     <a href="{{ route('login') }}" class="btn btn-outline">Masuk</a>
                     <a href="{{ route('user.activation.show') }}" class="btn btn-gold">Aktivasi Tag</a>
-                    <a href="{{ route('register') }}" class="btn btn-maroon">Pesan Sekarang</a>
+                    <a href="{{ route('order.create') }}" class="btn btn-maroon">Pesan Sekarang</a>
                 @endauth
             </div>
         </div>
@@ -130,7 +135,7 @@
                 <p class="lead">Gantungan kunci akrilik custom dengan chip NFC (NTAG213) yang terhubung ke platform profil digital dinamis. Tempelkan ke ponsel untuk membuka kontak, tautan media sosial, portofolio, atau katalog usaha tanpa aplikasi.</p>
 
                 <div class="hero-actions">
-                    <a href="{{ route('register') }}" class="btn btn-gold btn-lg">Pesan Sekarang ({{ $price }})</a>
+                    <a href="{{ route('order.create') }}" class="btn btn-gold btn-lg">Pesan Sekarang ({{ $price }})</a>
                     <a href="#cara-kerja" class="btn btn-outline btn-lg">Lihat Cara Kerja</a>
                 </div>
 
@@ -272,24 +277,67 @@
     {{-- Katalog --}}
     <section class="block band" id="produk">
         <div class="container">
-            <div class="eyebrow"><span>✦ Akrilik custom bertag NFC ✦</span></div>
-            <h2 class="section-title">Katalog Model Gantungan Kunci Akrilik & Desain Custom</h2>
-            <div class="grid grid-3">
-                @foreach ($models as [$ico, $title, $cat, $text])
-                    <div class="card model">
-                        <span class="chip" style="align-self:flex-start">{{ $cat }}</span>
-                        <div class="shot" aria-hidden="true"><span style="font-size:2.8rem;display:flex">@include('partials.icon', ['name' => $ico])</span></div>
-                        <h3>{{ $title }}</h3>
-                        <p class="txt">{{ $text }}</p>
-                        <div class="price">{{ $price }} / unit</div>
-                        <ul class="ticks">
-                            <li>Chip NFC NTAG213 + QR Cadangan</li>
-                            <li>Kartu Panduan & Kode Aktivasi</li>
-                            <li>Ukuran Kecil / Sedang / Besar</li>
-                        </ul>
-                        <a href="{{ route('register') }}" class="btn btn-maroon btn-block">Pilih Model Ini</a>
-                    </div>
-                @endforeach
+            <div class="eyebrow"><span>✦ 4 Produk Terlaris Bertag NFC ✦</span></div>
+            <h2 class="section-title">Katalog Produk Paling Laku & Desain Favorit</h2>
+            <p class="section-sub">Pilihan model gantungan kunci akrilik NFC yang paling banyak dipesan untuk profil pribadi, kebutuhan kampus, dan branding UMKM.</p>
+            <div class="grid grid-4">
+                @if ($catalogDesigns->isNotEmpty())
+                    @foreach ($catalogDesigns as $index => $design)
+                        <div class="card model">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem;">
+                                <span class="chip" style="margin:0">{{ $design->category_badge['label'] }}</span>
+                                <span style="font-size:.68rem;font-weight:700;color:var(--gold-deep);background:var(--gold-soft);border:1px solid var(--line);border-radius:999px;padding:.15rem .55rem;">
+                                    ★ Top #{{ $index + 1 }}
+                                </span>
+                            </div>
+                            <div class="shot">
+                                <img src="{{ $design->image_url }}" alt="{{ $design->name }}" loading="lazy" onerror="this.onerror=null;this.src='{{ asset('images/keychain.jpg') }}';">
+                            </div>
+                            <h3>{{ $design->name }}</h3>
+                            <p class="txt">
+                                @if ($design->category === 'motif_lokal')
+                                    Gantungan kunci akrilik bernuansa ornamen khas Sulawesi dengan chip NFC NTAG213.
+                                @elseif ($design->category === 'umkm')
+                                    Bentuk akrilik branding usaha dengan QR dinamis, logo bisnis, dan katalog digital.
+                                @elseif ($design->category === 'organisasi')
+                                    Desain identitas komunitas, panitia kampus, atau angkatan mahasiswa.
+                                @else
+                                    Desain akrilik modern untuk profil digital, media sosial, dan kontak vCard.
+                                @endif
+                            </p>
+                            <div class="price">{{ $price }} / unit</div>
+                            <ul class="ticks">
+                                <li>Chip NFC NTAG213 + QR Cadangan</li>
+                                <li>Kartu Panduan & Kode Aktivasi</li>
+                                <li>Ukuran Kecil / Sedang / Besar</li>
+                            </ul>
+                            <a href="{{ route('order.create', ['design_id' => $design->id]) }}" class="btn btn-maroon btn-block">Pilih Desain Ini</a>
+                        </div>
+                    @endforeach
+                @else
+                    @foreach ($models as $index => [$ico, $title, $cat, $text, $img])
+                        <div class="card model">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem;">
+                                <span class="chip" style="margin:0">{{ $cat }}</span>
+                                <span style="font-size:.68rem;font-weight:700;color:var(--gold-deep);background:var(--gold-soft);border:1px solid var(--line);border-radius:999px;padding:.15rem .55rem;">
+                                    ★ Top #{{ $index + 1 }}
+                                </span>
+                            </div>
+                            <div class="shot">
+                                <img src="{{ $img }}" alt="{{ $title }}" loading="lazy" onerror="this.onerror=null;this.src='{{ asset('images/keychain.jpg') }}';">
+                            </div>
+                            <h3>{{ $title }}</h3>
+                            <p class="txt">{{ $text }}</p>
+                            <div class="price">{{ $price }} / unit</div>
+                            <ul class="ticks">
+                                <li>Chip NFC NTAG213 + QR Cadangan</li>
+                                <li>Kartu Panduan & Kode Aktivasi</li>
+                                <li>Ukuran Kecil / Sedang / Besar</li>
+                            </ul>
+                            <a href="{{ route('order.create', ['shape' => $ico]) }}" class="btn btn-maroon btn-block">Pilih Model Ini</a>
+                        </div>
+                    @endforeach
+                @endif
             </div>
 
             <div class="card" style="margin-top:2rem;">
@@ -310,7 +358,7 @@
                         <div class="pack"><div><b>Paket Komunitas</b><br><small style="color:var(--muted)">Minimal 10 unit</small></div><div><b>Harga khusus</b></div></div>
                         <div class="pack soon"><b>Paket Premium</b><span>Segera hadir</span></div>
                         <div class="chips" style="margin:.4rem 0 1rem;"><span class="chip">Revisi gratis</span><span class="chip">Estimasi 5–7 hari kerja</span></div>
-                        <a href="{{ route('register') }}" class="btn btn-gold btn-block">Buat Desain Custom Sekarang</a>
+                        <a href="{{ route('order.create') }}" class="btn btn-gold btn-block">Buat Desain Custom Sekarang</a>
                     </div>
                 </div>
             </div>
@@ -360,9 +408,11 @@
                 <h2 class="section-title" style="margin-bottom:.6rem">Siap membagikan identitas digitalmu?</h2>
                 <p class="section-sub">Pesan gantungan custom atau masuk untuk mengelola profil Anda.</p>
                 <div class="hero-actions">
-                    <a href="{{ route('register') }}" class="btn btn-gold btn-lg">Pesan Sekarang</a>
+                    <a href="{{ route('order.create') }}" class="btn btn-gold btn-lg">Pesan Sekarang</a>
                     @auth
-                        @if (auth()->user()->tags()->where('status', 'aktif')->exists() || in_array(auth()->user()->role, ['admin', 'staff'], true))
+                        @if (in_array(auth()->user()->role, ['admin', 'staff'], true))
+                            <a href="{{ route('admin.dashboard') }}" class="btn btn-outline btn-lg">Dashboard Admin</a>
+                        @elseif (auth()->user()->tags()->where('status', 'aktif')->exists())
                             <a href="{{ route('user.dashboard') }}" class="btn btn-outline btn-lg">Buka Dashboard</a>
                         @else
                             <a href="{{ route('user.activation.show', ['step' => 2]) }}" class="btn btn-outline btn-lg">Aktivasi Tag</a>
@@ -371,6 +421,74 @@
                         <a href="{{ route('login') }}" class="btn btn-outline btn-lg">Masuk</a>
                     @endauth
                 </div>
+            </div>
+        </div>
+    </section>
+
+    {{-- Seksi Formulir Hubungi Kami (FR-ADM-09) --}}
+    <section class="block band" id="kontak-kami" style="padding-top: 3.5rem; padding-bottom: 4rem;">
+        <div class="container" style="max-width: 860px;">
+            <div class="eyebrow center"><span>HUBUNGI KAMI</span></div>
+            <h2 class="section-title center" style="text-align: center; margin-bottom: .6rem;">Ada Pertanyaan atau Minat Pesanan Khusus?</h2>
+            <p class="section-sub center" style="text-align: center; margin-inline: auto; margin-bottom: 2rem;">
+                Kirimkan pesan Anda langsung ke tim FlexiTag. Kami siap membantu konsultasi desain, kemitraan UMKM, maupun pemesanan custom komunitas.
+            </p>
+
+            @if (session('contact_success'))
+                <div style="background: #eaf5ec; border: 1.5px solid #2e7d32; border-radius: 12px; padding: 14px 18px; margin-bottom: 1.5rem; text-align: left;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 20px;">✓</span>
+                        <div>
+                            <strong style="color: #2e7d32; display: block; font-size: 13.5px;">Pesan Anda Berhasil Terkirim!</strong>
+                            <p style="margin: 2px 0 0; font-size: 12px; color: #1e5a23;">{{ session('contact_success') }}</p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            @if ($errors->any())
+                <div style="background: #fee2e2; border: 1.5px solid #991b1b; border-radius: 12px; padding: 14px 18px; margin-bottom: 1.5rem; text-align: left;">
+                    <strong style="color: #991b1b; display: block; font-size: 13px;">Gagal Mengirim Pesan:</strong>
+                    <ul style="margin: 4px 0 0; padding-left: 18px; font-size: 12px; color: #7f1d1d;">
+                        @foreach ($errors->all() as $err)
+                            <li>{{ $err }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <div class="card" style="padding: 2rem 2.2rem; border-radius: 16px;">
+                <form action="{{ route('contact.submit') }}" method="POST">
+                    @csrf
+                    <div class="grid grid-2" style="margin-bottom: 0;">
+                        <div class="form-group">
+                            <label class="form-label" for="contactSenderName">Nama Lengkap <span class="req">*</span></label>
+                            <input type="text" name="sender_name" id="contactSenderName" class="form-control" placeholder="Contoh: Andi Pratama" value="{{ old('sender_name') }}" required maxlength="100">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="contactSenderContact">No. WhatsApp / Email <span class="req">*</span></label>
+                            <input type="text" name="contact" id="contactSenderContact" class="form-control" placeholder="Contoh: 0812-3456-7890 / email@anda.com" value="{{ old('contact') }}" required maxlength="100">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="contactLocation">Kota / Instansi / Komunitas (Opsional)</label>
+                        <input type="text" name="location" id="contactLocation" class="form-control" placeholder="Contoh: Makassar • HIMA Teknik Komputer" value="{{ old('location') }}" maxlength="150">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="contactMessage">Isi Pesan atau Pertanyaan <span class="req">*</span></label>
+                        <textarea name="message" id="contactMessage" class="form-control" rows="4" placeholder="Tuliskan pertanyaan, konsultasi motif budaya, atau rincian pesanan custom Anda di sini..." required maxlength="1500">{{ old('message') }}</textarea>
+                    </div>
+
+                    <div style="text-align: right; margin-top: 1.2rem;">
+                        <button type="submit" class="btn btn-gold btn-lg" style="min-width: 200px;">
+                            <span>Kirim Pesan Sekarang</span>
+                            <span style="font-size: 1.1em;">➔</span>
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </section>
@@ -389,7 +507,8 @@
                 <h4>MENU</h4>
                 <ul>
                     <li><a href="#produk">Produk</a></li>
-                    <li><a href="#cara-kerja">Cara Kerja</a></li>
+                    <li><a href="{{ route('order.create') }}">Pesan Ganci</a></li>
+                    <li><a href="{{ route('order.track') }}">Lacak Pesanan</a></li>
                     <li><a href="#faq">FAQ</a></li>
                     <li><a href="#kontak">Kontak</a></li>
                 </ul>
@@ -398,7 +517,9 @@
                 <h4>BANTUAN & AKUN</h4>
                 <ul>
                     @auth
-                        @if (auth()->user()->tags()->where('status', 'aktif')->exists() || in_array(auth()->user()->role, ['admin', 'staff'], true))
+                        @if (in_array(auth()->user()->role, ['admin', 'staff'], true))
+                            <li><a href="{{ route('admin.dashboard') }}">Dashboard Admin</a></li>
+                        @elseif (auth()->user()->tags()->where('status', 'aktif')->exists())
                             <li><a href="{{ route('user.dashboard') }}">Dashboard</a></li>
                         @else
                             <li><a href="{{ route('user.activation.show', ['step' => 2]) }}">Aktivasi Tag</a></li>

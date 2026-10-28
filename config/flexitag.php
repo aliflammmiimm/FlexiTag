@@ -18,7 +18,7 @@ return [
 
     'contact' => [
         'whatsapp' => env('FLEXITAG_WHATSAPP'),   // contoh: 6281234567890
-        'instagram' => env('FLEXITAG_INSTAGRAM'), // contoh: flexitag.id
+        'instagram' => env('FLEXITAG_INSTAGRAM', 'maccatech.id'), // contoh: maccatech.id
         'email' => env('FLEXITAG_EMAIL'),
         'location' => 'Makassar, Sulawesi Selatan',
     ],

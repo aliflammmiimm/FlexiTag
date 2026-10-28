@@ -22,17 +22,18 @@ class EnsureTagIsActivated
             return redirect()->guest(route('login'));
         }
 
-        // Akun admin dan staff boleh membuka dashboard untuk pengujian/inspeksi
-        if (in_array($user->role, ['admin', 'staff'], true)) {
-            return $next($request);
-        }
-
-        // Pengguna biasa wajib memiliki setidaknya satu tag yang pernah diaktivasi (status aktif atau nonaktif)
+        // Pengguna wajib memiliki setidaknya satu tag yang pernah diaktivasi (status aktif atau nonaktif)
         $hasActiveTag = $user->tags()
             ->whereIn('status', ['aktif', 'nonaktif'])
             ->exists();
 
         if (! $hasActiveTag) {
+            // Akun admin dan staff yang belum memiliki tag aktif diarahkan ke Dashboard Admin
+            if (in_array($user->role, ['admin', 'staff'], true)) {
+                return redirect()->route('admin.dashboard')
+                    ->with('info', 'Anda dialihkan ke Dashboard Admin karena akun Anda adalah pengelola.');
+            }
+
             if ($request->expectsJson()) {
                 return response()->json([
                     'message' => 'Gantungan kunci FlexiTag Anda belum diaktivasi. Silakan masukkan kode aktivasi.',

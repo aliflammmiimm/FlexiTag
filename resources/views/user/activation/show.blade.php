@@ -765,7 +765,18 @@
             <span>→</span>
         </a>
 
-        <a href="{{ route('public.tag', ['tag_code' => $tagCode]) }}" class="btn-secondary-outline" target="_blank">
+        @if (Route::has('user.merch'))
+            <a href="{{ route('user.merch') }}" class="btn-secondary-outline" style="margin-top: 0.65rem;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9l1 12h16l1-12z"></path>
+                    <path d="M3 9h18"></path>
+                    <path d="M16 5a4 4 0 0 0-8 0"></path>
+                </svg>
+                <span>Kelola di Manajemen Merch</span>
+            </a>
+        @endif
+
+        <a href="{{ route('public.tag', ['tag_code' => $tagCode]) }}" class="btn-secondary-outline" target="_blank" style="margin-top: 0.65rem;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
             </svg>

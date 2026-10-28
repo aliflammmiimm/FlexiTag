@@ -367,8 +367,56 @@
         <p class="pub-footer-text-2">
             Tidak memerlukan aplikasi tambahan (Zero App Required). Tempel &amp; Terhubung langsung.
         </p>
+        <div style="margin-top: 14px;">
+            <button type="button" onclick="openAbuseModal()" style="background: none; border: none; font-size: 11px; color: #8C827A; text-decoration: underline; cursor: pointer; padding: 4px 8px; font-family: inherit;">
+                Laporkan Penyalahgunaan Profil
+            </button>
+        </div>
     </footer>
 
+</div>
+
+{{-- Modal Laporkan Penyalahgunaan Profil (FR-PUB-12) --}}
+<div id="modalAbuseUmkm" style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.65); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; padding: 16px;">
+    <div style="width: 100%; max-width: 400px; background: #FFFFFF; border-radius: 24px; padding: 22px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25); text-align: left; font-family: 'Poppins', sans-serif;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 22px;">⚠️</span>
+                <div>
+                    <h3 style="margin: 0; font-size: 15px; font-weight: 800; color: #991B1B;">Laporkan Penyalahgunaan</h3>
+                    <span style="font-size: 11px; color: #78716C;">Laporan ditinjau langsung oleh admin</span>
+                </div>
+            </div>
+            <button type="button" onclick="closeAbuseModal()" style="background: none; border: none; font-size: 16px; color: #9CA3AF; cursor: pointer; padding: 2px 6px;">✕</button>
+        </div>
+
+        <form action="{{ route('public.tag.abuse_report', $tag->tag_code) }}" method="POST">
+            @csrf
+            <div style="margin-bottom: 12px;">
+                <label style="display: block; font-size: 11px; font-weight: 700; color: #374151; margin-bottom: 4px;">Nama Anda (Opsional)</label>
+                <input type="text" name="sender_name" style="width: 100%; box-sizing: border-box; background: #FAF8F5; border: 1.5px solid #E5E1DA; border-radius: 12px; padding: 9px 12px; font-size: 12px; outline: none;" placeholder="Contoh: Pengunjung Peduli" maxlength="100">
+            </div>
+
+            <div style="margin-bottom: 12px;">
+                <label style="display: block; font-size: 11px; font-weight: 700; color: #374151; margin-bottom: 4px;">Rincian Pelanggaran <span style="color: #DC2626;">*</span></label>
+                <textarea name="message" style="width: 100%; box-sizing: border-box; background: #FAF8F5; border: 1.5px solid #E5E1DA; border-radius: 12px; padding: 9px 12px; font-size: 12px; resize: vertical; min-height: 70px; outline: none;" placeholder="Jelaskan alasan pelaporan..." rows="3" maxlength="1000" required></textarea>
+            </div>
+
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; font-size: 11px; font-weight: 700; color: #374151; margin-bottom: 4px;">Kontak / Email Anda (Opsional)</label>
+                <input type="text" name="contact" style="width: 100%; box-sizing: border-box; background: #FAF8F5; border: 1.5px solid #E5E1DA; border-radius: 12px; padding: 9px 12px; font-size: 12px; outline: none;" placeholder="Contoh: email@anda.com" maxlength="100">
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <button type="submit" style="width: 100%; background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%); color: #FFFFFF; border: none; border-radius: 14px; padding: 12px; font-size: 13px; font-weight: 750; cursor: pointer; font-family: inherit;">
+                    Kirim Laporan ke Admin
+                </button>
+                <button type="button" onclick="closeAbuseModal()" style="background: none; border: none; color: #9CA3AF; font-size: 11.5px; font-weight: 600; cursor: pointer; padding: 6px; font-family: inherit;">
+                    Batal
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 
 <script>
@@ -431,6 +479,16 @@
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
+    }
+
+    function openAbuseModal() {
+        const modal = document.getElementById('modalAbuseUmkm');
+        if (modal) modal.style.display = 'flex';
+    }
+
+    function closeAbuseModal() {
+        const modal = document.getElementById('modalAbuseUmkm');
+        if (modal) modal.style.display = 'none';
     }
 </script>
 

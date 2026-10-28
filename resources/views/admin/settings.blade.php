@@ -30,6 +30,20 @@
         </div>
     @endif
 
+    @if (session('info'))
+        <div class="mb-6 bg-[#FCF5E3] border border-[#F4E1A6] text-[#8C6D23] px-5 py-3.5 rounded-2xl flex items-center justify-between shadow-xs animate-in fade-in slide-in-from-top-2 duration-300">
+            <div class="flex items-center gap-2.5 text-xs font-semibold">
+                <svg class="w-4 h-4 text-[#8C6D23] shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="9"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                <span>{{ session('info') }}</span>
+            </div>
+            <button type="button" onclick="this.parentElement.remove()" class="text-[#8C6D23] hover:opacity-75 p-1 cursor-pointer">✕</button>
+        </div>
+    @endif
+
     @if (isset($errors) && $errors->any())
         <div class="mb-6 bg-[#FBE8E8] border border-[#F5C2C2] text-maroon px-5 py-3.5 rounded-2xl text-xs font-semibold shadow-xs">
             <div class="flex items-center gap-2 mb-1">
@@ -401,7 +415,7 @@
                 <button 
                     type="button" 
                     onclick="openAddUserModal()"
-                    class="bg-maroon hover:bg-[#6e0202] text-white font-bold text-xs px-4.5 py-2.5 rounded-full shadow-xs flex items-center gap-2 transition cursor-pointer self-start md:self-auto shrink-0"
+                    class="bg-[#8B0000] hover:bg-[#6e0202] text-white font-bold text-xs px-4.5 py-2.5 rounded-full shadow-xs flex items-center gap-2 transition cursor-pointer self-start md:self-auto shrink-0"
                 >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
@@ -591,7 +605,7 @@
                 <button 
                     type="button" 
                     onclick="openAddDesignModal()"
-                    class="bg-maroon hover:bg-[#6e0202] text-white font-bold text-xs px-4.5 py-2.5 rounded-full shadow-xs flex items-center gap-2 transition cursor-pointer self-start md:self-auto shrink-0"
+                    class="bg-[#8B0000] hover:bg-[#6e0202] text-white font-bold text-xs px-4.5 py-2.5 rounded-full shadow-xs flex items-center gap-2 transition cursor-pointer self-start md:self-auto shrink-0"
                 >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
@@ -606,15 +620,24 @@
                     <div class="rounded-3xl border border-[#ECE8E1] bg-[#FAF9F6] p-4 flex flex-col justify-between hover:shadow-md transition group">
                         <div>
                             <!-- Design Thumbnail / Preview Area -->
-                            <div class="w-full h-36 rounded-2xl bg-white border border-[#ECE8E1] flex items-center justify-center relative overflow-hidden mb-3.5">
-                                <div class="w-16 h-16 rounded-full bg-[#FAF9F6] border-2 border-dashed border-[#D4AF37]/50 flex items-center justify-center text-[#8C6D23]">
-                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/>
-                                    </svg>
-                                </div>
+                            <div class="w-full h-40 rounded-2xl bg-[#F0EDE6] border border-[#ECE8E1] flex items-center justify-center relative overflow-hidden mb-3.5">
+                                @if ($design->image_path)
+                                    <img 
+                                        src="{{ $design->image_url }}" 
+                                        alt="{{ $design->name }}" 
+                                        class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                        onerror="this.onerror=null; this.src='{{ asset('images/keychain.jpg') }}';"
+                                    >
+                                @else
+                                    <div class="w-16 h-16 rounded-full bg-[#FAF9F6] border-2 border-dashed border-[#D4AF37]/50 flex items-center justify-center text-[#8C6D23]">
+                                        <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/>
+                                        </svg>
+                                    </div>
+                                @endif
 
                                 <!-- Status Badge Top Right -->
-                                <span class="absolute top-2.5 right-2.5 text-[9px] font-bold px-2 py-0.5 rounded-full {{ $design->is_active ? 'bg-[#EAF5EC] text-[#2E7D32]' : 'bg-[#FEE2E2] text-[#991B1B]' }}">
+                                <span class="absolute top-2.5 right-2.5 text-[9px] font-bold px-2 py-0.5 rounded-full shadow-xs {{ $design->is_active ? 'bg-[#EAF5EC] text-[#2E7D32]' : 'bg-[#FEE2E2] text-[#991B1B]' }}">
                                     {{ $design->is_active ? 'Tersedia' : 'Dinonaktifkan' }}
                                 </span>
                             </div>
@@ -743,27 +766,103 @@
         <!-- Ledger Table & Form Container -->
         <div class="bg-white rounded-3xl p-6 sm:p-7 border border-[#ECE8E1] shadow-[0_2px_15px_rgba(0,0,0,0.02)]">
             
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#F2EEE9] mb-6">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-6 border-b border-[#F2EEE9] mb-6">
                 <div>
                     <h3 class="text-base font-bold text-[#1A1A1A]">
                         Riwayat Transaksi Pembukuan Kas ({{ $financialEntries->total() }})
                     </h3>
                     <p class="text-xs text-[#737373] mt-0.5">
-                        Catatan mutasi pemasukan penjualan dan pengeluaran bahan produksi.
+                        Catatan mutasi pemasukan penjualan dan pengeluaran operasional MaccaTech.
                     </p>
                 </div>
 
-                <!-- Add Transaction Button -->
-                <button 
-                    type="button" 
-                    onclick="openAddFinancialModal()"
-                    class="bg-maroon hover:bg-[#6e0202] text-white font-bold text-xs px-4.5 py-2.5 rounded-full shadow-xs flex items-center gap-2 transition cursor-pointer self-start sm:self-auto shrink-0"
-                >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
-                    </svg>
-                    <span>Catat Transaksi Baru</span>
-                </button>
+                <!-- Action Buttons: Sync, Export CSV, and Add Transaction -->
+                <div class="flex flex-wrap items-center gap-2.5">
+                    <!-- Sync Orders Button -->
+                    <form action="{{ route('admin.settings.financial.syncOrders') }}" method="POST" class="inline">
+                        @csrf
+                        <button 
+                            type="submit" 
+                            class="bg-[#FAF9F6] hover:bg-[#F2EEE9] text-[#4A4A4A] border border-[#ECE8E1] font-bold text-xs px-3.5 py-2.5 rounded-full shadow-2xs flex items-center gap-1.5 transition cursor-pointer"
+                            title="Sinkronkan seluruh pembayaran pesanan masuk yang belum tercatat di kas"
+                        >
+                            <svg class="w-3.5 h-3.5 text-[#8A8A85]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/>
+                            </svg>
+                            <span>Sinkronkan Pesanan</span>
+                        </button>
+                    </form>
+
+                    <!-- Export CSV Button -->
+                    <a 
+                        href="{{ route('admin.settings.financial.exportCsv', ['search_finance' => $searchFinance, 'finance_type' => $financeType]) }}" 
+                        class="bg-[#FAF9F6] hover:bg-[#F2EEE9] text-[#4A4A4A] border border-[#ECE8E1] font-bold text-xs px-3.5 py-2.5 rounded-full shadow-2xs flex items-center gap-1.5 transition cursor-pointer"
+                        title="Unduh laporan pembukuan kas format CSV"
+                    >
+                        <svg class="w-3.5 h-3.5 text-[#8A8A85]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>
+                        </svg>
+                        <span>Ekspor CSV</span>
+                    </a>
+
+                    <!-- Add Transaction Button -->
+                    <button 
+                        type="button" 
+                        onclick="openAddFinancialModal()"
+                        class="bg-[#8B0000] hover:bg-[#6e0202] text-white font-bold text-xs px-4.5 py-2.5 rounded-full shadow-xs flex items-center gap-2 transition cursor-pointer shrink-0"
+                    >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+                        </svg>
+                        <span>Catat Transaksi Baru</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Search & Filter Controls -->
+            <div class="mb-5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-[#FAF9F6] p-3 rounded-2xl border border-[#ECE8E1]">
+                <form method="GET" action="{{ route('admin.settings') }}" class="flex flex-1 flex-col sm:flex-row gap-2.5">
+                    <input type="hidden" name="tab" value="financial">
+                    
+                    <!-- Search Input -->
+                    <div class="relative flex-1">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#8A8A85]">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                        </div>
+                        <input 
+                            type="text" 
+                            name="search_finance" 
+                            value="{{ $searchFinance }}" 
+                            placeholder="Cari transaksi kas berdasarkan kategori atau catatan..." 
+                            class="w-full pl-9 pr-3 py-2 bg-white rounded-xl text-xs border border-[#ECE8E1] focus:outline-none focus:border-[#8B0000]"
+                        >
+                    </div>
+
+                    <!-- Type Filter Dropdown -->
+                    <div class="sm:w-52">
+                        <select 
+                            name="finance_type" 
+                            onchange="this.form.submit()" 
+                            class="w-full py-2 px-3 bg-white rounded-xl text-xs border border-[#ECE8E1] focus:outline-none focus:border-[#8B0000] cursor-pointer"
+                        >
+                            <option value="all" {{ $financeType === 'all' ? 'selected' : '' }}>Semua Tipe Transaksi</option>
+                            <option value="pemasukan" {{ $financeType === 'pemasukan' ? 'selected' : '' }}>↓ Pemasukan (Penjualan)</option>
+                            <option value="pengeluaran" {{ $financeType === 'pengeluaran' ? 'selected' : '' }}>↑ Pengeluaran (Biaya/Bahan)</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="bg-[#1A1A1A] hover:bg-[#333333] text-white font-semibold text-xs px-4 py-2 rounded-xl transition cursor-pointer">
+                        Cari
+                    </button>
+
+                    @if ($searchFinance || $financeType !== 'all')
+                        <a href="{{ route('admin.settings', ['tab' => 'financial']) }}" class="bg-[#ECE8E1] hover:bg-[#ded9d0] text-[#4A4A4A] font-semibold text-xs px-3.5 py-2 rounded-xl transition flex items-center justify-center">
+                            Reset
+                        </a>
+                    @endif
+                </form>
             </div>
 
             <!-- Ledger Table -->
@@ -782,10 +881,10 @@
                     <tbody class="divide-y divide-[#F2EEE9]">
                         @forelse ($financialEntries as $entry)
                             <tr class="hover:bg-[#FDFBF7] transition">
-                                <td class="py-3.5 px-4 font-mono text-[11px] text-[#4A4A4A]">
+                                <td class="py-3.5 px-4 font-mono text-[11px] text-[#4A4A4A] whitespace-nowrap">
                                     {{ $entry->entry_date ? $entry->entry_date->format('d M Y') : '-' }}
                                 </td>
-                                <td class="py-3.5 px-4">
+                                <td class="py-3.5 px-4 whitespace-nowrap">
                                     @if ($entry->type === 'pemasukan')
                                         <span class="inline-flex items-center gap-1 bg-[#EAF5EC] text-[#2E7D32] text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full">
                                             <span>↓</span>
@@ -801,32 +900,59 @@
                                 <td class="py-3.5 px-4 font-bold text-[#1A1A1A]">
                                     {{ $entry->category }}
                                 </td>
-                                <td class="py-3.5 px-4 font-bold {{ $entry->type === 'pemasukan' ? 'text-[#2E7D32]' : 'text-maroon' }}">
+                                <td class="py-3.5 px-4 font-bold whitespace-nowrap {{ $entry->type === 'pemasukan' ? 'text-[#2E7D32]' : 'text-maroon' }}">
                                     {{ $entry->type === 'pemasukan' ? '+' : '-' }} Rp {{ number_format((float) $entry->amount, 0, ',', '.') }}
                                 </td>
-                                <td class="py-3.5 px-4 text-[#737373] text-[11.5px] max-w-xs truncate">
+                                <td class="py-3.5 px-4 text-[#737373] text-[11.5px] max-w-xs truncate" title="{{ $entry->note }}">
                                     {{ $entry->note ?? '-' }}
                                 </td>
-                                <td class="py-3.5 px-4 text-right">
-                                    <form action="{{ route('admin.settings.financial.destroy', $entry->id) }}" method="POST" class="inline" onsubmit="return confirm('Hapus transaksi ini dari buku kas?')">
-                                        @csrf
-                                        @method('DELETE')
+                                <td class="py-3.5 px-4 text-right whitespace-nowrap">
+                                    <div class="flex items-center justify-end gap-1.5">
+                                        <!-- Edit Button -->
                                         <button 
-                                            type="submit" 
-                                            class="p-1.5 rounded-lg hover:bg-[#FEE2E2] text-[#991B1B] transition cursor-pointer"
-                                            title="Hapus entri"
+                                            type="button" 
+                                            onclick='openEditFinancialModal(@json($entry))'
+                                            class="p-1.5 rounded-lg hover:bg-[#F2EEE9] text-[#4A4A4A] hover:text-[#1A1A1A] transition cursor-pointer"
+                                            title="Ubah data transaksi kas"
                                         >
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/>
                                             </svg>
                                         </button>
-                                    </form>
+
+                                        <!-- Delete Button -->
+                                        <form action="{{ route('admin.settings.financial.destroy', $entry->id) }}" method="POST" class="inline" onsubmit="return confirm('Hapus transaksi ini dari buku kas?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button 
+                                                type="submit" 
+                                                class="p-1.5 rounded-lg hover:bg-[#FEE2E2] text-[#991B1B] transition cursor-pointer"
+                                                title="Hapus entri transaksi"
+                                            >
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
+                                                </svg>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center py-10 text-[#8A8A85]">
-                                    Belum ada transaksi yang dicatat dalam buku kas operasional.
+                                <td colspan="6" class="text-center py-12 text-[#8A8A85]">
+                                    <div class="flex flex-col items-center justify-center">
+                                        <svg class="w-10 h-10 text-[#CCCCCC] mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                            <rect x="2" y="5" width="20" height="14" rx="2"/>
+                                            <line x1="2" y1="10" x2="22" y2="10"/>
+                                        </svg>
+                                        @if ($searchFinance || $financeType !== 'all')
+                                            <p class="font-semibold text-xs text-[#4A4A4A]">Tidak ada transaksi kas yang sesuai dengan kata kunci / filter pencarian.</p>
+                                            <a href="{{ route('admin.settings', ['tab' => 'financial']) }}" class="mt-2 text-maroon hover:underline font-bold text-xs">Reset Filter</a>
+                                        @else
+                                            <p class="font-semibold text-xs text-[#4A4A4A]">Belum ada transaksi yang dicatat dalam buku kas operasional.</p>
+                                            <p class="text-[11px] text-[#8A8A85] mt-1">Gunakan tombol "Catat Transaksi Baru" atau "Sinkronkan Pesanan" untuk mengisi pembukuan.</p>
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
                         @endforelse
@@ -840,6 +966,7 @@
                     {{ $financialEntries->links() }}
                 </div>
             @endif
+
 
         </div>
     @endif
@@ -982,7 +1109,7 @@
 
                 <div class="mt-6 flex justify-end gap-2.5 pt-3 border-t border-[#ECE8E1]">
                     <button type="button" onclick="closeAddUserModal()" class="bg-[#F6F5F2] hover:bg-[#EAE8E3] text-[#1A1A1A] font-semibold text-xs px-4 py-2 rounded-full cursor-pointer">Batal</button>
-                    <button type="submit" class="bg-maroon hover:bg-[#6e0202] text-white font-bold text-xs px-5 py-2 rounded-full shadow-xs cursor-pointer">Simpan Akun</button>
+                    <button type="submit" class="bg-[#8B0000] hover:bg-[#6e0202] text-white font-bold text-xs px-5 py-2 rounded-full shadow-xs cursor-pointer">Simpan Akun</button>
                 </div>
             </form>
         </div>
@@ -1037,7 +1164,7 @@
 
                 <div class="mt-6 flex justify-end gap-2.5 pt-3 border-t border-[#ECE8E1]">
                     <button type="button" onclick="closeEditUserModal()" class="bg-[#F6F5F2] hover:bg-[#EAE8E3] text-[#1A1A1A] font-semibold text-xs px-4 py-2 rounded-full cursor-pointer">Batal</button>
-                    <button type="submit" class="bg-maroon hover:bg-[#6e0202] text-white font-bold text-xs px-5 py-2 rounded-full shadow-xs cursor-pointer">Simpan Perubahan</button>
+                    <button type="submit" class="bg-[#8B0000] hover:bg-[#6e0202] text-white font-bold text-xs px-5 py-2 rounded-full shadow-xs cursor-pointer">Simpan Perubahan</button>
                 </div>
             </form>
         </div>
@@ -1070,16 +1197,31 @@
 
                 <div>
                     <label class="block font-bold text-[#1A1A1A] mb-1">Unggah Pratinjau Desain (PNG/JPG/SVG, maks 5MB)</label>
-                    <input type="file" name="image" accept="image/*" class="w-full bg-[#F8F7F4] text-xs py-2 px-3 rounded-xl border border-[#ECE8E1] file:mr-3 file:py-1 file:px-2.5 file:rounded-full file:border-0 file:text-[11px] file:font-semibold file:bg-maroon file:text-white cursor-pointer">
+                    <input type="file" name="image" accept="image/*" class="w-full bg-[#F8F7F4] text-xs py-2 px-3 rounded-xl border border-[#ECE8E1] file:mr-3 file:py-1 file:px-2.5 file:rounded-full file:border-0 file:text-[11px] file:font-semibold file:bg-[#8B0000] file:text-white cursor-pointer">
                 </div>
 
                 <div class="mt-6 flex justify-end gap-2.5 pt-3 border-t border-[#ECE8E1]">
                     <button type="button" onclick="closeAddDesignModal()" class="bg-[#F6F5F2] hover:bg-[#EAE8E3] text-[#1A1A1A] font-semibold text-xs px-4 py-2 rounded-full cursor-pointer">Batal</button>
-                    <button type="submit" class="bg-maroon hover:bg-[#6e0202] text-white font-bold text-xs px-5 py-2 rounded-full shadow-xs cursor-pointer">Simpan Motif</button>
+                    <button type="submit" class="bg-[#8B0000] hover:bg-[#6e0202] text-white font-bold text-xs px-5 py-2 rounded-full shadow-xs cursor-pointer">Simpan Motif</button>
                 </div>
             </form>
         </div>
     </div>
+
+    <!-- CATEGORY SUGGESTIONS DATALIST (Shared across Add & Edit) -->
+    <datalist id="financial-categories">
+        <option value="Penjualan Ganci (Online Web)">
+        <option value="Penjualan Ganci (Offline Kasir)">
+        <option value="Penjualan Aksesoris & Gantungan">
+        <option value="Pembelian Chip NFC NTAG213">
+        <option value="Pembelian Bahan Akrilik & Resin">
+        <option value="Ring Gantungan Kunci & Aksesoris">
+        <option value="Kemasan & Packaging Box">
+        <option value="Biaya Listrik & Operasional Workshop">
+        <option value="Promosi & Pemasaran">
+        <option value="Biaya Ekspedisi / Pengiriman">
+        <option value="Lain-lain">
+    </datalist>
 
     <!-- MODAL 5: CATAT TRANSAKSI KAS BARU -->
     <div id="add-financial-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
@@ -1112,7 +1254,15 @@
 
                 <div>
                     <label class="block font-bold text-[#1A1A1A] mb-1">Kategori Transaksi <span class="text-maroon">*</span></label>
-                    <input type="text" name="category" required placeholder="Contoh: Penjualan Ganci / Bahan Akrilik" class="w-full bg-[#F8F7F4] text-xs py-2.5 px-3.5 rounded-xl border border-[#ECE8E1]">
+                    <input type="text" id="add-financial-category" name="category" list="financial-categories" required placeholder="Ketik atau pilih kategori..." class="w-full bg-[#F8F7F4] text-xs py-2.5 px-3.5 rounded-xl border border-[#ECE8E1]">
+                    <div class="flex flex-wrap gap-1.5 mt-2">
+                        <span class="text-[10px] text-[#8A8A85] self-center mr-1">Rekomendasi:</span>
+                        <button type="button" onclick="setFinanceCategory('add', 'Penjualan Ganci (Online Web)')" class="text-[10.5px] bg-[#FAF9F6] hover:bg-[#ECE8E1] text-[#4A4A4A] px-2 py-0.5 rounded-md border border-[#ECE8E1] transition cursor-pointer">Penjualan Online</button>
+                        <button type="button" onclick="setFinanceCategory('add', 'Penjualan Ganci (Offline Kasir)')" class="text-[10.5px] bg-[#FAF9F6] hover:bg-[#ECE8E1] text-[#4A4A4A] px-2 py-0.5 rounded-md border border-[#ECE8E1] transition cursor-pointer">Penjualan Offline</button>
+                        <button type="button" onclick="setFinanceCategory('add', 'Pembelian Chip NFC NTAG213')" class="text-[10.5px] bg-[#FAF9F6] hover:bg-[#ECE8E1] text-[#4A4A4A] px-2 py-0.5 rounded-md border border-[#ECE8E1] transition cursor-pointer">Chip NFC</button>
+                        <button type="button" onclick="setFinanceCategory('add', 'Pembelian Bahan Akrilik & Resin')" class="text-[10.5px] bg-[#FAF9F6] hover:bg-[#ECE8E1] text-[#4A4A4A] px-2 py-0.5 rounded-md border border-[#ECE8E1] transition cursor-pointer">Bahan Akrilik</button>
+                        <button type="button" onclick="setFinanceCategory('add', 'Biaya Listrik & Operasional Workshop')" class="text-[10.5px] bg-[#FAF9F6] hover:bg-[#ECE8E1] text-[#4A4A4A] px-2 py-0.5 rounded-md border border-[#ECE8E1] transition cursor-pointer">Operasional</button>
+                    </div>
                 </div>
 
                 <div>
@@ -1122,7 +1272,64 @@
 
                 <div class="mt-6 flex justify-end gap-2.5 pt-3 border-t border-[#ECE8E1]">
                     <button type="button" onclick="closeAddFinancialModal()" class="bg-[#F6F5F2] hover:bg-[#EAE8E3] text-[#1A1A1A] font-semibold text-xs px-4 py-2 rounded-full cursor-pointer">Batal</button>
-                    <button type="submit" class="bg-maroon hover:bg-[#6e0202] text-white font-bold text-xs px-5 py-2 rounded-full shadow-xs cursor-pointer">Simpan Transaksi</button>
+                    <button type="submit" class="bg-[#8B0000] hover:bg-[#6e0202] text-white font-bold text-xs px-5 py-2 rounded-full shadow-xs cursor-pointer">Simpan Transaksi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 6: UBAH DATA TRANSAKSI KAS -->
+    <div id="edit-financial-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
+        <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-[#ECE8E1] animate-in fade-in zoom-in-95 duration-200">
+            <div class="flex items-center justify-between pb-3 border-b border-[#ECE8E1]">
+                <h3 class="text-base font-bold text-[#1A1A1A]">Ubah Entri Transaksi Kas</h3>
+                <button type="button" onclick="closeEditFinancialModal()" class="text-[#8A8A85] hover:text-[#1A1A1A] p-1 cursor-pointer">✕</button>
+            </div>
+
+            <form id="edit-financial-form" action="" method="POST" class="mt-4 space-y-3.5 text-xs">
+                @csrf
+                @method('PUT')
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-[#1A1A1A] mb-1">Tipe Mutasi <span class="text-maroon">*</span></label>
+                        <select id="edit-financial-type" name="type" required class="w-full bg-[#F8F7F4] text-xs py-2.5 px-3 rounded-xl border border-[#ECE8E1]">
+                            <option value="pemasukan">Pemasukan (Penjualan)</option>
+                            <option value="pengeluaran">Pengeluaran (Bahan/Biaya)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-[#1A1A1A] mb-1">Tanggal <span class="text-maroon">*</span></label>
+                        <input type="date" id="edit-financial-date" name="entry_date" required class="w-full bg-[#F8F7F4] text-xs py-2.5 px-3 rounded-xl border border-[#ECE8E1]">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-[#1A1A1A] mb-1">Nominal (Rupiah) <span class="text-maroon">*</span></label>
+                    <input type="number" id="edit-financial-amount" name="amount" min="1000" step="500" required class="w-full bg-[#F8F7F4] text-xs py-2.5 px-3.5 rounded-xl border border-[#ECE8E1]">
+                </div>
+
+                <div>
+                    <label class="block font-bold text-[#1A1A1A] mb-1">Kategori Transaksi <span class="text-maroon">*</span></label>
+                    <input type="text" id="edit-financial-category" name="category" list="financial-categories" required class="w-full bg-[#F8F7F4] text-xs py-2.5 px-3.5 rounded-xl border border-[#ECE8E1]">
+                    <div class="flex flex-wrap gap-1.5 mt-2">
+                        <span class="text-[10px] text-[#8A8A85] self-center mr-1">Rekomendasi:</span>
+                        <button type="button" onclick="setFinanceCategory('edit', 'Penjualan Ganci (Online Web)')" class="text-[10.5px] bg-[#FAF9F6] hover:bg-[#ECE8E1] text-[#4A4A4A] px-2 py-0.5 rounded-md border border-[#ECE8E1] transition cursor-pointer">Penjualan Online</button>
+                        <button type="button" onclick="setFinanceCategory('edit', 'Penjualan Ganci (Offline Kasir)')" class="text-[10.5px] bg-[#FAF9F6] hover:bg-[#ECE8E1] text-[#4A4A4A] px-2 py-0.5 rounded-md border border-[#ECE8E1] transition cursor-pointer">Penjualan Offline</button>
+                        <button type="button" onclick="setFinanceCategory('edit', 'Pembelian Chip NFC NTAG213')" class="text-[10.5px] bg-[#FAF9F6] hover:bg-[#ECE8E1] text-[#4A4A4A] px-2 py-0.5 rounded-md border border-[#ECE8E1] transition cursor-pointer">Chip NFC</button>
+                        <button type="button" onclick="setFinanceCategory('edit', 'Pembelian Bahan Akrilik & Resin')" class="text-[10.5px] bg-[#FAF9F6] hover:bg-[#ECE8E1] text-[#4A4A4A] px-2 py-0.5 rounded-md border border-[#ECE8E1] transition cursor-pointer">Bahan Akrilik</button>
+                        <button type="button" onclick="setFinanceCategory('edit', 'Biaya Listrik & Operasional Workshop')" class="text-[10.5px] bg-[#FAF9F6] hover:bg-[#ECE8E1] text-[#4A4A4A] px-2 py-0.5 rounded-md border border-[#ECE8E1] transition cursor-pointer">Operasional</button>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-[#1A1A1A] mb-1">Catatan / Keterangan</label>
+                    <textarea id="edit-financial-note" name="note" rows="2" class="w-full bg-[#F8F7F4] text-xs py-2 px-3 rounded-xl border border-[#ECE8E1]"></textarea>
+                </div>
+
+                <div class="mt-6 flex justify-end gap-2.5 pt-3 border-t border-[#ECE8E1]">
+                    <button type="button" onclick="closeEditFinancialModal()" class="bg-[#F6F5F2] hover:bg-[#EAE8E3] text-[#1A1A1A] font-semibold text-xs px-4 py-2 rounded-full cursor-pointer">Batal</button>
+                    <button type="submit" class="bg-[#8B0000] hover:bg-[#6e0202] text-white font-bold text-xs px-5 py-2 rounded-full shadow-xs cursor-pointer">Simpan Perubahan</button>
                 </div>
             </form>
         </div>
@@ -1176,5 +1383,53 @@
     function closeAddFinancialModal() {
         document.getElementById('add-financial-modal').classList.add('hidden');
     }
+
+    // Edit Financial Modal
+    function openEditFinancialModal(entry) {
+        document.getElementById('edit-financial-form').action = `/admin/settings/financial/${entry.id}`;
+        document.getElementById('edit-financial-type').value = entry.type || 'pemasukan';
+        let dateStr = entry.entry_date ? String(entry.entry_date).substring(0, 10) : '';
+        document.getElementById('edit-financial-date').value = dateStr;
+        document.getElementById('edit-financial-amount').value = Math.round(Number(entry.amount) || 0);
+        document.getElementById('edit-financial-category').value = entry.category || '';
+        document.getElementById('edit-financial-note').value = entry.note || '';
+        document.getElementById('edit-financial-modal').classList.remove('hidden');
+    }
+    function closeEditFinancialModal() {
+        document.getElementById('edit-financial-modal').classList.add('hidden');
+    }
+
+    // Set Category Preset Helper
+    function setFinanceCategory(target, categoryName) {
+        if (target === 'add') {
+            const input = document.getElementById('add-financial-category');
+            if (input) input.value = categoryName;
+        } else if (target === 'edit') {
+            const input = document.getElementById('edit-financial-category');
+            if (input) input.value = categoryName;
+        }
+    }
+
+    // Close modals on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closePasswordModal();
+            closeAddUserModal();
+            closeEditUserModal();
+            closeAddDesignModal();
+            closeAddFinancialModal();
+            closeEditFinancialModal();
+        }
+    });
+
+    // Close modals on backdrop click
+    ['password-modal', 'add-user-modal', 'edit-user-modal', 'add-design-modal', 'add-financial-modal', 'edit-financial-modal'].forEach(id => {
+        document.getElementById(id)?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.add('hidden');
+            }
+        });
+    });
 </script>
 @endpush
+

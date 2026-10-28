@@ -1,0 +1,724 @@
+/* FlexiTag Edit Profil Mode Kampus (Jejaring Akademik Mahasiswa)
+   Sulawesi Heritage Aesthetic: Toraja Maroon (#4A0A0E, #380508), Sulapa Eppa' Gold (#E5B32A, #F5BA41), Sand/Cream (#FAF8F5, #F8F6F2)
+*/
+
+:root {
+  --ft-maroon-dark: #2B0407;
+  --ft-maroon: #4A0A0E;
+  --ft-maroon-header: #380508;
+  --ft-maroon-pill: #4A0A0E;
+  --ft-gold: #E5B32A;
+  --ft-gold-bright: #F5BA41;
+  --ft-gold-soft: #FEF3C7;
+  --ft-gold-deep: #92400E;
+  --ft-gold-btn: #785600;
+  --ft-gold-btn-hover: #634700;
+  --ft-sand-bg: #F8F6F2;
+  --ft-card-bg: #FFFFFF;
+  --ft-input-bg: #F6F4EE;
+  --ft-input-border: #E5DFD4;
+  --ft-input-focus: #D6CEBE;
+  --ft-text-dark: #1F1915;
+  --ft-text-muted: #78716C;
+  --ft-text-subtle: #A8A29E;
+  --ft-line: #ECE7DF;
+  --ft-radius-xl: 20px;
+  --ft-radius-lg: 16px;
+  --ft-radius-md: 12px;
+  --ft-radius-sm: 8px;
+  --ft-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body.kampus-edit-body {
+  background-color: var(--ft-sand-bg);
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--ft-text-dark);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow-x: hidden;
+}
+
+/* App Container (Responsive) */
+.kampus-app-container {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100vh;
+  background-color: var(--ft-sand-bg);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 680px) {
+  body.kampus-edit-body {
+    background-color: #EDE8DF;
+    padding: 1.5rem 1rem 3rem;
+  }
+  .kampus-app-container {
+    max-width: 780px;
+    margin: 0 auto;
+    border-radius: 24px;
+    box-shadow: 0 10px 40px rgba(74, 10, 14, 0.08);
+    border: 1px solid var(--ft-line);
+    overflow: hidden;
+  }
+}
+
+@media (min-width: 1024px) {
+  .kampus-app-container {
+    max-width: 860px;
+  }
+}
+
+/* ==========================================================================
+   TOP APP BAR
+   ========================================================================== */
+.kampus-topbar {
+  background: linear-gradient(180deg, var(--ft-maroon-header) 0%, #44070B 100%);
+  padding: 0.85rem 1.15rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+}
+
+.topbar-back-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.topbar-back-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateX(-2px);
+}
+
+.topbar-center-heading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.topbar-center-title {
+  font-family: inherit;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #FFFFFF;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+.topbar-center-sub {
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--ft-gold-bright);
+  text-transform: uppercase;
+  margin-top: 3px;
+  line-height: 1;
+}
+
+.topbar-mode-badge {
+  background: var(--ft-gold-bright);
+  color: var(--ft-maroon-dark);
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  letter-spacing: 0.04em;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   MAIN CONTENT
+   ========================================================================== */
+.kampus-main-content {
+  padding: 1rem 1rem 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  flex: 1;
+}
+
+@media (min-width: 680px) {
+  .kampus-main-content {
+    padding: 1.5rem 1.85rem 3.5rem;
+    gap: 1.25rem;
+  }
+}
+
+/* Flash Status Banner */
+.status-toast-bar {
+  background: #EAF5EC;
+  border: 1px solid #C8E6C9;
+  color: #2E7D32;
+  padding: 0.75rem 1rem;
+  border-radius: var(--ft-radius-md);
+  font-size: 0.8rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  animation: fadeInDown 0.3s ease;
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 1. UBAH FOTO PROFIL MAHASISWA CARD */
+.avatar-upload-card {
+  background: var(--ft-card-bg);
+  border: 1px solid var(--ft-line);
+  border-radius: var(--ft-radius-lg);
+  padding: 1.4rem 1.2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: var(--ft-shadow);
+}
+
+.student-avatar-wrap {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  margin: 0 auto;
+  cursor: pointer;
+}
+
+.student-avatar-img {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3.5px solid var(--ft-gold);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  background: #FFFFFF;
+}
+
+.student-avatar-placeholder {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: #FAF0F0;
+  border: 2.5px dashed var(--ft-gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+  color: var(--ft-maroon);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+}
+
+.avatar-camera-btn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--ft-maroon);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2.5px solid #FFFFFF;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.student-avatar-wrap:hover .avatar-camera-btn {
+  transform: scale(1.1);
+  background: #6B0F15;
+}
+
+.avatar-card-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ft-text-dark);
+  margin-top: 0.75rem;
+}
+
+.avatar-card-sub {
+  font-size: 0.72rem;
+  color: var(--ft-text-muted);
+  margin-top: 3px;
+}
+
+.avatar-card-sub strong {
+  color: var(--ft-gold-deep);
+  font-weight: 600;
+}
+
+/* 2. SINKRONISASI TAG CALLOUT */
+.sync-callout-card {
+  background: #F3EFE8;
+  border: 1px solid #E5DFD4;
+  border-radius: var(--ft-radius-md);
+  padding: 0.85rem 1rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+}
+
+.sync-icon-box {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #FEF3C7;
+  color: var(--ft-gold-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 1rem;
+  border: 1px solid #FDE68A;
+}
+
+.sync-text-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.sync-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ft-maroon-dark);
+  line-height: 1.25;
+}
+
+.sync-desc {
+  font-size: 0.72rem;
+  color: #6B6560;
+  line-height: 1.4;
+  margin-top: 3px;
+}
+
+/* ==========================================================================
+   LIVE PREVIEW CARD (MINI TAMPILAN PUBLIK)
+   ========================================================================== */
+.live-preview-card {
+  background: #FFFFFF;
+  border: 1px solid var(--ft-line);
+  border-radius: var(--ft-radius-lg);
+  padding: 1rem 1.15rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  box-shadow: var(--ft-shadow);
+  border-top: 3px solid var(--ft-gold);
+}
+
+.preview-badge-top {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--ft-maroon);
+  background: #FAF0F0;
+  padding: 2px 8px;
+  border-radius: 999px;
+  text-transform: uppercase;
+}
+
+.preview-name-row {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  margin-top: 0.5rem;
+}
+
+.preview-full-name {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--ft-text-dark);
+}
+
+.preview-edition-pill {
+  display: inline-block;
+  background: #F9F5EC;
+  border: 1px solid #EAE0C8;
+  color: var(--ft-maroon);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 10px;
+  border-radius: 999px;
+  margin: 4px auto 3px;
+}
+
+.preview-headline {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #2D2727;
+  margin: 2px 0;
+  line-height: 1.35;
+}
+
+.preview-location-cohort {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  color: var(--ft-text-muted);
+  margin-top: 2px;
+}
+
+/* ==========================================================================
+   SECTIONS & FORM CARDS
+   ========================================================================== */
+.section-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.35rem;
+}
+
+.section-serif-title {
+  font-family: inherit;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--ft-maroon);
+}
+
+.section-gold-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--ft-gold-deep);
+  text-transform: uppercase;
+}
+
+.kampus-form-card {
+  background: var(--ft-card-bg);
+  border: 1px solid var(--ft-line);
+  border-radius: var(--ft-radius-lg);
+  padding: 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  box-shadow: var(--ft-shadow);
+}
+
+.form-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.field-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.field-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ft-text-dark);
+}
+
+.field-label-req {
+  color: #DC2626;
+  font-weight: 700;
+  margin-left: 2px;
+}
+
+.field-badge-public {
+  background: #EFECE6;
+  color: var(--ft-text-muted);
+  font-size: 0.68rem;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.input-with-end-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.kampus-input {
+  width: 100%;
+  background: var(--ft-input-bg);
+  border: 1px solid var(--ft-input-border);
+  border-radius: 10px;
+  padding: 0.7rem 0.85rem;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--ft-text-dark);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.kampus-input:focus {
+  background: #FFFFFF;
+  border-color: var(--ft-maroon);
+  box-shadow: 0 0 0 3px rgba(74, 10, 14, 0.08);
+}
+
+.input-with-end-icon .kampus-input {
+  padding-right: 2.4rem;
+}
+
+.input-end-icon {
+  position: absolute;
+  right: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.field-subtext {
+  font-size: 0.7rem;
+  color: var(--ft-text-muted);
+  line-height: 1.35;
+}
+
+/* WhatsApp Input Group */
+.wa-input-group {
+  display: flex;
+  align-items: center;
+  background: var(--ft-input-bg);
+  border: 1px solid var(--ft-input-border);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.wa-input-group:focus-within {
+  background: #FFFFFF;
+  border-color: var(--ft-maroon);
+  box-shadow: 0 0 0 3px rgba(74, 10, 14, 0.08);
+}
+
+.wa-prefix-box {
+  background: #EBE6DE;
+  padding: 0.7rem 0.85rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ft-text-dark);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border-right: 1px solid var(--ft-input-border);
+  user-select: none;
+}
+
+.wa-number-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 0.7rem 0.85rem;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--ft-text-dark);
+  outline: none;
+}
+
+/* Two-column layout on tablet/desktop */
+.form-two-col {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 600px) {
+  .form-two-col {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ==========================================================================
+   CAMPUS LINKS BUILDER SECTION
+   ========================================================================== */
+.campus-links-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.link-builder-card {
+  background: #FFFFFF;
+  border: 1px solid #ECE7DF;
+  border-radius: var(--ft-radius-md);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.025);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.link-builder-card:hover {
+  border-color: #DCD4C6;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+}
+
+.link-builder-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.link-builder-type-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.type-pill-academic {
+  background: #FAF0F0;
+  color: var(--ft-maroon);
+}
+
+.type-pill-linkedin {
+  background: #FDF7E7;
+  color: #C59418;
+}
+
+.type-pill-instagram {
+  background: #F5F4F7;
+  color: #2B2525;
+}
+
+.type-pill-code {
+  background: #221F20;
+  color: #FFFFFF;
+}
+
+.link-builder-badge-active {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #059669;
+  background: #ECFDF5;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.link-mini-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.link-mini-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+}
+
+@media (min-width: 580px) {
+  .link-mini-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.link-input-sub {
+  background: var(--ft-input-bg);
+  border: 1px solid var(--ft-input-border);
+  border-radius: 8px;
+  padding: 0.55rem 0.75rem;
+  font-family: inherit;
+  font-size: 0.8rem;
+  color: var(--ft-text-dark);
+  outline: none;
+  transition: all 0.15s ease;
+}
+
+.link-input-sub:focus {
+  background: #FFFFFF;
+  border-color: var(--ft-maroon);
+  box-shadow: 0 0 0 2px rgba(74, 10, 14, 0.08);
+}
+
+/* ==========================================================================
+   STICKY BOTTOM SAVE BAR
+   ========================================================================== */
+.kampus-bottom-bar {
+  background: var(--ft-sand-bg);
+  padding: 1rem 1rem 1.5rem;
+  position: sticky;
+  bottom: 0;
+  z-index: 90;
+  border-top: 1px solid var(--ft-line);
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.btn-save-kampus {
+  width: 100%;
+  background: var(--ft-gold-btn);
+  color: #FFFFFF;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 999px;
+  padding: 0.85rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(120, 86, 0, 0.28);
+  transition: all 0.2s ease;
+}
+
+.btn-save-kampus:hover {
+  background: var(--ft-gold-btn-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(120, 86, 0, 0.35);
+}
+
+.bottom-sync-subtext {
+  font-size: 0.72rem;
+  color: var(--ft-text-muted);
+  text-align: center;
+  margin-top: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}

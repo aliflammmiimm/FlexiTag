@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\Tag;
 use App\Models\User;
+use App\Services\OrderActivationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -16,9 +17,10 @@ class TagController extends Controller
     /**
      * Display the NFC Tags Inventory list with real database records.
      */
-    public function index(Request $request): View
+    public function index(Request $request, OrderActivationService $activationService): View
     {
         $statusFilter = $request->query('status', 'all');
+        $modeFilter = $request->query('mode', 'all');
         $search = $request->query('search', '');
 
         // Summary Metric Baseline from real database tags
@@ -27,6 +29,8 @@ class TagController extends Controller
         $tagStok = Tag::where('status', 'belum_aktif')->count();
         $tagDiblokir = Tag::where('status', 'nonaktif')->count();
         $rasioAktif = $totalDiproduksi > 0 ? round(($tagTerhubung / $totalDiproduksi) * 100, 1).'%' : '0%';
+        $availableStockCount = $activationService->getAvailableStockCount();
+        $isLowStock = $availableStockCount < OrderActivationService::LOW_STOCK_THRESHOLD;
 
         $metrics = [
             'total_diproduksi' => $totalDiproduksi,
@@ -34,12 +38,26 @@ class TagController extends Controller
             'rasio_aktif' => $rasioAktif,
             'tag_stok' => $tagStok,
             'tag_diblokir' => $tagDiblokir,
+            'stok_tag_tersedia' => $availableStockCount,
+            'is_low_stock' => $isLowStock,
         ];
 
-        $tagsQuery = Tag::with(['user.profile'])->latest('id');
+        $tagsQuery = Tag::with(['user.profile', 'order'])->latest('id');
 
         if ($statusFilter !== 'all') {
             $tagsQuery->statusFilter($statusFilter);
+        }
+
+        if ($modeFilter !== 'all' && in_array($modeFilter, ['kampus', 'kerja', 'umkm', 'hilang'], true)) {
+            $tagsQuery->where(function ($q) use ($modeFilter) {
+                $q->where('mode', $modeFilter)
+                    ->orWhere(function ($sq) use ($modeFilter) {
+                        $sq->whereNull('mode')
+                            ->whereHas('user.profile', function ($pq) use ($modeFilter) {
+                                $pq->where('active_mode', $modeFilter);
+                            });
+                    });
+            });
         }
 
         if (filled($search)) {
@@ -49,7 +67,7 @@ class TagController extends Controller
         $tags = $tagsQuery->paginate(10)->withQueryString();
         $users = User::where('role', 'user')->orderBy('name')->get();
 
-        return view('admin.tags', compact('metrics', 'tags', 'statusFilter', 'search', 'users'));
+        return view('admin.tags', compact('metrics', 'tags', 'statusFilter', 'modeFilter', 'search', 'users', 'availableStockCount', 'isLowStock'));
     }
 
     /**
@@ -127,6 +145,24 @@ class TagController extends Controller
     }
 
     /**
+     * Ubah mode tag oleh administrator (FR-ADM-04).
+     */
+    public function updateMode(Request $request, Tag $tag): RedirectResponse
+    {
+        $validated = $request->validate([
+            'mode' => ['required', 'string', 'in:kampus,kerja,umkm,hilang'],
+        ]);
+
+        $tag->update([
+            'mode' => $validated['mode'],
+        ]);
+
+        AuditLog::record('update_tag_mode', "Mode Tag [{$tag->tag_code}] diubah ke {$tag->mode} oleh admin");
+
+        return back()->with('success', "Mode untuk Tag {$tag->tag_code} berhasil diubah ke Mode ".ucfirst($tag->mode).'.');
+    }
+
+    /**
      * Export the current tags inventory to CSV (FR-ADM-04).
      */
     public function exportCsv(Request $request): StreamedResponse
@@ -134,7 +170,7 @@ class TagController extends Controller
         $statusFilter = $request->query('status', 'all');
         $search = $request->query('search', '');
 
-        $tagsQuery = Tag::with(['user.profile'])->latest('id');
+        $tagsQuery = Tag::with(['user.profile', 'order'])->latest('id');
 
         if ($statusFilter !== 'all') {
             $tagsQuery->statusFilter($statusFilter);
@@ -153,6 +189,7 @@ class TagController extends Controller
             fputcsv($handle, ['No', 'Tag_Code', 'Batch_ID', 'Status', 'Disabled_By', 'Pemilik_Nama', 'Pemilik_Email', 'Mode_Aktif', 'URL_Publik', 'Tanggal_Diproduksi', 'Tanggal_Aktivasi']);
 
             foreach ($tags as $index => $t) {
+                $tagMode = $t->mode ?: ($t->user?->profile?->active_mode ?? '-');
                 fputcsv($handle, [
                     $index + 1,
                     $t->tag_code,
@@ -161,7 +198,7 @@ class TagController extends Controller
                     $t->disabled_by ?? '-',
                     $t->user?->name ?? 'Belum Terhubung',
                     $t->user?->email ?? '-',
-                    $t->user?->profile?->active_mode ?? '-',
+                    ucfirst($tagMode),
                     $t->public_url,
                     $t->produced_at ? $t->produced_at->format('Y-m-d H:i') : '-',
                     $t->activated_at ? $t->activated_at->format('Y-m-d H:i') : '-',

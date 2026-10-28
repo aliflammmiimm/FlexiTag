@@ -120,7 +120,7 @@
                                 name="jenis_produk" 
                                 id="jenis_produk" 
                                 required
-                                class="w-full bg-[#F6F5F2] hover:bg-[#F2F1ED] focus:bg-white text-xs text-[#1A1A1A] font-medium py-3 px-4 pr-10 rounded-2xl border border-[#ECE8E1] focus:outline-none focus:ring-2 focus:ring-[#8B0000]/10 focus:border-[#8B0000] transition appearance-none cursor-pointer"
+                                class="w-full bg-[#F6F5F2] hover:bg-[#F2F1ED] focus:bg-white text-xs text-[#1A1A1A] font-medium py-3 px-4 pr-10 rounded-2xl border border-[#ECE8E1] focus:outline-none focus:ring-2 focus:ring-[#8B0000]/10 focus:border-[#8B0000] transition appearance-none has-manual-chevron cursor-pointer"
                             >
                                 <option value="" disabled selected>Pilih varian bentuk ganci...</option>
                                 <option value="Ganci Akrilik Bulat">Ganci Bentuk Bulat</option>
@@ -150,7 +150,7 @@
                                 name="edisi_budaya" 
                                 id="edisi_budaya" 
                                 required
-                                class="w-full bg-[#F6F5F2] hover:bg-[#F2F1ED] focus:bg-white text-xs text-[#1A1A1A] font-medium py-3 px-4 pr-10 rounded-2xl border border-[#ECE8E1] focus:outline-none focus:ring-2 focus:ring-[#8B0000]/10 focus:border-[#8B0000] transition appearance-none cursor-pointer"
+                                class="w-full bg-[#F6F5F2] hover:bg-[#F2F1ED] focus:bg-white text-xs text-[#1A1A1A] font-medium py-3 px-4 pr-10 rounded-2xl border border-[#ECE8E1] focus:outline-none focus:ring-2 focus:ring-[#8B0000]/10 focus:border-[#8B0000] transition appearance-none has-manual-chevron cursor-pointer"
                             >
                                 <option value="" disabled selected>Pilih ragam motif...</option>
                                 <option value="Pa'teddong (Toraja)">Pa'teddong (Toraja)</option>

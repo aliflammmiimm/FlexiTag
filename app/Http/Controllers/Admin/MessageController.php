@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
+use App\Models\Message;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -32,7 +33,13 @@ class MessageController extends Controller
     {
         DB::table('messages')
             ->whereNull('read_at')
-            ->whereIn('type', ['abuse_report', 'contact'])
+            ->whereIn('type', [
+                Message::TYPE_ABUSE_REPORT,
+                Message::TYPE_CONTACT,
+                Message::TYPE_USER_FEEDBACK,
+                Message::TYPE_NEW_ORDER,
+                Message::TYPE_LOW_STOCK,
+            ])
             ->update(['read_at' => now()]);
 
         if ($request->wantsJson()) {

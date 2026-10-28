@@ -1,8 +1,8 @@
 /* FlexiTag User Edit Profil — Mode Hilang Styles
    Color Tokens:
    Toraja Maroon: #4A0A0E, #3B0508, #2B0407, #6B0E12
-   Sulapa Eppa' Gold: #E5B32A, #D4AF37, #FCF5E3, #FEF3C7
-   Sand/Cream: #F9F6F0, #FAF8F5, #FFFFFF
+   Sulapa Eppa' Gold: #E5B32A, #F5BA41, #D4AF37, #FCF5E3, #FEF3C7
+   Sand/Cream: #F9F7F2, #FAF8F5, #FFFFFF
    Charcoal: #1F1915, #2D2726
 */
 
@@ -11,11 +11,11 @@
   --color-maroon-dark: #4A0A0E;
   --color-maroon-deep: #3B0508;
   --color-gold: #D4AF37;
-  --color-gold-bright: #E5B32A;
+  --color-gold-bright: #F5BA41;
   --color-gold-soft: #FEF3C7;
   --color-gold-light: #FCF5E3;
   --color-cream: #FAF8F5;
-  --color-sand: #F9F6F0;
+  --color-sand: #F9F7F2;
   --color-white: #FFFFFF;
   --color-charcoal: #1F1915;
   --color-text-dark: #2D2726;
@@ -25,8 +25,8 @@
   --radius-xl: 20px;
   --radius-lg: 16px;
   --radius-md: 12px;
-  --shadow-card: 0 8px 24px rgba(45, 14, 18, 0.08);
-  --shadow-soft: 0 4px 16px rgba(0, 0, 0, 0.05);
+  --shadow-card: 0 8px 24px rgba(74, 10, 14, 0.08);
+  --shadow-soft: 0 4px 16px rgba(0, 0, 0, 0.04);
 }
 
 * {
@@ -64,7 +64,7 @@ body.lost-mode-body {
     padding: 1.5rem 1rem 3rem;
   }
   .lost-mode-viewport-wrap {
-    max-width: 720px;
+    max-width: 780px;
     margin: 0 auto;
     border-radius: 24px;
     box-shadow: 0 12px 40px rgba(74, 10, 14, 0.1);
@@ -73,26 +73,33 @@ body.lost-mode-body {
   }
 }
 
+@media (min-width: 1024px) {
+  .lost-mode-viewport-wrap {
+    max-width: 860px;
+  }
+}
+
 /* ==========================================================================
    TOP APP BAR (KONSISTEN DENGAN EDIT PROFIL UMKM)
    ========================================================================== */
 .umkm-topbar {
-  background: linear-gradient(180deg, #3B0508 0%, #44070B 100%);
-  padding: 0.85rem 1.15rem;
+  background: linear-gradient(180deg, #380508 0%, #4A0A0E 100%);
+  padding: 0.9rem 1.15rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(8px);
 }
 
 .topbar-back-btn {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.14);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -100,6 +107,7 @@ body.lost-mode-body {
   text-decoration: none;
   transition: all 0.2s ease;
   flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .topbar-back-btn:hover {
@@ -116,7 +124,7 @@ body.lost-mode-body {
 
 .topbar-center-title {
   font-family: inherit;
-  font-size: 1.15rem;
+  font-size: 1.12rem;
   font-weight: 700;
   color: #FFFFFF;
   line-height: 1.15;
@@ -126,7 +134,7 @@ body.lost-mode-body {
 .topbar-center-sub {
   font-size: 0.62rem;
   font-weight: 600;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   color: var(--color-gold-bright);
   text-transform: uppercase;
   margin-top: 3px;
@@ -134,10 +142,11 @@ body.lost-mode-body {
 }
 
 .topbar-mode-badge {
-  background: var(--color-gold-bright);
-  color: var(--color-maroon-dark);
+  background: rgba(245, 186, 65, 0.2);
+  border: 1px solid rgba(245, 186, 65, 0.45);
+  color: #F5BA41;
   font-size: 0.68rem;
-  font-weight: 700;
+  font-weight: 800;
   padding: 4px 10px;
   border-radius: 999px;
   display: inline-flex;
@@ -152,78 +161,20 @@ body.lost-mode-body {
    Content Flow
    -------------------------------------------------------------------------- */
 .lost-mode-content {
-  padding: 1.15rem 1.15rem 3rem;
+  padding: 1.25rem 1.15rem 4rem;
   display: flex;
   flex-direction: column;
-  gap: 0.95rem;
+  gap: 1.15rem;
   position: relative;
   z-index: 5;
   margin-top: 0;
 }
 
-/* Card 1: Privasi Terlindungi (Overlap) */
-.privacy-overlap-card {
-  background: var(--color-white);
-  border-radius: var(--radius-lg);
-  padding: 1.15rem 1.1rem;
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-card);
-  display: flex;
-  flex-direction: column;
-  gap: 0.55rem;
-}
-
-.privacy-card-header {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-}
-
-.privacy-lock-box {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: #FCF5E3;
-  border: 1px solid #F6E2B1;
-  color: #8C6D23;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.privacy-title-text {
-  font-size: 0.88rem;
-  font-weight: 800;
-  color: var(--color-charcoal);
-  letter-spacing: -0.01em;
-}
-
-.privacy-desc-text {
-  font-size: 0.73rem;
-  color: var(--color-muted);
-  line-height: 1.45;
-}
-
-.privacy-bottom-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  background: #FAF8F5;
-  border: 1px solid var(--color-border);
-  color: #4A0A0E;
-  font-size: 0.66rem;
-  font-weight: 700;
-  padding: 0.2rem 0.55rem;
-  border-radius: 999px;
-  width: fit-content;
-}
-
-/* Card 2: Hardware/Tag Card */
+/* Card 1: Hardware/Tag Card Status */
 .hardware-info-card {
   background: var(--color-white);
-  border-radius: var(--radius-lg);
-  padding: 1.1rem;
+  border-radius: 18px;
+  padding: 1.1rem 1.25rem;
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-soft);
   display: flex;
@@ -253,13 +204,14 @@ body.lost-mode-body {
 .hardware-header-row {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.85rem;
+  flex-wrap: wrap;
 }
 
 .hardware-nfc-icon-box {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
   background: #F7EBEB;
   border: 1px solid #F0D5D5;
   color: var(--color-maroon-dark);
@@ -272,72 +224,131 @@ body.lost-mode-body {
 .hardware-title-col {
   display: flex;
   flex-direction: column;
+  gap: 2px;
 }
 
 .hardware-tag-name {
   font-size: 0.95rem;
   font-weight: 800;
   color: var(--color-charcoal);
+  line-height: 1.2;
 }
 
 .hardware-tag-id {
-  font-size: 0.72rem;
+  font-size: 0.74rem;
+  font-weight: 600;
   color: var(--color-muted);
-}
-
-.hardware-status-alert {
-  background: #FCF5E3;
-  border: 1px solid #F6E2B1;
-  border-radius: var(--radius-md);
-  padding: 0.65rem 0.8rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
+  letter-spacing: 0.04em;
 }
 
 .hardware-status-badge {
-  font-size: 0.74rem;
+  font-size: 0.68rem;
   font-weight: 800;
+  color: #8C6D23;
+  background: #FCF5E3;
+  border: 1px solid #F6E2B1;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-left: auto;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+/* Card 2: Privasi Terlindungi Callout */
+.privacy-overlap-card {
+  background: #FAF8F5;
+  border-radius: 18px;
+  padding: 1.15rem 1.25rem;
+  border: 1px solid #ECE7DF;
+  box-shadow: var(--shadow-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.privacy-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.privacy-lock-box {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #FCF5E3;
+  border: 1px solid #F6E2B1;
   color: #8C6D23;
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
-.hardware-status-desc {
-  font-size: 0.7rem;
-  color: #78716C;
-  line-height: 1.35;
+.privacy-title-text {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: var(--color-charcoal);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.privacy-desc-text {
+  font-size: 0.76rem;
+  color: #57534E;
+  line-height: 1.5;
+}
+
+.privacy-bottom-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: #FFFFFF;
+  border: 1px solid #E7E2D8;
+  color: #4A0A0E;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  width: fit-content;
+}
+
+#lostModeForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
 }
 
 /* Card 3: Formulir Informasi Darurat */
 .emergency-form-card {
   background: var(--color-white);
-  border-radius: var(--radius-lg);
-  padding: 1.25rem 1.15rem;
+  border-radius: 20px;
+  padding: 1.35rem 1.25rem;
   border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-soft);
+  box-shadow: 0 4px 20px rgba(74, 10, 14, 0.04);
   display: flex;
   flex-direction: column;
-  gap: 1.05rem;
+  gap: 1.15rem;
 }
 
 .form-heading-row {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  padding-bottom: 0.65rem;
-  border-bottom: 1px solid #F0ECE4;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid #F2EEE9;
 }
 
 .form-title-text {
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 800;
   color: var(--color-charcoal);
 }
 
 .form-required-note {
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   color: #DC2626;
   font-weight: 600;
 }
@@ -345,107 +356,138 @@ body.lost-mode-body {
 .form-field-group {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.45rem;
 }
 
 .field-label-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 0.5rem;
 }
 
 .field-label {
-  font-size: 0.76rem;
+  font-size: 0.82rem;
   font-weight: 700;
   color: var(--color-charcoal);
+  letter-spacing: -0.01em;
 }
 
 .field-char-counter {
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   color: var(--color-muted);
   font-weight: 600;
 }
 
 .form-textarea {
   width: 100%;
-  min-height: 94px;
-  padding: 0.65rem 0.8rem;
-  border-radius: 10px;
-  border: 1px solid var(--color-border);
-  background: #FAF8F5;
+  min-height: 105px;
+  padding: 0.75rem 0.95rem;
+  border-radius: 12px;
+  border: 1.5px solid #E5E0D6;
+  background: #FAF9F6;
   font-family: inherit;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: var(--color-charcoal);
-  line-height: 1.45;
+  line-height: 1.55;
   resize: vertical;
   outline: none;
-  transition: border-color 0.2s;
+  transition: all 0.2s ease;
 }
 
 .form-textarea:focus {
   border-color: var(--color-gold-bright);
   background: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(229, 178, 57, 0.16);
 }
 
 .form-text-input {
   width: 100%;
-  padding: 0.65rem 0.8rem;
-  border-radius: 10px;
-  border: 1px solid var(--color-border);
-  background: #FAF8F5;
+  padding: 0.75rem 0.95rem;
+  border-radius: 12px;
+  border: 1.5px solid #E5E0D6;
+  background: #FAF9F6;
   font-family: inherit;
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   color: var(--color-charcoal);
   outline: none;
-  transition: border-color 0.2s;
+  transition: all 0.2s ease;
 }
 
 .form-text-input:focus {
   border-color: var(--color-gold-bright);
   background: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(229, 178, 57, 0.16);
 }
 
 .field-helper-text {
-  font-size: 0.68rem;
+  font-size: 0.72rem;
   color: var(--color-muted);
-  line-height: 1.35;
+  line-height: 1.45;
 }
 
 .field-badge-private {
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
-  background: #FCF5E3;
-  color: #8C6D23;
-  font-size: 0.62rem;
+  gap: 4px;
+  background: #FEF3C7;
+  color: #92400E;
+  border: 1px solid #FDE68A;
+  font-size: 0.65rem;
   font-weight: 700;
-  padding: 0.15rem 0.45rem;
+  padding: 0.2rem 0.55rem;
   border-radius: 999px;
-  margin-top: 0.15rem;
   width: fit-content;
 }
 
+.field-badge-public {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #ECFDF5;
+  color: #065F46;
+  border: 1px solid #A7F3D0;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  width: fit-content;
+}
+
+.field-badge-public .badge-dot {
+  color: #10B981;
+  font-size: 8px;
+}
+
 .field-error-text {
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   color: #DC2626;
   font-weight: 600;
 }
 
 /* Section: Opsi Komunikasi & Keamanan */
+.options-group-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
 .options-section-head {
-  font-size: 0.84rem;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.88rem;
   font-weight: 800;
   color: var(--color-maroon-dark);
-  margin-top: 0.35rem;
-  margin-bottom: -0.35rem;
-  padding: 0 0.2rem;
+  margin: 0;
+  padding: 0 0.25rem;
 }
 
 .options-card {
   background: var(--color-white);
-  border-radius: var(--radius-lg);
+  border-radius: 18px;
   border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-soft);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
   overflow: hidden;
 }
 
@@ -453,8 +495,8 @@ body.lost-mode-body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.85rem 1rem;
-  border-bottom: 1px solid #F0ECE4;
+  padding: 1rem 1.15rem;
+  border-bottom: 1px solid #F2EEE9;
   gap: 0.85rem;
 }
 
@@ -469,23 +511,23 @@ body.lost-mode-body {
 }
 
 .option-title {
-  font-size: 0.82rem;
+  font-size: 0.86rem;
   font-weight: 700;
   color: var(--color-charcoal);
 }
 
 .option-subtitle {
-  font-size: 0.68rem;
+  font-size: 0.72rem;
   color: var(--color-muted);
-  line-height: 1.35;
+  line-height: 1.4;
 }
 
 /* Switch Toggle Component */
 .switch-toggle-wrap {
   position: relative;
   display: inline-block;
-  width: 44px;
-  height: 24px;
+  width: 48px;
+  height: 26px;
   flex-shrink: 0;
 }
 
@@ -503,21 +545,21 @@ body.lost-mode-body {
   right: 0;
   bottom: 0;
   background-color: #E2DDD5;
-  transition: 0.3s;
-  border-radius: 24px;
+  transition: 0.25s;
+  border-radius: 26px;
 }
 
 .switch-slider:before {
   position: absolute;
   content: "";
-  height: 18px;
-  width: 18px;
+  height: 20px;
+  width: 20px;
   left: 3px;
   bottom: 3px;
   background-color: white;
-  transition: 0.3s;
+  transition: 0.25s;
   border-radius: 50%;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
 
 input:checked + .switch-slider {
@@ -525,41 +567,44 @@ input:checked + .switch-slider {
 }
 
 input:checked + .switch-slider:before {
-  transform: translateX(20px);
+  transform: translateX(22px);
 }
 
 /* Card 4: Preview Card */
 .preview-link-card {
   background: var(--color-white);
-  border-radius: var(--radius-lg);
-  padding: 0.95rem 1.1rem;
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-soft);
+  border-radius: 16px;
+  padding: 1rem 1.15rem;
+  border: 1.5px solid #E8E3DA;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
   display: flex;
   align-items: center;
   justify-content: space-between;
   text-decoration: none;
   color: var(--color-charcoal);
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
 }
 
 .preview-link-card:hover {
-  background: #FAF8F5;
+  background: #FAF7F2;
+  border-color: var(--color-gold);
+  transform: translateY(-1px);
 }
 
 .preview-card-left {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.85rem;
 }
 
 .preview-icon-box {
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
-  background: #F7EBEB;
-  color: var(--color-maroon-dark);
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: #FFF8EB;
+  border: 1px solid #FDE68A;
+  color: #B45309;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -567,13 +612,13 @@ input:checked + .switch-slider:before {
 }
 
 .preview-title {
-  font-size: 0.82rem;
+  font-size: 0.86rem;
   font-weight: 800;
   color: var(--color-charcoal);
 }
 
 .preview-sub {
-  font-size: 0.68rem;
+  font-size: 0.72rem;
   color: var(--color-muted);
 }
 
@@ -581,35 +626,378 @@ input:checked + .switch-slider:before {
 .bottom-submit-wrap {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.6rem;
   margin-top: 0.4rem;
 }
 
 .btn-save-lost-mode {
   width: 100%;
-  padding: 0.85rem;
-  border-radius: 12px;
+  padding: 0.95rem 1.25rem;
+  border-radius: 14px;
   background: linear-gradient(180deg, #F5BA41 0%, #D4AF37 100%);
   color: #2B0407;
-  border: none;
-  font-size: 0.88rem;
+  border: 1px solid #C49B28;
+  font-size: 0.92rem;
   font-weight: 800;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.55rem;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(212, 175, 55, 0.35);
-  transition: all 0.2s;
+  box-shadow: 0 5px 18px rgba(212, 175, 55, 0.38);
+  transition: all 0.2s ease;
 }
 
 .btn-save-lost-mode:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(212, 175, 55, 0.45);
+  transform: translateY(-2px);
+  box-shadow: 0 7px 24px rgba(212, 175, 55, 0.48);
 }
 
 .bottom-helper-note {
   text-align: center;
+  font-size: 0.72rem;
+  color: var(--color-muted);
+}
+
+/* ==========================================================================
+   OWNER INBOX (KOTAK MASUK PESAN PENEMU / FR-LST-03)
+   ========================================================================== */
+.owner-inbox-card {
+  background: #FFFFFF;
+  border-radius: var(--radius-xl);
+  padding: 1.25rem 1.15rem;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-card);
+  position: relative;
+  overflow: hidden;
+}
+
+.inbox-card-head {
+  margin-bottom: 1rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid #F0ECE4;
+}
+
+.inbox-head-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.inbox-head-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  flex: 1 1 240px;
+  min-width: 0;
+}
+
+.inbox-head-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 100%);
+  color: #B91C1C;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  flex-shrink: 0;
+  border: 1px solid #FECACA;
+  margin-top: 2px;
+}
+
+.inbox-title-group {
+  flex: 1;
+  min-width: 0;
+}
+
+.inbox-title-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.2rem;
+}
+
+.inbox-head-title {
+  font-size: 0.96rem;
+  font-weight: 700;
+  color: var(--color-charcoal);
+  margin: 0;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.badge-unread-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.3rem !important;
+  background: #DC2626 !important;
+  color: #FFFFFF !important;
+  font-size: 0.68rem !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  padding: 0.25rem 0.6rem !important;
+  border-radius: 999px !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  letter-spacing: 0.02em;
+  box-shadow: 0 2px 6px rgba(220, 38, 38, 0.25);
+}
+
+.badge-unread-pill .unread-dot {
+  font-size: 0.5rem;
+  line-height: 1;
+  color: #FEE2E2;
+}
+
+.inbox-head-sub {
+  font-size: 0.72rem;
+  color: var(--color-muted);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.btn-mark-all-read {
+  background: #FAF8F5;
+  color: #6B0E12;
+  border: 1px solid #E5DFD5;
+  border-radius: 999px;
+  padding: 0.38rem 0.75rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.btn-mark-all-read:hover {
+  background: #F0ECE4;
+  color: #4A0A0E;
+  border-color: #D6CEC1;
+}
+
+/* Empty State */
+.inbox-empty-wrap {
+  text-align: center;
+  padding: 2rem 1rem;
+  background: #FAF8F5;
+  border-radius: 16px;
+  border: 1px dashed #DDD7CE;
+}
+
+.inbox-empty-icon {
+  font-size: 2.2rem;
+  margin-bottom: 0.5rem;
+  opacity: 0.8;
+}
+
+.inbox-empty-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--color-charcoal);
+  margin-bottom: 0.3rem;
+}
+
+.inbox-empty-desc {
+  font-size: 0.74rem;
+  color: var(--color-muted);
+  max-width: 440px;
+  margin: 0 auto;
+  line-height: 1.45;
+}
+
+/* Messages List */
+.inbox-msg-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.inbox-msg-item {
+  background: #FAF9F6;
+  border: 1px solid #ECE7DF;
+  border-left: 4px solid #A8A29E;
+  border-radius: 14px;
+  padding: 0.95rem 1rem;
+  transition: all 0.2s ease;
+}
+
+.inbox-msg-item.is-unread {
+  background: #FFFDFD;
+  border-color: #FECACA;
+  border-left: 4px solid #DC2626;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.06);
+}
+
+.inbox-msg-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.msg-sender-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.msg-sender-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #F3EBE1;
+  color: #6B0E12;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.msg-sender-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--color-charcoal);
+}
+
+.msg-time-badge {
   font-size: 0.68rem;
   color: var(--color-muted);
+}
+
+.msg-status-pill-unread {
+  background: #FEE2E2;
+  color: #991B1B;
+  font-size: 0.64rem;
+  font-weight: 700;
+  padding: 0.15rem 0.45rem;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.msg-status-pill-read {
+  background: #E5E7EB;
+  color: #4B5563;
+  font-size: 0.64rem;
+  font-weight: 600;
+  padding: 0.15rem 0.45rem;
+  border-radius: 9999px;
+}
+
+.msg-location-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  font-size: 0.74rem;
+  color: #44403C;
+  background: #F4EFEB;
+  padding: 0.4rem 0.65rem;
+  border-radius: 8px;
+  margin-bottom: 0.6rem;
+}
+
+.msg-location-link {
+  color: #B45309;
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 0.7rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.msg-location-link:hover {
+  text-decoration: underline;
+}
+
+.msg-body-box {
+  background: #FDFBF7;
+  border: 1px solid #EAE4D9;
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  font-size: 0.82rem;
+  color: #1F1915;
+  line-height: 1.6;
+  margin-bottom: 0.75rem;
+  font-style: normal;
+  white-space: pre-line;
+  word-break: break-word;
+  text-align: left;
+}
+
+.msg-body-box .msg-quote-mark {
+  color: #D4AF37;
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.msg-actions-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: space-between;
+}
+
+.btn-contact-wa {
+  background: #25D366;
+  color: #FFFFFF;
+  padding: 0.45rem 0.85rem;
+  border-radius: 8px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(37, 211, 102, 0.28);
+}
+
+.btn-contact-wa:hover {
+  background: #1EBE5D;
+  transform: translateY(-1px);
+}
+
+.btn-action-read {
+  background: #FAF8F5;
+  color: #57534E;
+  border: 1px solid #D6D3D1;
+  padding: 0.45rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-action-read:hover {
+  background: #F5F2EB;
+  color: #1C1917;
+  border-color: #A8A29E;
+}
+
+.msg-read-timestamp {
+  font-size: 0.68rem;
+  color: #78716C;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
 }

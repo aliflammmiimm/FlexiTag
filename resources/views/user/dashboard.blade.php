@@ -4,6 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="theme-color" content="#4A0A0E">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
     <title>Home — FlexiTag Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,16 +23,28 @@
     {{-- TOP APP BAR                                                               --}}
     {{-- ========================================================================= --}}
     <header class="user-topbar">
-        <button type="button" class="hamburger-btn" id="openDrawerBtn" aria-label="Buka Menu Navigasi" onclick="toggleDrawer(true)">
-            <span></span>
-            <span></span>
-            <span></span>
-        </button>
+        <div class="topbar-left-group">
+            <button type="button" class="hamburger-btn" id="openDrawerBtn" aria-label="Buka Menu Navigasi" onclick="toggleDrawer(true)">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
 
-        <div class="topbar-branding">
-            <span class="topbar-subtitle">FLEXITAG</span>
-            <h1 class="topbar-title">Home</h1>
+            <div class="topbar-branding">
+                <span class="topbar-subtitle">FLEXITAG</span>
+                <h1 class="topbar-title">Home</h1>
+            </div>
         </div>
+
+        <button type="button" class="topbar-inbox-btn" onclick="openLostReportsModal()" aria-label="Laporan Penemuan Barang" title="Laporan Penemuan Barang">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+            @if(isset($unreadMessagesCount) && $unreadMessagesCount > 0)
+                <span class="topbar-inbox-badge" id="topbarInboxBadge">{{ $unreadMessagesCount }}</span>
+            @endif
+        </button>
     </header>
 
     {{-- ========================================================================= --}}
@@ -92,12 +108,22 @@
                 @else
                     <span style="background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; padding: 3px 9px; border-radius: 20px; font-size: 0.72rem; font-weight: 700;">Terkunci</span>
                 @endif
-                <a href="{{ $publicUrl }}" target="_blank" class="btn-external-icon" title="Buka profil publik tap">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="7" y1="17" x2="17" y2="7"></line>
-                        <polyline points="7 7 17 7 17 17"></polyline>
-                    </svg>
-                </a>
+                <div class="hardware-actions" style="display: flex; align-items: center; gap: 0.45rem;">
+                    <button type="button" class="btn-external-icon" onclick="copyPublicUrl('{{ $publicUrl }}')" title="Salin Tautan Profil Publik" aria-label="Salin Tautan Profil">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                    </button>
+                    <button type="button" class="btn-external-icon" onclick="openQrModal('{{ $publicUrl }}', '{{ $primaryTag?->tag_code }}')" title="Tampilkan QR Code Profil" aria-label="Tampilkan QR Code">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                    </button>
+                </div>
             </div>
         </section>
 
@@ -152,6 +178,32 @@
                 </div>
             </div>
         </section>
+
+        {{-- Emergency Finder Messages Banner (FR-LST-03) --}}
+        @if(isset($unreadMessagesCount) && $unreadMessagesCount > 0)
+            <section class="lost-inbox-alert-banner" id="bannerLostAlert" style="margin-bottom: 1.25rem; background: linear-gradient(135deg, #FEF2F2 0%, #FFFBEB 100%); border: 1.5px solid #FCA5A5; border-radius: 16px; padding: 0.95rem 1.15rem; display: flex; align-items: center; justify-content: space-between; gap: 0.85rem; box-shadow: 0 4px 14px rgba(220, 38, 38, 0.08); flex-wrap: wrap;">
+                <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1 1 220px; min-width: 0;">
+                    <div style="width: 40px; height: 40px; border-radius: 12px; background: #DC2626; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; box-shadow: 0 3px 10px rgba(220, 38, 38, 0.25);">
+                        📬
+                    </div>
+                    <div style="min-width: 0;">
+                        <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 0.45rem; margin-bottom: 0.15rem;">
+                            <span style="font-size: 0.88rem; font-weight: 700; color: #991B1B;">Pemberitahuan Barang Ditemukan!</span>
+                            <span class="badge-unread-pill" style="font-size: 0.66rem;">
+                                <span class="unread-dot">●</span> {{ $unreadMessagesCount }} Baru
+                            </span>
+                        </div>
+                        <div style="font-size: 0.74rem; color: #7F1D1D; line-height: 1.35;">
+                            Penemu telah mengirimkan pesan &amp; informasi kontak untuk tag Anda.
+                        </div>
+                    </div>
+                </div>
+                <button type="button" onclick="openLostReportsModal()" style="background: #991B1B; color: #FFFFFF; font-size: 0.76rem; font-weight: 700; padding: 0.6rem 0.95rem; border: none; border-radius: 10px; cursor: pointer; white-space: nowrap; display: inline-flex; align-items: center; gap: 0.35rem; transition: background 0.2s; box-shadow: 0 2px 6px rgba(153, 27, 27, 0.25); flex-shrink: 0;">
+                    <span>Buka Laporan</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </button>
+            </section>
+        @endif
 
         {{-- 4. Pilih Mode Aktif (Interactive Mode Cards) --}}
         <section class="mode-section">
@@ -260,7 +312,12 @@
                             <span class="mode-item-name">Mode Barang Hilang</span>
                             <span class="mode-item-desc">
                                 Relay pesan aman tanpa kontak pribadi • 
-                                <a href="{{ route('user.lost-mode.edit') }}" onclick="event.stopPropagation();" style="color: #4A0A0E; font-weight: 700; text-decoration: underline;">Atur Pesan Darurat</a>
+                                <a href="{{ route('user.lost-mode.edit') }}" onclick="event.stopPropagation();" class="mode-inline-link">Atur Pesan Darurat</a>
+                                @if(isset($lostMessages) && $lostMessages->isNotEmpty())
+                                    • <button type="button" onclick="event.stopPropagation(); openLostReportsModal();" class="mode-inline-link" style="background:none; border:none; padding:0; cursor:pointer; color: {{ $unreadMessagesCount > 0 ? '#DC2626' : '#8C6D23' }}; font-weight: 700;">
+                                        📬 {{ $unreadMessagesCount > 0 ? $unreadMessagesCount . ' Pesan Baru' : $lostMessages->count() . ' Laporan Masuk' }}
+                                    </button>
+                                @endif
                             </span>
                         </div>
                     </div>
@@ -500,6 +557,180 @@
     </div>
 </div>
 
+{{-- Floating Action Button Widget (Kotak Mengambang Laporan Penemuan) --}}
+@if(isset($lostMessages) && $lostMessages->isNotEmpty())
+    <div class="floating-inbox-widget" id="floatingInboxWidget" onclick="openLostReportsModal()" role="button" tabindex="0" title="Buka Kotak Laporan Penemuan">
+        <div class="floating-widget-icon-wrap">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+            @if(isset($unreadMessagesCount) && $unreadMessagesCount > 0)
+                <span class="floating-widget-badge" id="floatingWidgetBadge">{{ $unreadMessagesCount }}</span>
+            @endif
+        </div>
+        <span class="floating-widget-text">Laporan Penemuan</span>
+    </div>
+@endif
+
+{{-- 5. Floating Box Modal: Laporan Penemuan Barang (Kotak Mengambang) --}}
+<div class="lost-reports-modal-overlay" id="modalLostReports" onclick="handleLostReportsBackdropClick(event)">
+    <div class="lost-reports-floating-card" role="dialog" aria-labelledby="floatingModalTitle" aria-modal="true">
+        {{-- Modal Header --}}
+        <div class="floating-modal-head">
+            <div class="floating-head-left">
+                <div class="floating-head-icon" aria-hidden="true">
+                    📬
+                </div>
+                <div class="floating-head-text">
+                    <div class="floating-title-row">
+                        <h3 class="floating-modal-title" id="floatingModalTitle">Laporan Penemuan Barang</h3>
+                        @if(isset($unreadMessagesCount) && $unreadMessagesCount > 0)
+                            <span class="badge-unread-pill" id="floatingModalUnreadBadge">
+                                <span class="unread-dot">●</span> <span id="floatingModalUnreadCount">{{ $unreadMessagesCount }} Baru</span>
+                            </span>
+                        @endif
+                    </div>
+                    <p class="floating-modal-sub">
+                        Pesan &amp; koordinasi dari penemu yang memindai gantungan kunci FlexiTag Anda.
+                    </p>
+                </div>
+            </div>
+
+            <div class="floating-head-actions">
+                @if(isset($unreadMessagesCount) && $unreadMessagesCount > 0)
+                    <button type="button" class="btn-mark-all-read" id="btnMarkAllRead" onclick="markAllLostMessagesRead()" title="Tandai semua pesan telah dibaca">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        <span>Tandai Semua</span>
+                    </button>
+                @endif
+                <button type="button" class="btn-close-floating-modal" onclick="closeLostReportsModal()" aria-label="Tutup Dialog">
+                    ✕
+                </button>
+            </div>
+        </div>
+
+        {{-- Modal Body --}}
+        <div class="floating-modal-body">
+            @if(isset($lostMessages) && $lostMessages->isNotEmpty())
+                <div class="inbox-msg-list" id="inboxMsgList">
+                    @foreach($lostMessages as $msg)
+                        <div class="inbox-msg-item {{ is_null($msg->read_at) ? 'is-unread' : '' }}" id="msgCard-{{ $msg->id }}">
+                            <div class="inbox-msg-head">
+                                <div class="msg-sender-info">
+                                    <div class="msg-sender-avatar" aria-hidden="true">
+                                        {{ Str::upper(mb_substr($msg->sender_name ?: 'P', 0, 1)) }}
+                                    </div>
+                                    <div>
+                                        <div class="msg-sender-name">{{ $msg->sender_name ?: 'Penemu Anonim' }}</div>
+                                        <span class="msg-time-badge">{{ $msg->created_at ? $msg->created_at->diffForHumans() : 'Baru saja' }}</span>
+                                    </div>
+                                </div>
+
+                                <div id="msgStatus-{{ $msg->id }}">
+                                    @if(is_null($msg->read_at))
+                                        <span class="msg-status-pill-unread">
+                                            <span>●</span> Belum Dibaca
+                                        </span>
+                                    @else
+                                        <span class="msg-status-pill-read">
+                                            ✓ Dibaca
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+
+                            @if($msg->location)
+                                <div class="msg-location-bar">
+                                    <span>📍 <strong>Lokasi:</strong> {{ $msg->location }}</span>
+                                    <a href="https://www.google.com/maps/search/?api=1&query={{ urlencode($msg->location) }}" target="_blank" rel="noopener noreferrer" class="msg-location-link">
+                                        <span>Buka Maps</span>
+                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                                    </a>
+                                </div>
+                            @endif
+
+                            <div class="msg-body-box"><span class="msg-quote-mark">&ldquo;</span>{{ trim($msg->message) }}<span class="msg-quote-mark">&rdquo;</span></div>
+
+                            <div class="msg-actions-row">
+                                @if($msg->contact)
+                                    @php
+                                        $cleanPhone = preg_replace('/[^0-9]/', '', $msg->contact);
+                                        if (str_starts_with($cleanPhone, '0')) {
+                                            $waPhone = '62' . substr($cleanPhone, 1);
+                                        } else {
+                                            $waPhone = $cleanPhone;
+                                        }
+                                    @endphp
+                                    <a href="https://wa.me/{{ $waPhone }}?text={{ urlencode('Halo ' . ($msg->sender_name ?: 'Penemu') . ', terima kasih telah menemukan gantungan kunci FlexiTag saya.') }}" target="_blank" rel="noopener noreferrer" class="btn-contact-wa">
+                                        <span>💬 Hubungi Penemu ({{ $msg->contact }})</span>
+                                    </a>
+                                @else
+                                    <span style="font-size: 0.72rem; color: #78716C; font-style: italic;">(Penemu tidak mencantumkan kontak)</span>
+                                @endif
+
+                                <div class="msg-actions-right">
+                                    @if(is_null($msg->read_at))
+                                        <button type="button" class="btn-action-read" id="btnRead-{{ $msg->id }}" onclick="markMessageRead({{ $msg->id }})">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                                <polyline points="20 6 9 17 4 12"></polyline>
+                                            </svg>
+                                            <span>Tandai Dibaca</span>
+                                        </button>
+                                    @else
+                                        <span class="msg-read-timestamp">
+                                            Dibaca {{ $msg->read_at->format('d M H:i') }}
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <div class="inbox-empty-wrap">
+                    <div class="inbox-empty-icon">📭</div>
+                    <h4 class="inbox-empty-title">Belum Ada Laporan Penemuan</h4>
+                    <p class="inbox-empty-desc">
+                        Saat seseorang menemukan gantungan kunci Anda dan mengirimkan pesan melalui profil Mode Hilang, laporan penemuan akan muncul di kotak ini.
+                    </p>
+                </div>
+            @endif
+        </div>
+    </div>
+</div>
+
+{{-- 6. QR Code Quick Share Modal --}}
+<div class="user-modal-overlay" id="qrCodeModal" onclick="if(event.target === this) closeQrModal()">
+    <div class="user-modal-dialog" style="max-width: 380px; text-align: center;">
+        <div class="modal-header-row" style="margin-bottom: 0.5rem;">
+            <h3 class="modal-title">📱 QR Code Profil FlexiTag</h3>
+            <button type="button" class="modal-close-icon" onclick="closeQrModal()">✕</button>
+        </div>
+
+        <p style="font-size: 0.78rem; color: #78716C; margin-bottom: 1.25rem;">
+            Pindai QR ini untuk membuka profil digital publik Anda secara instan tanpa sensor NFC.
+        </p>
+
+        <div style="background: #FFFFFF; border: 2px dashed #D4AF37; border-radius: 18px; padding: 1.25rem; display: inline-block; margin-bottom: 1rem; box-shadow: 0 8px 24px rgba(74, 10, 14, 0.08);">
+            <img id="qrCodeImage" src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&amp;margin=10&amp;data={{ urlencode($publicUrl) }}" alt="QR Code Profil" style="width: 200px; height: 200px; display: block; border-radius: 8px;">
+        </div>
+
+        <div style="font-size: 0.78rem; font-weight: 700; color: #4A0A0E; margin-bottom: 1.2rem;" id="qrTagCodeText">
+            ID: {{ $primaryTag?->tag_code ?? 'FT-DEFAULT' }}
+        </div>
+
+        <button type="button" class="btn-gold-action" onclick="copyPublicUrl('{{ $publicUrl }}')" style="width: 100%; margin-bottom: 0.5rem;">
+            📋 Salin Tautan Profil
+        </button>
+
+        <button type="button" onclick="closeQrModal()" style="background: none; border: none; font-size: 0.78rem; color: #78716C; cursor: pointer; padding: 0.5rem;">
+            Tutup
+        </button>
+    </div>
+</div>
+
 {{-- Toast Notification --}}
 <div class="dashboard-toast" id="dashToast">
     <span class="dashboard-toast-check">✓</span>
@@ -535,6 +766,14 @@
     let currentActiveMode = '{{ $activeMode }}';
 
     function handleEditProfileClick() {
+        if (currentActiveMode === 'kampus') {
+            window.location.href = "{{ route('user.profile.kampus') }}";
+            return;
+        }
+        if (currentActiveMode === 'kerja') {
+            window.location.href = "{{ route('user.profile.kerja') }}";
+            return;
+        }
         if (currentActiveMode === 'umkm') {
             window.location.href = "{{ route('user.profile.umkm') }}";
             return;
@@ -613,6 +852,198 @@
     function closeMerchModal() {
         document.getElementById('merchModal').classList.remove('is-active');
     }
+
+    // 3.5. Lost Item Reports Floating Box Modal (Kotak Mengambang)
+    function openLostReportsModal() {
+        const modal = document.getElementById('modalLostReports');
+        if (modal) {
+            modal.classList.add('is-active');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    function closeLostReportsModal() {
+        const modal = document.getElementById('modalLostReports');
+        if (modal) {
+            modal.classList.remove('is-active');
+            document.body.style.overflow = '';
+        }
+    }
+
+    function handleLostReportsBackdropClick(event) {
+        if (event.target.id === 'modalLostReports') {
+            closeLostReportsModal();
+        }
+    }
+
+    function markMessageRead(messageId) {
+        const btn = document.getElementById('btnRead-' + messageId);
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<span>Menyimpan...</span>';
+        }
+
+        fetch(`/mode-hilang/pesan/${messageId}/read`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                const card = document.getElementById('msgCard-' + messageId);
+                if (card) {
+                    card.classList.remove('is-unread');
+                }
+                const statusBox = document.getElementById('msgStatus-' + messageId);
+                if (statusBox) {
+                    statusBox.innerHTML = '<span class="msg-status-pill-read">✓ Dibaca</span>';
+                }
+                if (btn) {
+                    btn.outerHTML = '<span class="msg-read-timestamp">✓ Baru saja dibaca</span>';
+                }
+                updateUnreadBadges(data.unread_count);
+                showToast('Laporan ditandai telah dibaca.');
+            }
+        })
+        .catch(err => {
+            console.error('Gagal menandai pesan:', err);
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<span>Tandai Dibaca</span>';
+            }
+            showToast('Gagal menandai pesan.');
+        });
+    }
+
+    function markAllLostMessagesRead() {
+        const btn = document.getElementById('btnMarkAllRead');
+        if (btn) {
+            btn.disabled = true;
+            btn.textContent = 'Memproses...';
+        }
+
+        fetch("{{ route('user.lost-mode.messages.readAll') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                document.querySelectorAll('.inbox-msg-item.is-unread').forEach(item => {
+                    item.classList.remove('is-unread');
+                });
+                document.querySelectorAll('.msg-status-pill-unread').forEach(pill => {
+                    pill.className = 'msg-status-pill-read';
+                    pill.textContent = '✓ Dibaca';
+                });
+                document.querySelectorAll('.btn-action-read').forEach(b => {
+                    b.outerHTML = '<span class="msg-read-timestamp">✓ Baru saja dibaca</span>';
+                });
+                updateUnreadBadges(0);
+                if (btn) btn.style.display = 'none';
+                showToast('Semua laporan telah ditandai dibaca.');
+            }
+        })
+        .catch(err => {
+            console.error('Gagal menandai semua pesan:', err);
+            if (btn) {
+                btn.disabled = false;
+                btn.textContent = 'Tandai Semua';
+            }
+            showToast('Gagal menandai semua pesan.');
+        });
+    }
+
+    function updateUnreadBadges(count) {
+        const topBadge = document.getElementById('topbarInboxBadge');
+        const floatBadge = document.getElementById('floatingWidgetBadge');
+        const modalBadge = document.getElementById('floatingModalUnreadBadge');
+        const banner = document.getElementById('bannerLostAlert');
+
+        if (count > 0) {
+            if (topBadge) {
+                topBadge.textContent = count;
+                topBadge.style.display = 'flex';
+            }
+            if (floatBadge) {
+                floatBadge.textContent = count;
+                floatBadge.style.display = 'flex';
+            }
+            const modalCount = document.getElementById('floatingModalUnreadCount');
+            if (modalCount) modalCount.textContent = count + ' Baru';
+        } else {
+            if (topBadge) topBadge.style.display = 'none';
+            if (floatBadge) floatBadge.style.display = 'none';
+            if (modalBadge) modalBadge.style.display = 'none';
+            if (banner) banner.style.display = 'none';
+        }
+    }
+
+    // 3.6. QR Code Modal & Quick Link Copy
+    function copyPublicUrl(url) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(url).then(() => {
+                showToast('Tautan profil publik berhasil disalin!');
+            }).catch(() => {
+                fallbackCopyText(url);
+            });
+        } else {
+            fallbackCopyText(url);
+        }
+    }
+
+    function fallbackCopyText(text) {
+        const temp = document.createElement('input');
+        temp.value = text;
+        document.body.appendChild(temp);
+        temp.select();
+        document.execCommand('copy');
+        document.body.removeChild(temp);
+        showToast('Tautan profil publik berhasil disalin!');
+    }
+
+    function openQrModal(url, tagCode) {
+        const modal = document.getElementById('qrCodeModal');
+        const img = document.getElementById('qrCodeImage');
+        const text = document.getElementById('qrTagCodeText');
+        if (img && url) {
+            img.src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=10&data=${encodeURIComponent(url)}`;
+        }
+        if (text && tagCode) {
+            text.textContent = 'ID Tag: ' + tagCode;
+        }
+        if (modal) {
+            modal.classList.add('is-active');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    function closeQrModal() {
+        const modal = document.getElementById('qrCodeModal');
+        if (modal) {
+            modal.classList.remove('is-active');
+            document.body.style.overflow = '';
+        }
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeLostReportsModal();
+            closeQrModal();
+            closeProfileModal();
+            closePrivacyModal();
+            closeAnalyticsModal();
+            closeMerchModal();
+        }
+    });
 
     // 4. Toast
     let toastTimer = null;

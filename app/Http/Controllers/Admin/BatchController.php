@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
+use App\Services\OrderActivationService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -146,6 +147,13 @@ class BatchController extends Controller
 
         // Record administrative audit trail (FR-ADM-10)
         AuditLog::record('generate_batch', "Batch {$batchCode} ({$count} tag) produk '{$validated['jenis_produk']}' di-generate oleh admin");
+
+        // Evaluasi kembali stok tag untuk membersihkan notifikasi stok menipis
+        try {
+            app(OrderActivationService::class)->checkAndNotifyLowStock();
+        } catch (\Throwable $e) {
+            // silent
+        }
 
         // Stream and download the CSV
         $filename = 'FlexiTag_'.str_replace('#', '', $batchCode).'_'.date('Ymd_His').'.csv';
